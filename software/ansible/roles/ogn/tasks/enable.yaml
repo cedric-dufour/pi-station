@@ -1,0 +1,118 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Open Glider Network (OGN) setup: enable
+
+- name: "Check OGN installation"
+  tags:
+    - ogn
+    - install
+  stat:
+    path: "/opt/rtlsdr-ogn-{{ OGN_VERSION }}"
+  register:
+    ogn_install_dir
+
+- name: "Download and install OGN software"
+  tags:
+    - ogn
+    - install
+  include_tasks:
+    file: "download.yaml"
+  when: not ogn_install_dir.stat.exists
+
+- name: "Install OGN software dependencies"
+  tags:
+    - ogn
+    - install
+  apt:
+    state: present
+    name:
+      - libconfig9
+      - libfftw3-3
+      - libjpeg8
+      - reptyr
+
+- name: "Create OGN group"
+  tags:
+    - ogn
+    - install
+  group:
+    name: "_ogn"
+    system: true
+
+- name: "Create OGN user"
+  tags:
+    - ogn
+    - install
+  user:
+    name: "_ogn"
+    group: "_ogn"
+    system: true
+    shell: "/bin/false"
+    home: "/opt/rtlsdr-ogn"
+
+- name: "Install OGN Receiver FIFO service"
+  tags:
+    - ogn
+    - install
+  copy:
+    src: "ogn-rf-fifo.service"
+    dest: "/etc/systemd/system/ogn-rf-fifo.service"
+    owner: "root"
+    group: "root"
+    mode: 0644
+
+- name: "Install OGN Receiver service"
+  tags:
+    - ogn
+    - install
+  copy:
+    src: "ogn-rf.service"
+    dest: "/etc/systemd/system/ogn-rf.service"
+    owner: "root"
+    group: "root"
+    mode: 0644
+
+- name: "Install OGN Decoder service"
+  tags:
+    - ogn
+    - install
+  copy:
+    src: "ogn-decode.service"
+    dest: "/etc/systemd/system/ogn-decode.service"
+    owner: "root"
+    group: "root"
+    mode: 0644
+
+- name: "Configure OGN software"
+  tags:
+    - ogn
+    - configure
+  template:
+    src: "rtlsdr-ogn.conf.j2"
+    dest: "/etc/rtlsdr-ogn.conf"
+    owner: "root"
+    group: "_ogn"
+    mode: 0640
+  notify:
+    - "Restart OGN Receiver service (reload configuration)"
+    - "Restart OGN Decoder service (reload configuration)"
+
+- name: "Enable and start OGN Receiver service"
+  tags:
+    - ogn
+    - service
+  service:
+    name: "ogn-rf"
+    enabled: true
+    state: started
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: "Enable and start OGN Decoder service"
+  tags:
+    - ogn
+    - service
+  service:
+    name: "ogn-decode"
+    enabled: true
+    state: started
+  ignore_errors: "{{ ansible_check_mode }}"

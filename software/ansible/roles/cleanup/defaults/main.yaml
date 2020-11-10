@@ -1,0 +1,15 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Defaults
+CLEANUP_ENABLE: true
+
+
+## Cleanup configuration
+
+# Cleanup build utilities
+# (if you need to compile some custom software on the Pi, set this to false)
+CLEANUP_BUILDUTILS: true
+
+# Uninstall orphaned libraries
+# (this takes several minutes)
+CLEANUP_ORPHANLIBS: true

@@ -1,0 +1,9 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Audio setup
+
+- name: "Audio setup"
+  tags:
+    - audio
+  include_tasks:
+    file: "{{ AUDIO_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"

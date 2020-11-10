@@ -1,0 +1,20 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Raspberry Pi OS Testing Repository setup: disable
+
+- name: "Unconfigure Raspberry Pi OS Testing Repository preferences"
+  tags:
+    - raspi_testing
+    - configure
+  file:
+    state: absent
+    dest: "/etc/apt/preferences.d/raspi-testing.pref"
+
+- name: "Uninstall Raspberry Pi OS Testing Repository"
+  tags:
+    - raspi_testing
+    - install
+  apt_repository:
+    state: absent
+    filename: "raspi-testing"
+    repo: "deb http://raspbian.raspberrypi.org/raspbian/ testing main contrib non-free rpi"

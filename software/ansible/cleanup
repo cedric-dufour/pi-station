@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# Empty directories
+find "$(dirname "${0}")" \( -name 'defaults' -o -name 'tasks' -o -name 'files' -o -name 'templates' \) -print0 | xargs -0 rmdir 2>/dev/null
+
+# Ansible artefacts
+find "$(dirname "${0}")" -name '*.retry' -delete
+
+# Python artefacts
+find "$(dirname "${0}")" -name '__pycache__' -print0 | xargs -0 rm -rf 2>/dev/null

@@ -1,0 +1,75 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Open Glider Network (OGN) setup: disable
+
+- name: "Stop OGN Decoder service"
+  tags:
+    - ogn
+    - service
+  service:
+    name: "ogn-decode"
+    state: stopped
+  ignore_errors: true
+
+- name: "Stop OGN Receiver service"
+  tags:
+    - ogn
+    - service
+  service:
+    name: "ogn-rf"
+    state: stopped
+  ignore_errors: true
+
+- name: "Uninstall OGN Receiver FIFO service"
+  tags:
+    - ogn
+    - install
+  file:
+    state: absent
+    name: "/etc/systemd/system/ogn-rf-fifo.service"
+
+- name: "Uninstall OGN Receiver service"
+  tags:
+    - ogn
+    - install
+  file:
+    state: absent
+    name: "/etc/systemd/system/ogn-rf.service"
+
+- name: "Install OGN Decoder service"
+  tags:
+    - ogn
+    - install
+  file:
+    state: absent
+    name: "/etc/systemd/system/ogn-decode.service"
+
+- name: "Unconfigure OGN software"
+  tags:
+    - ogn
+    - configure
+  file:
+    state: absent
+    name: "/etc/rtlsdr-ogn.conf"
+
+- name: "Lookup OGN software"
+  tags:
+    - ogn
+    - install
+  find:
+    paths: "/opt"
+    patterns: "rtlsdr-ogn*"
+    file_type: any
+  register: ogn_resources
+
+- name: "Uninstall OGN software"
+  tags:
+    - ogn
+    - install
+  file:
+    state: absent
+    name: "{{ item.path }}"
+  loop: "{{ ogn_resources.files }}"
+  loop_control:
+    label: "{{ item.path }}"
+  when: ogn_resources.matched

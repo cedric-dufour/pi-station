@@ -1,0 +1,9 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Sleepy Pi setup
+
+- name: "Sleepy Pi setup"
+  tags:
+    - sleepypi
+  include_tasks:
+    file: "{{ SLEEPYPI_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"

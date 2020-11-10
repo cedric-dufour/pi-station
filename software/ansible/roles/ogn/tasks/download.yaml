@@ -1,0 +1,61 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Open Glider Network (OGN) setup: install
+
+- name: "Download OGN software installer"
+  tags:
+    - ogn
+    - install
+  get_url:
+    url: "{{ OGN_DOWNLOAD_URL }}"
+    dest: "/tmp/{{ OGN_TARBALL }}"
+    owner: "root"
+    group: "root"
+    mode: 0644
+
+- name: "Install OGN software"
+  tags:
+    - ogn
+    - install
+  unarchive:
+    remote_src: true
+    src: "/tmp/{{ OGN_TARBALL }}"
+    dest: "/opt/"
+    owner: "root"
+    group: "root"
+    mode: 0644
+    extra_opts: "{{ OGN_FOLDER }}"
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: "Set OGN software permissions"
+  tags:
+    - ogn
+    - install
+  file:
+    name: "/opt/{{ OGN_FOLDER }}/{{ item }}"
+    mode: 0755
+  loop:
+    - "."
+    - "gsm_scan"
+    - "ogn-rf"
+    - "ogn-decode"
+    - "rtlsdr-ogn"
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: "Install OGN software symlink"
+  tags:
+    - ogn
+    - install
+  file:
+    state: link
+    src: "/opt/{{ OGN_FOLDER }}"
+    dest: "/opt/rtlsdr-ogn"
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: "Delete OGN software installer"
+  tags:
+    - ogn
+    - install
+  file:
+    state: absent
+    dest: "/tmp/{{ OGN_TARBALL }}"

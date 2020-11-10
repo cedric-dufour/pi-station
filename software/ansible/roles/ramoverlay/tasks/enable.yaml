@@ -1,0 +1,57 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## RAM Overlay setup: enable
+
+- name: "Install RAM Overlay script"
+  tags:
+    - ramoverlay
+    - install
+  get_url:
+    url: "https://raw.githubusercontent.com/cedric-dufour/scriptisms/master/system/ramoverlay"
+    dest: "/usr/local/bin/ramoverlay"
+    owner: "root"
+    group: "root"
+    mode: 0755
+
+- name: "Install RAM Overlay symlink"
+  tags:
+    - ramoverlay
+    - install
+  file:
+    state: link
+    src: "/usr/local/bin/ramoverlay"
+    dest: "/usr/bin/ramoverlay"
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: "Install RAM Overlay service"
+  tags:
+    - ramoverlay
+    - install
+  get_url:
+    url: "https://raw.githubusercontent.com/cedric-dufour/scriptisms/master/system/ramoverlay.service"
+    dest: "/etc/systemd/system/ramoverlay.service"
+    owner: "root"
+    group: "root"
+    mode: 0644
+
+- name: "Configure RAM Overlay service"
+  tags:
+    - ramoverlay
+    - configure
+  template:
+    src: "ramoverlay.j2"
+    dest: "/etc/default/ramoverlay"
+    owner: "root"
+    group: "root"
+    mode: 0644
+  notify: "Restart RAM Overlay service (reload configuration)"
+
+- name: "Enable and start RAM Overlay service"
+  tags:
+    - ramoverlay
+    - service
+  service:
+    name: "ramoverlay"
+    enabled: true
+    state: started
+  ignore_errors: "{{ ansible_check_mode }}"

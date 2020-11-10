@@ -1,0 +1,12 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Raspberry Pi variables
+
+# Login
+LOGIN_USER: "pi"
+
+
+## Ansible
+
+# Execution
+ansible_user: "pi"

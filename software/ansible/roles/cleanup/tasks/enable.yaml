@@ -1,0 +1,215 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Cleanup stock installation
+
+- name: "Make sure required packages remain installed"
+  tags:
+    - cleanup
+  apt:
+    state: present
+    name:
+      - python3
+      - python3-apt
+
+- name: "Configure APT"
+  # Do not install recommended or translation packages
+  tags:
+    - cleanup
+  copy:
+    src: "apt.conf"
+    dest: "/etc/apt/apt.conf.d/90custom"
+    owner: "root"
+    group: "root"
+    mode: 0644
+
+- name: "Update APT cache"
+  tags:
+    - cleanup
+  apt:
+    update_cache: true
+
+- name: "Stop physical syslog"
+  tags:
+    - cleanup
+  service:
+    state: stopped
+    name: "{{ item }}"
+  ignore_errors: true
+  loop:
+    - "syslog.socket"
+    - "rsyslog"
+
+- name: "Uninstall physical syslog"
+  # Logging wears the SD card out
+  tags:
+    - cleanup
+  apt:
+    state: absent
+    purge: true
+    autoremove: true
+    name:
+      - rsyslog
+  notify: "Uninstall orphaned library packages"
+
+- name: "Lookup physical logs"
+  tags:
+    - cleanup
+  find:
+    paths: "/var/log"
+    recurse: true
+    patterns:
+      - 'debug'
+      - 'messages'
+      - '*log'
+      - '*.gz'
+      - '*.xz'
+      - '*[-_.][0-9]*'
+      - '*.notice'
+      - '*.info'
+      - '*.warn'
+      - '*.err'
+      - '*.crit'
+  register: cleanup_logs
+
+- name: "Cleanup physical logs"
+  tags:
+    - cleanup
+  file:
+    state: absent
+    name: "{{ item.path }}"
+  loop: "{{ cleanup_logs.files }}"
+  loop_control:
+    label: "{{ item.path }}"
+  when: cleanup_logs.matched
+
+- name: "Install in-memory syslog"
+  tags:
+    - cleanup
+  apt:
+    state: present
+    name:
+      - busybox-syslogd
+
+- name: "Uninstall swap file"
+  # Swapping wears the SD card out
+  tags:
+    - cleanup
+  apt:
+    state: absent
+    purge: true
+    autoremove: true
+    name:
+      - dphys-swapfile
+  notify:
+    - "Disable swap"
+    - "Uninstall orphaned library packages"
+
+- name: "Remove unnecessary packages"
+  # Each package that is uninstalled is one package less that uses disk capacity, requires updating
+  # and wears the SD card out on updates
+  tags:
+    - cleanup
+  apt:
+    state: absent
+    purge: true
+    autoremove: true
+    name:
+      - apt-listchanges
+      - apt-utils
+      - avahi-daemon
+      - cifs-utils
+      - dmidecode
+      - dosfstools
+      - fakeroot
+      - fuse
+      - gdb
+      - gdbm-l10n
+      - geoip-database
+      - info
+      - install-info
+      - iso-codes
+      - ncdu
+      - nfs-common
+      - ntfs-3g
+      - shared-mime-info
+      - ssh-import-id
+      - strace
+      - tasksel
+      - tasksel-data
+      - triggerhappy
+  notify: "Uninstall orphaned library packages"
+
+- name: "Remove build packages"
+  tags:
+    - cleanup
+  apt:
+    state: absent
+    purge: true
+    autoremove: true
+    name:
+      - build-essential
+      - cpp
+      - cpp-8
+      - gcc
+      - gcc-8
+      - gcc-4.9-base
+      - gcc-5-base
+      - gcc-6-base
+      - gcc-7-base
+      - g++
+      - g++-8
+  notify: "Uninstall orphaned library packages"
+  when: CLEANUP_BUILDUTILS|bool
+
+- name: "Lookup uninstalled packages dependencies"
+  tags:
+    - cleanup
+  shell: |
+    set -e -o pipefail
+    dpkg --get-selections | awk '{if($2=="deinstall") print $1}'
+  register: cleanup_deinstalled
+  changed_when: false
+  check_mode: false
+
+- name: "Remove uninstalled packages dependencies"
+  tags:
+    - cleanup
+  apt:
+    state: absent
+    purge: true
+    autoremove: true
+    name: "{{ cleanup_deinstalled.stdout_lines }}"
+  notify: "Uninstall orphaned library packages"
+  when: cleanup_deinstalled.stdout
+
+- name: "Update all installed packages"
+  tags:
+    - cleanup
+  apt:
+    upgrade: dist
+
+- name: "Lookup library packages"
+  tags:
+    - cleanup
+  shell: |
+    set -e -o pipefail
+    dpkg --get-selections | awk '{if($1~"^lib") print $1}' | cut -d: -f1 | sort
+  register: cleanup_library_packages
+  changed_when: false
+  check_mode: false
+
+- name: "Lookup APT cache"
+  tags:
+    - cleanup
+  find:
+    paths: "/var/cache/apt/archives"
+    patterns: "*.deb"
+  register: cleanup_apt_cached
+
+- name: "Cleanup APT cache"
+  tags:
+    - cleanup
+  command:
+    cmd: "apt-get clean"
+    warn: false
+  when: cleanup_apt_cached.matched

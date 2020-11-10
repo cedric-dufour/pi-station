@@ -1,0 +1,105 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Sleepy Pi setup: enable
+
+- name: "Install Sleepy Pi packages dependencies"
+  tags:
+    - sleepypi
+    - install
+  apt:
+    state: present
+    name:
+      - python3-ephem
+      - python3-rpi.gpio
+      - python3-smbus
+
+- name: "Install Spleepy Pi (client) script"
+  tags:
+    - sleepypi
+    - install
+  copy:
+    src: "sleepy-pi.py"
+    dest: "/usr/local/bin/sleepy-pi"
+    owner: "root"
+    group: "root"
+    mode: 0755
+
+- name: "Install Spleepy Pi (agent) script"
+  tags:
+    - sleepypi
+    - install
+  copy:
+    src: "sleepy-pi-agent.py"
+    dest: "/usr/local/bin/sleepy-pi-agent"
+    owner: "root"
+    group: "root"
+    mode: 0755
+  notify: "Restart Sleepy Pi (agent) service (reload configuration)"
+
+- name: "Install Spleepy Pi (sunwatch) script"
+  tags:
+    - sleepypi
+    - install
+  copy:
+    src: "sleepy-pi-sunwatch.py"
+    dest: "/usr/local/bin/sleepy-pi-sunwatch"
+    owner: "root"
+    group: "root"
+    mode: 0755
+  notify: "Restart Sleepy Pi (sunwatch) service (reload configuration)"
+
+- name: "Install Spleepy Pi (agent) service"
+  tags:
+    - sleepypi
+    - install
+  copy:
+    src: "sleepy-pi-agent.service"
+    dest: "/etc/systemd/system/sleepy-pi-agent.service"
+    owner: "root"
+    group: "root"
+    mode: 0644
+  notify: "Restart Sleepy Pi (agent) service (reload configuration)"
+
+- name: "Install Spleepy Pi (sunwatch) service"
+  tags:
+    - sleepypi
+    - install
+  copy:
+    src: "sleepy-pi-sunwatch.service"
+    dest: "/etc/systemd/system/sleepy-pi-sunwatch.service"
+    owner: "root"
+    group: "root"
+    mode: 0644
+  notify: "Restart Sleepy Pi (sunwatch) service (reload configuration)"
+
+- name: "Configure Spleepy Pi (sunwatch) service"
+  tags:
+    - sleepypi
+    - configure
+  template:
+    src: "sleepy-pi-sunwatch.j2"
+    dest: "/etc/default/sleepy-pi-sunwatch"
+    owner: "root"
+    group: "root"
+    mode: 0644
+  notify: "Restart Sleepy Pi (sunwatch) service (reload configuration)"
+
+- name: "Enable and start Spleepy Pi (agent) service"
+  tags:
+    - sleepypi
+    - service
+  service:
+    name: "sleepy-pi-agent"
+    enabled: true
+    state: started
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: "Enable and start Spleepy Pi (sunwatch) service"
+  tags:
+    - sleepypi
+    - service
+  service:
+    name: "sleepy-pi-sunwatch"
+    enabled: "{{ SLEEPYPI_SUNWATCH_ENABLE|bool | ternary('yes', 'no') }}"
+    state: "{{ SLEEPYPI_SUNWATCH_ENABLE|bool | ternary('started', 'stopped') }}"
+  ignore_errors: "{{ ansible_check_mode }}"

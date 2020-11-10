@@ -1,0 +1,35 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Defaults
+WIREGUARD_ENABLE: false
+
+
+## WireGuard interface (wg0) configuration
+#  REF: https://git.zx2c4.com/wireguard-tools/about/src/man/wg.8
+
+# Listening port (chosen randomly if 0)
+WIREGUARD_PORT: 51820
+
+# IPv4/IPv6 address with CIDR mask
+WIREGUARD_ADDRESS: "192.168.177.1/24"
+
+# Base64 private + public keys
+# (generate private/public key with 'wg genkey | tee /dev/stderr | wg pubkey >&2')
+WIREGUARD_PRIVATE_KEY: ""
+WIREGUARD_PUBLIC_KEY: ""
+
+
+## Peer
+
+# Base64 public key
+WIREGUARD_PEER_PUBLIC_KEY: ""
+
+# List of IPv4/IPv6 addresses with CIDR masks from which incoming traffic for this peer is allowed
+# and to which outgoing traffic for this peer is directed
+WIREGUARD_PEER_ALLOWED_IPS: []
+
+# Endpoint IP or hostname, followed by a colon, and then a port number
+WIREGUARD_PEER_ENDPOINT: ""
+
+# A seconds interval of how often to send an authenticated empty packet to the peer for the purpose of keeping a stateful firewall or NAT mapping valid persistently (disabled if 0)
+WIREGUARD_PEER_KEEPALIVE: 0

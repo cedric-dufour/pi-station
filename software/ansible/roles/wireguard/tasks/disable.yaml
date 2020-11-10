@@ -1,0 +1,50 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## WireGuard (VPN) setup: disable
+
+- name: "Stop WireGuard (VPN) service"
+  tags:
+    - wireguard
+    - service
+  service:
+    name: "wireguard@wg0"
+    state: stopped
+  ignore_errors: true
+
+- name: "Uninstall WireGuard (VPN) service"
+  tags:
+    - wireguard
+    - install
+  file:
+    state: absent
+    name: "/etc/systemd/system/wireguard@.service"
+
+- name: "Unconfigure WireGuard (VPN) service"
+  tags:
+    - wireguard
+    - configure
+  file:
+    state: absent
+    name: "/etc/default/wireguard@wg0"
+
+- name: "Remove WireGuard (VPN) configuration directory"
+  tags:
+    - wireguard
+    - install
+  file:
+    state: absent
+    name: "/etc/wireguard"
+
+- name: "Uninstall WireGuard (VPN) packages"
+  tags:
+    - wireguard
+    - install
+  apt:
+    state: absent
+    purge: true
+    autoremove: true
+    name:
+      - wireguard
+      - wireguard-dkms
+      - wireguard-modules
+      - wireguard-tools

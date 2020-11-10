@@ -1,0 +1,9 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Video-4-Linux (V4L) setup
+
+- name: "Video-4-Linux (V4L) setup"
+  tags:
+    - v4l
+  include_tasks:
+    file: "{{ V4L_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"

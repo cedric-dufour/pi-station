@@ -1,0 +1,25 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Bluetooth setup: disable
+
+- name: "Disable Bluetooth hardware"
+  tags:
+    - bluetooth
+    - configure
+  lineinfile:
+    path: "/boot/config.txt"
+    regexp: "^#?dtoverlay=disable-bt"
+    line: "dtoverlay=disable-bt"
+
+- name: "Uninstall Bluetooth packages"
+  tags:
+    - bluetooth
+    - install
+  apt:
+    state: absent
+    purge: true
+    autoremove: true
+    name:
+      - bluez
+      - bluez-firmware
+      - pi-bluetooth

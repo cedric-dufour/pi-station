@@ -1,0 +1,37 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Bash setup
+
+- name: "Install BASH packages"
+  tags:
+    - bash
+    - install
+  apt:
+    state: present
+    name:
+      - bash
+
+- name: "Create root ~/.bashrc"
+  tags:
+    - bash
+    - configure
+  copy:
+    src: "root.bashrc"
+    dest: "/root/.bashrc"
+    owner: "root"
+    group: "root"
+    mode: 0640
+    backup: true
+
+- name: "Create user ~/.bashrc"
+  tags:
+    - bash
+    - configure
+  copy:
+    src: "user.bashrc"
+    dest: "{{ BASH_HOME }}/.bashrc"
+    owner: "{{ BASH_USER }}"
+    group: "{{ BASH_GROUP }}"
+    mode: 0640
+    backup: true
+  when: (BASH_USER != "root")

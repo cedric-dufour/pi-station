@@ -1,0 +1,9 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Wireless LAN setup
+
+- name: "Wireless LAN setup"
+  tags:
+    - wlan
+  include_tasks:
+    file: "{{ WLAN_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"

@@ -1,0 +1,44 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Defaults
+OGN_ENABLE: false
+
+
+## OGN software
+#  REFs:
+#  - https://www.glidernet.org/
+#  - http://download.glidernet.org/
+OGN_VERSION: "0.2.8"
+OGN_ARCHITECTURE: "rpi-gpu"
+OGN_FOLDER: "rtlsdr-ogn-{{ OGN_VERSION }}"
+OGN_TARBALL: "rtlsdr-ogn-bin-{{ OGN_ARCHITECTURE|upper }}-{{ OGN_VERSION }}.tgz"
+OGN_DOWNLOAD_URL: "http://download.glidernet.org/{{ OGN_ARCHITECTURE|lower }}/{{ OGN_TARBALL }}"
+
+
+## OGN configuration
+#  REF: http://download.glidernet.org/INSTALL
+
+# [ppm] "big" R820T sticks have 40-80ppm correction factors, measure it with gsm_scan
+OGN_CONF_RF_FREQCORR: "+50"
+
+# [MHz] find the best GSM frequency with gsm_scan
+OGN_CONF_RF_GSM_CENTERFREQ: "938.4"
+
+# [dB]  RF input gain (beware that GSM signals are very strong !)
+OGN_CONF_RF_GSM_GAIN: "25.0"
+
+# [deg] antenna coordinates
+OGN_CONF_POSITION_LATITUDE: "+48.0000"
+OGN_CONF_POSITION_LONGITUDE: "+9.0000"
+
+# [m]   altitude above sea leavel
+OGN_CONF_POSITION_ALTITUDE: "100"
+
+# [m]   geoid separation: FLARM transmits GPS altitude, APRS uses means Sea level altitude; see https://www.unavco.org/software/geodetic-utilities/geoid-height-calculator/geoid-height-calculator.html
+OGN_CONF_POSITION_GEOIDSEPAR: "48"
+
+# APRS callsign (max. 9 characters); please refer to http://wiki.glidernet.org/receiver-naming-convention
+OGN_CONF_APRS_CALL: "SampleAPRSnameToChange"
+
+# [int] Port of the internal HTTP server (0 = disable)
+OGN_CONF_HTTP_PORT: "8080"

@@ -1,0 +1,106 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Inventory
+
+all:
+
+  # Hosts
+  hosts:
+    raspberrypi.example.org:
+      # Host-specific configuration (see Global Configuration variables below)
+
+  # Groups
+  children:
+    debian:
+      # -> see ./group_vars/debian.yaml
+      children:
+        raspios:
+          # -> see ./group_vars/raspios.yaml
+          children:
+            buster:
+              # -> see ./group_vars/buster.yaml
+              hosts:
+                raspberrypi.example.org:
+
+  # Global Configuration
+  vars:
+    # Roles
+    # (see the roles/.../defaults/mail.yaml of each for further details)
+
+    # ... cleanup
+    #CLEANUP_ENABLE: true
+    #CLEANUP_BUILDUTILS: true
+
+    # ... bash
+    #BASH_ENABLE: true
+
+    # ... ramoverlay
+    #RAMOVERLAY_ENABLE: true
+    #RAMOVERLAY_DIR: "/tmp:/var/tmp:/var/cache:/var/log"
+    #RAMOVERLAY_SIZE: 256
+
+    # ... iptables
+    #IPTABLES_ENABLE: true
+    #IPTABLES_ICMPV4_TYPES: []
+    #IPTABLES_ICMPV6_TYPES: ["router-advertisement", "neighbor-solicitation", "neighbor-advertisement"]
+    #IPTABLES_TCP_PORTS: [22]
+    #IPTABLES_UDP_PORTS: []
+
+    # ... ethernet
+    #ETHERNET_ENABLE: true
+
+    # ... wlan
+    #WLAN_ENABLE: true
+
+    # ... wireguard
+    #WIREGUARD_ENABLE: false
+    #WIREGUARD_PORT: 51820
+    #WIREGUARD_ADDRESS: "192.168.177.1/24"
+    #WIREGUARD_PRIVATE_KEY: ""
+    #WIREGUARD_PUBLIC_KEY: ""
+    #WIREGUARD_PEER_PUBLIC_KEY: ""
+    #WIREGUARD_PEER_ALLOWED_IPS: []
+    #WIREGUARD_PEER_ENDPOINT: ""
+    #WIREGUARD_PEER_KEEPALIVE: 0
+
+    # ... bluetooth
+    #BLUETOOTH_ENABLE: false
+
+    # ... audio
+    #AUDIO_ENABLE: false
+
+    # ... v4l
+    #V4L_ENABLE: false
+
+    # ... i2c
+    #I2C_ENABLE: true
+
+    # ... pcf8523
+    #PCF8523_ENABLE: true
+
+    # ... sleepypi
+    #SPLEEPYPI_ENABLE: true
+    #SLEEPYPI_SUNWATCH_ENABLE: false
+    #SLEEPYPI_SUNWATCH_LATITUDE: "46.95240"
+    #SLEEPYPI_SUNWATCH_LONGITUDE: "7.439583"
+    #SLEEPYPI_SUNWATCH_SHUTDOWN: "0"
+    #SLEEPYPI_SUNWATCH_WAKEUP: "0"
+
+    # ... rtlsdr
+    #RTLSDR_ENABLE: false
+
+    # ... ogn
+    #OGN_ENABLE: false
+    #OGN_VERSION: "0.2.6"
+    #OGN_FOLDER: "rtlsdr-ogn-{{ OGN_VERSION }}"
+    #OGN_TARBALL: "rtlsdr-ogn-bin-RPI-GPU-{{ OGN_VERSION }}.tgz"
+    #OGN_DOWNLOAD_URL: "http://download.glidernet.org/rpi-gpu/{{ OGN_TARBALL }}"
+    #OGN_CONF_RF_FREQCORR: "+50"
+    #OGN_CONF_RF_GSM_CENTERFREQ: "938.4"
+    #OGN_CONF_RF_GSM_GAIN: "25.0"
+    #OGN_CONF_POSITION_LATITUDE: "+48.0000"
+    #OGN_CONF_POSITION_LONGITUDE: "+9.0000"
+    #OGN_CONF_POSITION_ALTITUDE: "100"
+    #OGN_CONF_POSITION_GEOIDSEPAR: "48"
+    #OGN_CONF_APRS_CALL: "SampleAPRSnameToChange"
+    #OGN_CONF_HTTP_PORT: 8080

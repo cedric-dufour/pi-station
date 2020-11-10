@@ -1,0 +1,21 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Handlers
+
+- name: "Restart OGN Receiver service (reload configuration)"
+  tags:
+    - ogn
+    - service
+  service:
+    name: "ogn-rf"
+    state: restarted
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: "Restart OGN Decoder service (reload configuration)"
+  tags:
+    - ogn
+    - service
+  service:
+    name: "ogn-decode"
+    state: restarted
+  ignore_errors: "{{ ansible_check_mode }}"

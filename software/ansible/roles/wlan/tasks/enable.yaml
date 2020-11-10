@@ -1,0 +1,28 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Wireless LAN setup: enable
+
+- name: "Enable Wireless LAN hardware"
+  tags:
+    - wlan
+    - configure
+  lineinfile:
+    path: "/boot/config.txt"
+    regexp: "^#?dtoverlay=disable-wifi"
+    line: "#dtoverlay=disable-wifi"
+
+- name: "Install Wireless LAN packages"
+  tags:
+    - wlan
+    - install
+  apt:
+    state: present
+    name:
+      - crda
+      - firmware-atheros
+      - firmware-brcm80211
+      - firmware-libertas
+      - iw
+      - wireless-regdb
+      - wireless-tools
+      - wpasupplicant

@@ -1,0 +1,14 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Meta-data
+
+# Galaxy
+galaxy_info:
+  description: BASH setup
+  author: Cédric Dufour <http://cedric.dufour.name>
+  license: GNU AGPLv3
+  min_ansible_version: 2.9
+  platforms:
+    - name: Raspberry Pi OS
+      versions:
+        - all

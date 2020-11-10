@@ -1,0 +1,24 @@
+##############################################################
+
+sleepypi.name=Sleepy Pi
+
+sleepypi.upload.tool=avrdude
+sleepypi.upload.protocol=arduino
+sleepypi.upload.maximum_size=30720
+sleepypi.upload.maximum_data_size=2048
+sleepypi.upload.speed=57600
+
+sleepypi.bootloader.tool=avrdude
+sleepypi.bootloader.low_fuses=0xFF
+sleepypi.bootloader.high_fuses=0xDA
+sleepypi.bootloader.extended_fuses=0xFD
+sleepypi.bootloader.file=ATmegaBOOT_168_atmega328_pro_8MHz.hex
+sleepypi.bootloader.unlock_bits=0x3F
+sleepypi.bootloader.lock_bits=0x0F
+
+sleepypi.build.board=AVR_SPLEEPYPI
+sleepypi.build.mcu=atmega328p
+sleepypi.build.f_cpu=8000000L
+sleepypi.build.core=arduino
+sleepypi.build.variant=standard
+

@@ -1,0 +1,8 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+- hosts:
+    - all
+  roles:
+    - rtlsdr
+    - ogn
+    - done

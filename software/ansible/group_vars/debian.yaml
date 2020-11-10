@@ -1,0 +1,30 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Debian variables
+
+# Login
+LOGIN_USER: "{{ ansible_facts['distribution'] | lower }}"
+
+# Package installer (APT)
+APT_DEFAULT_URL: "http://ftp.ch.debian.org/debian"
+APT_CODENAME: "{{ ansible_facts['distribution'] | lower }}"
+
+
+## Roles
+
+# Bash
+BASH_USER: "{{ LOGIN_USER }}"
+BASH_GROUP: "{{ LOGIN_USER }}"
+BASH_HOME: "/home/{{ LOGIN_USER }}"
+
+
+## Ansible
+
+# Execution
+ansible_python_interpreter: "/usr/bin/env python3"
+ansible_user: "debian"
+ansible_become: true
+ansible_shell_executable: "/bin/bash"
+
+# Facts
+# REF: https://docs.ansible.com/ansible/latest/user_guide/playbooks_variables.html#variables-discovered-from-systems-facts

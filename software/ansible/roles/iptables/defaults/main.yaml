@@ -1,0 +1,18 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Defaults
+IPTABLES_ENABLE: true
+
+
+## IPTables configuration
+
+# Lists of allowed ICMP types
+# (e.g. "echo-request")
+IPTABLES_ICMPV4_TYPES: []
+IPTABLES_ICMPV6_TYPES: ["router-advertisement", "neighbor-solicitation", "neighbor-advertisement"]
+
+# Lists of allowed TCP ports
+IPTABLES_TCP_PORTS: [22]
+
+# Lists of allowed UDP ports
+IPTABLES_UDP_PORTS: []

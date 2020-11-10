@@ -1,0 +1,25 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Tasks
+
+- name: "Check library dependencies"
+  tags:
+    - cleanup
+  shell: |
+    set -e -o pipefail
+    apt-get remove --simulate {{ item }} 1>/dev/null | fgrep ' 1 to remove ' || true
+  register: cleanup_library_orphan
+  changed_when: false
+  check_mode: false
+  ignore_errors: true
+
+- name: "Uninstall orphan library"
+  tags:
+    - cleanup
+  apt:
+    state: absent
+    purge: true
+    autoremove: true
+    name: "{{ item }}"
+  ignore_errors: true
+  when: cleanup_library_orphan.stdout

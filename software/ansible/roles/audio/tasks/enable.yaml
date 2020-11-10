@@ -1,0 +1,21 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Audio setup: enable
+
+- name: "Enable audio hardware"
+  tags:
+    - audio
+    - configure
+  lineinfile:
+    path: "/boot/config.txt"
+    regexp: "^#?dtparam=audio"
+    line: "dtparam=audio=on"
+
+- name: "Install audio packages"
+  tags:
+    - audio
+    - install
+  apt:
+    state: present
+    name:
+      - alsa-utils

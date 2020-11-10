@@ -1,0 +1,12 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Handlers
+
+- name: "Restart IPtables services (reload configuration)"
+  tags:
+    - iptables
+    - service
+  service:
+    name: "netfilter-persistent"
+    state: restarted
+  ignore_errors: "{{ ansible_check_mode }}"

@@ -1,0 +1,22 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Raspberry Pi OS Testing Repository setup: enable
+
+- name: "Configure Raspberry Pi OS Testing Repository preferences"
+  tags:
+    - raspi_testing
+    - configure
+  copy:
+    src: "raspi-testing.pref"
+    dest: "/etc/apt/preferences.d/raspi-testing.pref"
+    owner: "root"
+    group: "root"
+    mode: 0644
+
+- name: "Install Raspberry Pi OS Testing Repository"
+  tags:
+    - raspi_testing
+    - install
+  apt_repository:
+    filename: "raspi-testing"
+    repo: "deb http://raspbian.raspberrypi.org/raspbian/ testing main contrib non-free rpi"

@@ -1,0 +1,32 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## IPtables (firewall) setup: disable
+
+- name: "Stop IPtables services"
+  tags:
+    - iptables
+    - service
+  service:
+    name: "netfilter-persistent"
+    state: stopped
+  ignore_errors: true
+
+- name: "Unconfigure IPtables user rules"
+  tags:
+    - iptables
+    - configure
+  file:
+    state: absent
+    name: "/etc/iptables/"
+
+- name: "Uninstall IPtables packages"
+  tags:
+    - iptables
+    - install
+  apt:
+    state: absent
+    purge: true
+    autoremove: true
+    name:
+      - iptables
+      - iptables-persistent

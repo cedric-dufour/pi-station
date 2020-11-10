@@ -1,0 +1,24 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## RTL-SDR setup: enable
+
+- name: "Disable RTL-DVB hardware"
+  tags:
+    - rtlsdr
+    - configure
+  copy:
+    src: "blacklist-rtlsdr.conf"
+    dest: "/etc/modprobe.d/blacklist-rtlsdr.conf"
+    owner: "root"
+    group: "root"
+    mode: 0644
+  register: rtlsdr_modules
+
+- name: "Install RTL-SDR packages"
+  tags:
+    - rtlsdr
+    - install
+  apt:
+    state: present
+    name:
+      - rtl-sdr

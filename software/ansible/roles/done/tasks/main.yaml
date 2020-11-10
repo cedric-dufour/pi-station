@@ -1,0 +1,10 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Done!
+
+- name: "Done!"
+  tags:
+    - done
+  include_tasks:
+    file: "enable.yaml"
+  when: DONE_ENABLE|bool

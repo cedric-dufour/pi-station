@@ -1,0 +1,15 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+- hosts:
+    - all
+  roles:
+    - bash
+    - ramoverlay
+    - iptables
+    - ethernet
+    - wlan
+    - wireguard
+    - bluetooth
+    - audio
+    - v4l
+    - done

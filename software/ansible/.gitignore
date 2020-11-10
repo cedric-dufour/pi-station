@@ -1,0 +1,7 @@
+## Ansible
+inventory.yaml
+*.retry
+
+## Python artefacts
+__pycache__
+*.py[cod]

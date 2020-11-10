@@ -1,0 +1,9 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Bluetooth setup
+
+- name: "Bluetooth setup"
+  tags:
+    - bluetooth
+  include_tasks:
+    file: "{{ BLUETOOTH_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"

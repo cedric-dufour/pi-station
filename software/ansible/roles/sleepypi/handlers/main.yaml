@@ -1,0 +1,22 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Handlers
+
+- name: "Restart Sleepy Pi (agent) service (reload configuration)"
+  tags:
+    - sleepypi
+    - service
+  service:
+    name: "sleepy-pi-agent"
+    state: restarted
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: "Restart Sleepy Pi (sunwatch) service (reload configuration)"
+  tags:
+    - sleepypi
+    - service
+  service:
+    name: "sleepy-pi-sunwatch"
+    state: restarted
+  when: SLEEPYPI_SUNWATCH_ENABLE|bool
+  ignore_errors: "{{ ansible_check_mode }}"

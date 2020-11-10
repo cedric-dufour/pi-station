@@ -1,0 +1,16 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Defaults
+SLEEPYPI_ENABLE: true
+
+
+## Sleepy Pi Sunwatch configuration
+SLEEPYPI_SUNWATCH_ENABLE: false
+
+# Latitude/Longitude (degrees)
+SLEEPYPI_SUNWATCH_LATITUDE: "46.95240"
+SLEEPYPI_SUNWATCH_LONGITUDE: "7.439583"
+
+# Shut-down/wake-up offset (seconds)
+SLEEPYPI_SUNWATCH_SHUTDOWN: "0"
+SLEEPYPI_SUNWATCH_WAKEUP: "0"

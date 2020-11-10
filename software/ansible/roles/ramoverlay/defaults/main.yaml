@@ -1,0 +1,13 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Defaults
+RAMOVERLAY_ENABLE: true
+
+
+## RAM Overlay configuration
+
+# RAM Overlay-ed directories
+RAMOVERLAY_DIR: "/tmp:/var/tmp:/var/cache:/var/log"
+
+# RAM Overlay (maximum) size, in MiB
+RAMOVERLAY_SIZE: 256

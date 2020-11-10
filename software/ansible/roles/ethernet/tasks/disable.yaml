@@ -1,0 +1,24 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Ethernet setup: disable
+
+- name: "Install Ethernet power-down service"
+  tags:
+    - ethernet
+    - install
+  copy:
+    src: "ethernet-power-down.service"
+    dest: "/etc/systemd/system/ethernet-power-down.service"
+    owner: "root"
+    group: "root"
+    mode: 0644
+
+- name: "Enable and start Ethernet power-down service"
+  tags:
+    - ethernet
+    - service
+  service:
+    name: "ethernet-power-down"
+    enabled: true
+    state: started
+  ignore_errors: "{{ ansible_check_mode }}"

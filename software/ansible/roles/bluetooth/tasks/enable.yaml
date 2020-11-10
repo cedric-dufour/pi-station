@@ -1,0 +1,23 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Bluetooth setup: enable
+
+- name: "Enable Bluetooth hardware"
+  tags:
+    - bluetooth
+    - configure
+  lineinfile:
+    path: "/boot/config.txt"
+    regexp: "^#?dtoverlay=disable-bt"
+    line: "#dtoverlay=disable-bt"
+
+- name: "Install Bluetooth packages"
+  tags:
+    - bluetooth
+    - install
+  apt:
+    state: present
+    name:
+      - bluez
+      - bluez-firmware
+      - pi-bluetooth

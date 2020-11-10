@@ -1,0 +1,9 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## PCF8523 (RTC) setup
+
+- name: "PCF8523 (RTC) setup"
+  tags:
+    - pcf8523
+  include_tasks:
+    file: "{{ PCF8523_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"

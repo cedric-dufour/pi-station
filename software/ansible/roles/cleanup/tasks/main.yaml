@@ -1,0 +1,10 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Cleanup stock installation
+
+- name: "Cleanup stock installation"
+  tags:
+    - cleanup
+  include_tasks:
+    file: "enable.yaml"
+  when: CLEANUP_ENABLE|bool

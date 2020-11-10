@@ -1,0 +1,9 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Ethernet setup
+
+- name: "Ethernet setup"
+  tags:
+    - ethernet
+  include_tasks:
+    file: "{{ ETHERNET_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"

@@ -1,0 +1,32 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## I2C (bus) setup: disable
+
+- name: "Disable I2C hardware"
+  tags:
+    - i2c
+    - configure
+  lineinfile:
+    path: "/boot/config.txt"
+    regexp: "^#?dtparam=i2c_arm"
+    line: "dtparam=i2c_arm=off"
+
+- name: "Disable I2C module"
+  tags:
+    - i2c
+    - configure
+  lineinfile:
+    state: absent
+    path: "/etc/modules"
+    regexp: "^#?i2c-dev"
+
+- name: "Uninstall I2C packages"
+  tags:
+    - i2c
+    - install
+  apt:
+    state: absent
+    purge: true
+    autoremove: true
+    name:
+      - i2c-tools

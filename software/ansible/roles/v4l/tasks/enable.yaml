@@ -1,0 +1,20 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Video-4-Linux (V4L) setup: enable
+
+- name: "Enable V4L hardware"
+  tags:
+    - v4l
+    - configure
+  file:
+    state: absent
+    name: "/etc/modprobe.d/blacklist-v4l.conf"
+
+- name: "Install V4L packages"
+  tags:
+    - v4l
+    - install
+  apt:
+    state: present
+    name:
+      - v4l-utils

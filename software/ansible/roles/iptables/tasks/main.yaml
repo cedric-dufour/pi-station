@@ -1,0 +1,9 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## IPtables (firewall) setup
+
+- name: "IPtables (firewall) setup"
+  tags:
+    - iptables
+  include_tasks:
+    file: "{{ IPTABLES_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"

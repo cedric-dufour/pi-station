@@ -1,0 +1,47 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## PCF8523 (RTC) setup: enable
+
+- name: "Enable PCF8523 hardware"
+  tags:
+    - pcf8523
+    - configure
+  lineinfile:
+    path: "/boot/config.txt"
+    regexp: "^#?dtoverlay=i2c-rtc,pcf8523"
+    line: "dtoverlay=i2c-rtc,pcf8523"
+
+- name: "Uninstall fake hardware clock package"
+  tags:
+    - pcf8523
+    - install
+  apt:
+    state: absent
+    purge: true
+    autoremove: true
+    name:
+      - fake-hwclock
+
+- name: "Install the hardware clock synchronization script"
+  tags:
+    - pcf8523
+    - install
+  copy:
+    src: "hwclock-pcf8523-set"
+    dest: "/etc/udev/hwclock-pcf8523-set"
+    owner: "root"
+    group: "root"
+    mode: 0755
+  notify: "Update initramfs"
+
+- name: "Install the hardware clock udev rule"
+  tags:
+    - pcf8523
+    - install
+  copy:
+    src: "85-hwclock-pcf8523.rules"
+    dest: "/etc/udev/rules.d/85-hwclock-pcf8523.rules"
+    owner: "root"
+    group: "root"
+    mode: 0644
+  notify: "Update initramfs"

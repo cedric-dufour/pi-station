@@ -1,0 +1,11 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Ethernet setup: enable
+
+- name: "Uninstall Ethernet power-down service"
+  tags:
+    - ethernet
+    - install
+  file:
+    state: absent
+    name: "/etc/systemd/system/ethernet-power-down.service"

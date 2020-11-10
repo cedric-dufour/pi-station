@@ -1,0 +1,70 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## WireGuard (VPN) setup: enable
+
+- name: "Install WireGuard (VPN) packages"
+  tags:
+    - wireguard
+    - install
+  apt:
+    state: present
+    name:
+      - raspberrypi-kernel-headers
+      - wireguard
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: "Install WireGuard (VPN) service"
+  tags:
+    - wireguard
+    - install
+  copy:
+    src: "wireguard@.service"
+    dest: "/etc/systemd/system/wireguard@.service"
+    owner: "root"
+    group: "root"
+    mode: 0644
+
+- name: "Create WireGuard (VPN) configuration directory"
+  tags:
+    - wireguard
+    - install
+  file:
+    state: directory
+    name: "/etc/wireguard"
+    owner: "root"
+    group: "root"
+    mode: 0750
+
+- name: "Configure WireGuard (VPN) interface"
+  tags:
+    - wireguard
+    - configure
+  template:
+    src: "wg0.conf.j2"
+    dest: "/etc/wireguard/wg0.conf"
+    owner: "root"
+    group: "root"
+    mode: 0640
+  notify: "Restart WireGuard (VPN) service (reload configuration)"
+
+- name: "Configure WireGuard (VPN) service"
+  tags:
+    - wireguard
+    - configure
+  template:
+    src: "wg0.default.j2"
+    dest: "/etc/default/wireguard@wg0"
+    owner: "root"
+    group: "root"
+    mode: 0644
+  notify: "Restart WireGuard (VPN) service (reload configuration)"
+
+- name: "Enable and start WireGuard (VPN) service"
+  tags:
+    - wireguard
+    - service
+  service:
+    name: "wireguard@wg0"
+    enabled: true
+    state: started
+  ignore_errors: "{{ ansible_check_mode }}"

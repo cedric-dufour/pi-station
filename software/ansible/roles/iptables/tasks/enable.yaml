@@ -1,0 +1,28 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## IPtables (firewall) setup: enable
+
+- name: "Install IPtables packages"
+  tags:
+    - iptables
+    - install
+  apt:
+    state: present
+    name:
+      - iptables
+      - iptables-persistent
+
+- name: "Configure IPtables user rules"
+  tags:
+    - iptables
+    - configure
+  template:
+    src: "{{ item }}.j2"
+    dest: "/etc/iptables/{{ item }}"
+    owner: "root"
+    group: "root"
+    mode: 0644
+  loop:
+    - "rules.v4"
+    - "rules.v6"
+  notify: "Restart IPtables services (reload configuration)"

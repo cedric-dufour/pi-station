@@ -1,0 +1,9 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## I2C (bus) setup
+
+- name: "I2C (bus) setup"
+  tags:
+    - i2c
+  include_tasks:
+    file: "{{ I2C_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"

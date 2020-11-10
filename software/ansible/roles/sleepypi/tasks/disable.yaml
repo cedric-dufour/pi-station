@@ -1,0 +1,69 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Sleepy Pi setup: disable
+
+- name: "Stop Spleepy Pi (agent) service"
+  tags:
+    - sleepypi
+    - service
+  service:
+    name: "sleepy-pi-agent"
+    state: stopped
+  ignore_errors: true
+
+- name: "Stop Spleepy Pi (sunwatch) service"
+  tags:
+    - sleepypi
+    - service
+  service:
+    name: "sleepy-pi-sunwatch"
+    state: stopped
+  ignore_errors: true
+
+- name: "Uninstall Spleepy Pi (agent) service"
+  tags:
+    - sleepypi
+    - install
+  file:
+    state: absent
+    dest: "/etc/systemd/system/sleepy-pi-agent.service"
+
+- name: "Uninstall Spleepy Pi (sunwatch) service"
+  tags:
+    - sleepypi
+    - install
+  file:
+    state: absent
+    dest: "/etc/systemd/system/sleepy-pi-sunwatch.service"
+
+- name: "Unconfigure Spleepy Pi (sunwatch) service"
+  tags:
+    - sleepypi
+    - configure
+  file:
+    state: absent
+    name: "/etc/default/sleepy-pi-sunwatch"
+
+- name: "Uninstall Spleepy Pi (client) script"
+  tags:
+    - sleepypi
+    - install
+  file:
+    state: absent
+    name: "/usr/local/bin/sleepy-pi"
+
+- name: "Uninstall Spleepy Pi (agent) script"
+  tags:
+    - sleepypi
+    - install
+  file:
+    state: absent
+    name: "/usr/local/bin/sleepy-pi-agent"
+
+- name: "Uninstall Spleepy Pi (sunwatch) script"
+  tags:
+    - sleepypi
+    - install
+  file:
+    state: absent
+    name: "/usr/local/bin/sleepy-pi-sunwatch"

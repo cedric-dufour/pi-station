@@ -1,0 +1,9 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Open Glider Network (OGN) setup
+
+- name: "Open Glider Network (OGN) setup"
+  tags:
+    - ogn
+  include_tasks:
+    file: "{{ OGN_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"

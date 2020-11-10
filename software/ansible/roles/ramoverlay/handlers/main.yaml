@@ -1,0 +1,12 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Handlers
+
+- name: "Restart RAM Overlay service (reload configuration)"
+  tags:
+    - ramoverlay
+    - service
+  service:
+    name: "ramoverlay"
+    state: restarted
+  ignore_errors: "{{ ansible_check_mode }}"

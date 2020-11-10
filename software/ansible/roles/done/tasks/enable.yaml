@@ -1,0 +1,19 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Done!
+
+- name: "Lookup APT cache"
+  tags:
+    - done
+  find:
+    paths: "/var/cache/apt/archives"
+    patterns: "*.deb"
+  register: done_apt_cached
+
+- name: "Cleanup APT cache"
+  tags:
+    - done
+  command:
+    cmd: "apt-get clean"
+    warn: false
+  when: done_apt_cached.matched

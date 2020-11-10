@@ -1,0 +1,10 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## BASH setup
+
+- name: "BASH setup"
+  tags:
+    - bash
+  include_tasks:
+    file: "enable.yaml"
+  when: BASH_ENABLE|bool

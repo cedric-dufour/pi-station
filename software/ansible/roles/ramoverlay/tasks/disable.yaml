@@ -1,0 +1,44 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## RAM Overlay setup: disable
+
+- name: "Stop RAM Overlay service"
+  tags:
+    - ramoverlay
+    - service
+  service:
+    name: "ramoverlay"
+    state: stopped
+  ignore_errors: true
+
+- name: "Uninstall RAM Overlay service"
+  tags:
+    - ramoverlay
+    - install
+  file:
+    state: absent
+    name: "/etc/systemd/system/ramoverlay.service"
+
+- name: "Unconfigure RAM Overlay service"
+  tags:
+    - ramoverlay
+    - configure
+  file:
+    state: absent
+    name: "/etc/default/ramoverlay"
+
+- name: "Uninstall RAM Overlay symlink"
+  tags:
+    - ramoverlay
+    - install
+  file:
+    state: absent
+    name: "/usr/bin/ramoverlay"
+
+- name: "Uninstall RAM Overlay script"
+  tags:
+    - ramoverlay
+    - install
+  file:
+    state: absent
+    name: "/usr/local/bin/ramoverlay"
