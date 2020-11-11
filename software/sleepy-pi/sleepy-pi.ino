@@ -653,7 +653,7 @@ void loop() {
     }
   }
 #if TEMPERATURE_PIN
-  if(fTemperature > (bPowerControlTemperature ? POWER_CONTROL_TEMPERATURE_HIGH : POWER_CONTROL_TEMPERATURE_HIGH) and (bPiPowered or bPiPoweron)) {
+  if(fTemperature > (bPowerControlTemperature ? POWER_CONTROL_TEMPERATURE_LOW : POWER_CONTROL_TEMPERATURE_HIGH) and (bPiPowered or bPiPoweron)) {
 #if DEBUG
     Serial.println("Environment: high temperature shutdown");
 #endif
