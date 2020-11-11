@@ -100,7 +100,7 @@ elif oArguments.action == 'current':
     fValue = sleepypi_i2c_read(SLEEPYPI_I2C_COMMAND_CURRENT_R) / 1000
     print(f"{fValue:.3f}")
 elif oArguments.action == 'temperature':
-    fValue = sleepypi_i2c_read(SLEEPYPI_I2C_COMMAND_TEMPERATURE_R) / 100 + 273.16
+    fValue = sleepypi_i2c_read(SLEEPYPI_I2C_COMMAND_TEMPERATURE_R) / 100 - 273.16
     print(f"{fValue:.2f}")
 elif oArguments.action == 'shutdown':
     sleepypi_i2c_write(SLEEPYPI_I2C_COMMAND_SHUTDOWN_W)
