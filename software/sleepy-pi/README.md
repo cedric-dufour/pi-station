@@ -178,10 +178,10 @@ ACTIONS:
   shutdown [write]
     Shut down (indefinitely)
 
-  wake-in [write]
+  wakein [write]
     Shut down and wake after the given duration
 
-  wake-at [write]
+  wakeat [write]
     Shut down and wake at the given date/time (UTC)
 
 OPTIONS:

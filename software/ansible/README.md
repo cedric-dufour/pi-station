@@ -142,7 +142,7 @@ Roles configuration
 
 Roles can have their configuration fine-tuned thanks to ad-hoc `<ROLE>_*` variables.
 
-Refer to each Role`s `roles/<role>/defaults/main.yaml` for further details on available variables
+Refer to each Role's `roles/<role>/defaults/main.yaml` for further details on available variables
 and their default values.
 
 
