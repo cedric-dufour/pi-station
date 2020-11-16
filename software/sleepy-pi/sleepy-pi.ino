@@ -113,9 +113,10 @@
 #define EXPANSION_ENABLE false
 
 // Expansion temperatures (on <-> off) [K]
-#define EXPANSION_TEMPERATURE     false
-#define EXPANSION_TEMPERATURE_ON  303.16f  // 30°C
-#define EXPANSION_TEMPERATURE_OFF 298.16f  // 25°C
+#define EXPANSION_TEMPERATURE      false
+#define EXPANSION_TEMPERATURE_ONLY false
+#define EXPANSION_TEMPERATURE_ON   308.16f  // 35°C
+#define EXPANSION_TEMPERATURE_OFF  303.16f  // 30°C
 
 
 //
@@ -541,11 +542,12 @@ void setup() {
 #endif
 
 #if EXPANSION_ENABLE
-#if not (EXPANSION_TEMPERATURE and TEMPERATURE_PIN)
-  // Power Expansion along the Raspberry Pi
+  // Power Expansion
+#if not (TEMPERATURE_PIN and EXPANSION_TEMPERATURE)
+  // <-> along the Raspberry Pi
   bExpansionPowered = bPiPowered;
 #else
-  // Temperature-controlled
+  // <-> temperature-controlled
   bExpansionPowered = false;
 #endif
   SleepyPi.enableExtPower(bExpansionPowered);
@@ -607,7 +609,6 @@ void loop() {
   fCurrent = SleepyPi.rpiCurrent();
 #if TEMPERATURE_PIN
   // (TMP36 sensor: 10mv/°C ; -50°C/223.16°K at 0V)
-  // TODO: Fix fluctuating temperature readings when Pi is on (up to 5 degrees less than when standing by)
   fTemperature = analogRead(TEMPERATURE_PIN) * ADC_REFERENCE_VOLTAGE / 1023.0f * 100.0f + 223.16f;  // [K]
 #endif
 #if DEBUG
@@ -636,8 +637,8 @@ void loop() {
   bExpansionPoweroff = false;
   bExpansionPoweron = false;
 
-  // Environment-based power control
 #if POWER_CONTROL
+  // Environment-based power control
   if(fVoltage < (bPowerControlVoltage ? POWER_CONTROL_VOLTAGE_HIGH : POWER_CONTROL_VOLTAGE_LOW) and (bPiPowered or bPiPoweron)) {
 #if DEBUG
     Serial.println("Environment: low voltage shutdown");
@@ -686,7 +687,7 @@ void loop() {
         SleepyPi.piShutdown();
       }
       bPiPowered = false;
-#if EXPANSION_ENABLE and not (EXPANSION_TEMPERATURE and TEMPERATURE_PIN)
+#if EXPANSION_ENABLE and not (TEMPERATURE_PIN and EXPANSION_TEMPERATURE and EXPANSION_TEMPERATURE_ONLY)
       // Power Expansion down along the Raspberry Pi
       bExpansionPoweroff = true;
 #endif
@@ -699,7 +700,7 @@ void loop() {
 #endif
       SleepyPi.enablePiPower(true);
       bPiPowered = true;
-#if EXPANSION_ENABLE and not (EXPANSION_TEMPERATURE and TEMPERATURE_PIN)
+#if EXPANSION_ENABLE and not (TEMPERATURE_PIN and EXPANSION_TEMPERATURE)
       // Power Expansion up along the Raspberry Pi
       bExpansionPoweron = true;
 #endif
@@ -708,17 +709,23 @@ void loop() {
     bPowerControlTemperature = false;
   }
 
-  // Expansion power
-#if EXPANSION_ENABLE and EXPANSION_TEMPERATURE and TEMPERATURE_PIN
-  // Temperature-controlled
+#if EXPANSION_ENABLE
+  // Power Expansion
+#if TEMPERATURE_PIN and EXPANSION_TEMPERATURE
+  // <-> temperature-controlled
   if(fTemperature > EXPANSION_TEMPERATURE_ON) {
     bExpansionPoweron = true;
   }
   else if(fTemperature < EXPANSION_TEMPERATURE_OFF) {
     bExpansionPoweroff = true;
   }
+#if not EXPANSION_TEMPERATURE_ONLY
+  // <-> force on when Raspberry Pi is on
+  if(bPiPowered) {
+    bExpansionPoweron = true;
+  }
 #endif
-#if EXPANSION_ENABLE
+#endif
   if(bExpansionPoweron) {
     if(not bExpansionPowered) {
 #if DEBUG
@@ -755,7 +762,7 @@ void loop() {
   // Power the Sleepy Pi down
   // - Disable the Analog/Digital Converter (ADC)
   // - Disable the Brown-Out Detection (BOD; low-voltage detection)
-#if POWER_CONTROL or (EXPANSION_ENABLE and EXPANSION_TEMPERATURE and TEMPERATURE_PIN)
+#if POWER_CONTROL or (EXPANSION_ENABLE and TEMPERATURE_PIN and EXPANSION_TEMPERATURE)
   SleepyPi.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);
 #else
   SleepyPi.powerDown(SLEEP_FOREVER, ADC_OFF, BOD_OFF);

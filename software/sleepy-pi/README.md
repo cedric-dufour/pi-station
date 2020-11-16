@@ -147,10 +147,16 @@ The following options are available to fine-tune the Sleepy Pi program (in [slee
   Raspberry Pi (e.g. to control an external fan); see the [Sleepy Pi Expansion Pinout][sleepy-pi-pinout]
   for the _Switched Expansion Power_ pins position
 
-* `EXPANSION_TEMPERATURE`: set to `true` to power the Sleepy Pi Expansion power depending
-  on the temperature (requires `TEMPERATURE_PIN` to bet set)
+* `EXPANSION_TEMPERATURE`: set to `true` to power the Sleepy Pi Expansion power depending on the
+  temperature (requires `TEMPERATURE_PIN` to bet set); if `EXPANSION_TEMPERATURE_ONLY` is set to
+  `false`, the Expansion power will always be switched on when the Raspberry Pi itself is on rather
+  than depending only on the temperature
 
 [sleepy-pi-pinout]: https://spellfoundry.com/docs/connecting-the-sleepy-pi-2-expansion-io/
+
+**WARNING**: When using a `TMP36` or `LM35` temperature sensor, make sure to add a `0.1uF` capacitor
+in parallel with the supply lead as well as a `680Ω` resistor in serie with the sensor lead (to
+stabilize the temperature readings)!
 
 
 Interacting with the Sleepy Pi
