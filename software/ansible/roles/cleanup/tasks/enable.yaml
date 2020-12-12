@@ -22,6 +22,18 @@
     group: "root"
     mode: 0644
 
+# Before any 'apt' task (which will need its hands free on APT/Dpkg locks)
+- name: "Wait for APT Daily lock"
+  tags:
+    - cleanup
+  shell: |
+    set -e -o pipefail
+    systemctl stop apt-daily.timer
+    systemctl stop apt-daily.service
+    APT_STATE_DIR=$(apt-config shell StateDir 'Dir::State/d' | sed -nE "s|^StateDir='([^']+)'\$|\1|p")
+    flock "${APT_STATE_DIR%%/}/daily_lock" true
+  changed_when: false
+
 - name: "Update APT cache"
   tags:
     - cleanup
@@ -38,6 +50,10 @@
   loop:
     - "syslog.socket"
     - "rsyslog"
+    - "systemd-journald-audit.socket"
+    - "systemd-journald-dev-log.socket"
+    - "systemd-journald.socket"
+    - "systemd-journald"
 
 - name: "Uninstall physical syslog"
   # Logging wears the SD card out
