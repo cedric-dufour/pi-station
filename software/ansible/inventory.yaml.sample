@@ -72,6 +72,18 @@ all:
     #FREEDNS_PERIOD_LOOP: 3600
     #FREEDNS_PERIOD_FORCE: 0
 
+    # ... inadyn
+    #INADYN_ENABLE: false
+    #INADYN_BIND_IFACE: ""
+    #INADYN_CHECK_PERIOD: 300
+    #INADYN_CHECK_IFACE: ""
+    #INADYN_SCRIPT: ""
+    #INADYN_PROVIDER: ""
+    #INADYN_USERNAME: ""
+    #INADYN_PASSWORD: ""
+    #INADYN_ALIASES: []
+    #INADYN_VERBOSE: 0
+
     # ... bluetooth
     #BLUETOOTH_ENABLE: false
 

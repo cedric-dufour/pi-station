@@ -1,0 +1,27 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Defaults
+INADYN_ENABLE: false
+
+
+## In-a-Dyn configuration (v1)
+#  REF: https://github.com/troglobit/inadyn/tree/1.99.15#example-configuration
+
+# Global
+INADYN_BIND_IFACE: ""
+
+# IP check
+INADYN_CHECK_PERIOD: 300
+INADYN_CHECK_IFACE: ""
+
+# Script
+INADYN_SCRIPT: ""
+
+# Provider
+INADYN_PROVIDER: ""
+INADYN_USERNAME: ""
+INADYN_PASSWORD: ""
+INADYN_ALIASES: []
+
+# Logging
+INADYN_VERBOSE: 0

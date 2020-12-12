@@ -1,0 +1,44 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## In-a-Dyn (dynamic DNS client) setup: enable
+
+- name: "Install In-a-Dyn packages"
+  tags:
+    - inadyn
+    - install
+  apt:
+    state: present
+    name:
+      - inadyn
+
+- name: "Configure In-a-Dyn"
+  tags:
+    - inadyn
+    - configure
+  template:
+    src: "inadyn.conf.j2"
+    dest: "/etc/inadyn.conf"
+    owner: "root"
+    group: "debian-inadyn"
+    mode: 0640
+  notify: "Restart In-a-Dyn service (reload configuration)"
+
+- name: "Configure In-a-Dyn service"
+  tags:
+    - inadyn
+    - configure
+  lineinfile:
+    path: "/etc/default/inadyn"
+    regexp: "^RUN_DAEMON="
+    line: "RUN_DAEMON='{{ INADYN_PROVIDER|length | ternary('yes', 'no') }}'"
+  notify: "Restart In-a-Dyn service (reload configuration)"
+
+- name: "Enable and start In-a-Dyn service"
+  tags:
+    - inadyn
+    - service
+  service:
+    name: "inadyn"
+    enabled: true
+    state: started
+  ignore_errors: "{{ ansible_check_mode }}"

@@ -1,0 +1,23 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## In-a-Dyn (dynamic DNS client) setup: disable
+
+- name: "Stop In-a-Dyn service"
+  tags:
+    - inadyn
+    - service
+  service:
+    name: "inadyn"
+    state: stopped
+  ignore_errors: true
+
+- name: "Uninstall In-a-Dyn packages"
+  tags:
+    - inadyn
+    - install
+  apt:
+    state: absent
+    purge: true
+    autoremove: true
+    name:
+      - inadyn

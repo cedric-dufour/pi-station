@@ -1,0 +1,9 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## In-a-Dyn (dynamic DNS client) setup
+
+- name: "In-a-Dyn (dynamic DNS client) setup"
+  tags:
+    - inadyn
+  include_tasks:
+    file: "{{ INADYN_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"

@@ -10,6 +10,7 @@
     - wlan
     - wireguard
     - freedns
+    - inadyn
     - bluetooth
     - audio
     - v4l
