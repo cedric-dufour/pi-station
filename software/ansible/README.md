@@ -78,7 +78,11 @@ The following Roles are available to configure the Pi Station:
 
 * `wlan`: setup Wireless LAN (hardware and software dependencies)
 
-* `wireguard`: setup WireGuard (VPN)
+* `wireguard`: setup [WireGuard (VPN)][wireguard]
+
+* `freedns`: setup [FreeDNS (dynamic DNS)][freedns] (specific) client
+
+* `inadyn`: setup [In-a-Dyn (dynamic DNS)][inadyn] (generic) client
 
 * `bluetooth`: setup Bluetooth (hardware and software dependencies)
 
@@ -97,6 +101,9 @@ The following Roles are available to configure the Pi Station:
 
 * `ogn`: setup the [Open Glider Network (OGN)][ogn] receiver and decoder
 
+[wireguard]: https://www.wireguard.com/
+[freedns]: https://freedns.afraid.org/
+[inadyn]: https://github.com/troglobit/inadyn
 [sleepy-pi]: https://spellfoundry.com/product/sleepy-pi-2/
 [ogn]: https://www.glidernet.org/
 
