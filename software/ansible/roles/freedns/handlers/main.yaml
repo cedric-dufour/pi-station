@@ -1,0 +1,12 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Handlers
+
+- name: "Restart FreeDNS service (reload configuration)"
+  tags:
+    - freedns
+    - service
+  service:
+    name: "freedns@freedns"
+    state: restarted
+  ignore_errors: "{{ ansible_check_mode }}"

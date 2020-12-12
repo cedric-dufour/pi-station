@@ -1,0 +1,69 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## FreeDNS (dynamic DNS client) setup: enable
+
+- name: "Install FreeDNS packages dependencies"
+  tags:
+    - freedns
+    - install
+  apt:
+    state: present
+    name:
+      - python3-daemon
+      - python3-requests
+      - python3-toml
+
+- name: "Install FreeDNS script"
+  tags:
+    - ramoverlay
+    - install
+  get_url:
+    url: "https://raw.githubusercontent.com/cedric-dufour/scriptisms/master/system/freedns-v2.py"
+    dest: "/usr/local/bin/freedns-v2"
+    owner: "root"
+    group: "root"
+    mode: 0755
+
+- name: "Install FreeDNS service"
+  tags:
+    - freedns
+    - install
+  copy:
+    src: "freedns@.service"
+    dest: "/etc/systemd/system/freedns@.service"
+    owner: "root"
+    group: "root"
+    mode: 0644
+
+- name: "Create FreeDNS configuration directory"
+  tags:
+    - freedns
+    - install
+  file:
+    state: directory
+    name: "/etc/freedns"
+    owner: "root"
+    group: "root"
+    mode: 0750
+
+- name: "Configure FreeDNS"
+  tags:
+    - freedns
+    - configure
+  template:
+    src: "freedns.conf.j2"
+    dest: "/etc/freedns/freedns.conf"
+    owner: "root"
+    group: "root"
+    mode: 0640
+  notify: "Restart FreeDNS service (reload configuration)"
+
+- name: "Enable and start FreeDNS service"
+  tags:
+    - freedns
+    - service
+  service:
+    name: "freedns@freedns"
+    enabled: true
+    state: started
+  ignore_errors: "{{ ansible_check_mode }}"

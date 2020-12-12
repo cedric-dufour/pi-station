@@ -63,6 +63,15 @@ all:
     #WIREGUARD_PEER_ENDPOINT: ""
     #WIREGUARD_PEER_KEEPALIVE: 0
 
+    # ... freedns
+    #FREEDNS_ENABLE: false
+    #FREEDNS_SSL: true
+    #FREEDNS_TOKEN: ""
+    #FREEDNS_ADDRESS_IPV6: false
+    #FREEDNS_ADDRESS_CHECK: ""
+    #FREEDNS_PERIOD_LOOP: 3600
+    #FREEDNS_PERIOD_FORCE: 0
+
     # ... bluetooth
     #BLUETOOTH_ENABLE: false
 

@@ -1,0 +1,28 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Defaults
+FREEDNS_ENABLE: false
+
+
+## FreeDNS configuration
+#  REF: https://github.com/cedric-dufour/scriptisms/blob/master/system/freedns-v2.conf
+
+# Use HTTPS
+FREEDNS_SSL: true
+
+# FreeDNS subdomain update token
+# (as in 'https://sync.afraid.org/u/<token>/')
+FREEDNS_TOKEN: ""
+
+# Perform IPv6 update
+FREEDNS_ADDRESS_IPV6: false
+
+# External IP address checker script
+FREEDNS_ADDRESS_CHECK: ""
+
+# Update period (in seconds)
+FREEDNS_PERIOD_LOOP: 3600
+
+# Forced update (0 = disabled)
+# (even when externally-retrieved IP address hasn't changed)
+FREEDNS_PERIOD_FORCE: 0

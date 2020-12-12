@@ -1,0 +1,9 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## FreeDNS (dynamic DNS client) setup
+
+- name: "FreeDNS (dynamic DNS client) setup"
+  tags:
+    - freedns
+  include_tasks:
+    file: "{{ FREEDNS_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"

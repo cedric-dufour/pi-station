@@ -9,6 +9,7 @@
     - ethernet
     - wlan
     - wireguard
+    - freedns
     - bluetooth
     - audio
     - v4l

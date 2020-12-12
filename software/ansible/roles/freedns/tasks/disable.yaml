@@ -1,0 +1,36 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## FreeDNS (dynamic DNS client) setup: disable
+
+- name: "Stop FreeDNS service"
+  tags:
+    - freedns
+    - service
+  service:
+    name: "freedns@freedns"
+    state: stopped
+  ignore_errors: true
+
+- name: "Uninstall FreeDNS service"
+  tags:
+    - freedns
+    - install
+  file:
+    state: absent
+    name: "/etc/systemd/system/freedns@.service"
+
+- name: "Remove FreeDNS configuration directory"
+  tags:
+    - freedns
+    - install
+  file:
+    state: absent
+    name: "/etc/freedns"
+
+- name: "Uninstall FreeDNS script"
+  tags:
+    - freedns
+    - install
+  file:
+    state: absent
+    name: "/usr/local/bin/freedns-v2"
