@@ -1,5 +1,6 @@
 ansible
 ansible-lint
 flake8
+flake8-bugbear
 yamllint
 
