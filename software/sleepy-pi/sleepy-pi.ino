@@ -31,9 +31,11 @@
 //     > Temperature [cK]          : command 0x02, request 2 bytes
 //     > Refresh                   : command 0x80
 //   - write:
-//     > Shut-down                 : command 0x81
-//     > Shut-down + Wake-on-Timer : command 0x82, send 1(2,3) bytes: minute, (hour), (day)
-//     > Shut-down + Wake-on-Alarm : command 0x83, send 2(3) bytes: hour, minute, (day)
+//     > Shutdown                 : command 0x81
+//     > Shutdown + Wake-on-Timer : command 0x82, send 1(2,3) bytes: minute, (hour), (day)
+//     > Shutdown + Wake-on-Alarm : command 0x83, send 2(3) bytes: hour, minute, (day)
+//     > Expansion power off      : command 0x91
+//     > Expansion power on       : command 0x92
 //   to read:
 //   - send the Refresh command;
 //     > i2cset -y 1 0x04 0x80
@@ -131,15 +133,17 @@
 #define I2C_ADDRESS 0x04
 
 // I2C commands
-#define I2C_OPCODE_NONE          0x00
-#define I2C_OPCODE_VOLTAGE_R     0x01
-#define I2C_OPCODE_CURRENT_R     0x02
-#define I2C_OPCODE_TEMPERATURE_R 0x03
-#define I2C_OPCODE_REFRESH       0x80
-#define I2C_OPCODE_SHUTDOWN_W    0x81
-#define I2C_OPCODE_WAKEONTIMER_W 0x82
-#define I2C_OPCODE_WAKEONALARM_W 0x83
-#define I2C_OPCODE_DETECT        0xFF
+#define I2C_OPCODE_NONE           0x00
+#define I2C_OPCODE_VOLTAGE_R      0x01
+#define I2C_OPCODE_CURRENT_R      0x02
+#define I2C_OPCODE_TEMPERATURE_R  0x03
+#define I2C_OPCODE_REFRESH        0x80
+#define I2C_OPCODE_SHUTDOWN_W     0x81
+#define I2C_OPCODE_WAKEONTIMER_W  0x82
+#define I2C_OPCODE_WAKEONALARM_W  0x83
+#define I2C_OPCODE_EXPANSIONOFF_W 0x91
+#define I2C_OPCODE_EXPANSIONON_W  0x92
+#define I2C_OPCODE_DETECT         0xFF
 
 // I2C values
 #define I2C_VALUE_UNSET 0xFF
@@ -407,6 +411,16 @@ void i2c() {
     }
     break;
 
+#if EXPANSION_ENABLE and not (TEMPERATURE_PIN and EXPANSION_TEMPERATURE)
+  case I2C_OPCODE_EXPANSIONOFF_W:
+    bExpansionPoweroff = true;
+    break;
+
+  case I2C_OPCODE_EXPANSIONON_W:
+    bExpansionPoweron = true;
+    break;
+#endif
+
   case I2C_OPCODE_REFRESH:
     // A request ought to come soon
     delay(1000);
@@ -592,6 +606,10 @@ void loop() {
   bPiPoweroff = false;
   bPiPoweron = false;
 
+  // Expansion status
+  bExpansionPoweroff = false;
+  bExpansionPoweron = false;
+
   // Button state tracking
   if(bButtonInterrupted) {
     button();
@@ -636,10 +654,6 @@ void loop() {
   Serial.print("Raspberry Pi: ");
   Serial.println(bPiPowered ? "on" : "off");
 #endif
-
-  // Expansion status
-  bExpansionPoweroff = false;
-  bExpansionPoweron = false;
 
 #if POWER_CONTROL
   // Environment-based power control

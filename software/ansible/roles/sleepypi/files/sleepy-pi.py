@@ -28,6 +28,8 @@ oArgumentParser.add_argument(
         "shutdown",
         "wakein",
         "wakeat",
+        "expansionoff",
+        "expansionon",
     ],
 )
 
@@ -67,6 +69,8 @@ SLEEPYPI_I2C_COMMAND_REFRESH_R = 0x80
 SLEEPYPI_I2C_COMMAND_SHUTDOWN_W = 0x81
 SLEEPYPI_I2C_COMMAND_WAKEIN_W = 0x82
 SLEEPYPI_I2C_COMMAND_WAKEAT_W = 0x83
+SLEEPYPI_I2C_COMMAND_EXPANSIONOFF_W = 0x91
+SLEEPYPI_I2C_COMMAND_EXPANSIONON_W = 0x92
 
 
 ## Helpers
@@ -123,3 +127,7 @@ elif oArguments.action == 'wakeat':
     if oArguments.day is not None:
         lData.append(oArguments.day)
     sleepypi_i2c_write(SLEEPYPI_I2C_COMMAND_WAKEAT_W, lData)
+elif oArguments.action == 'expansionoff':
+    sleepypi_i2c_write(SLEEPYPI_I2C_COMMAND_EXPANSIONOFF_W)
+elif oArguments.action == 'expansionon':
+    sleepypi_i2c_write(SLEEPYPI_I2C_COMMAND_EXPANSIONON_W)
