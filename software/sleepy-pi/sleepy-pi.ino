@@ -113,8 +113,12 @@
 #define EXPANSION_ENABLE false
 
 // Expansion temperatures (on <-> off) [K]
+// Modes:
+// - 0: temperature-driven, regardless of Raspberry Pi power
+// - 1: temperature-driven when Raspberry Pi is off; otherwise on
+// - 2: temperature-driven when Raspberry Pi is on; otherwise off
 #define EXPANSION_TEMPERATURE      false
-#define EXPANSION_TEMPERATURE_ONLY false
+#define EXPANSION_TEMPERATURE_MODE 0
 #define EXPANSION_TEMPERATURE_ON   308.16f  // 35°C
 #define EXPANSION_TEMPERATURE_OFF  303.16f  // 30°C
 
@@ -687,7 +691,7 @@ void loop() {
         SleepyPi.piShutdown();
       }
       bPiPowered = false;
-#if EXPANSION_ENABLE and not (TEMPERATURE_PIN and EXPANSION_TEMPERATURE and EXPANSION_TEMPERATURE_ONLY)
+#if EXPANSION_ENABLE and not (TEMPERATURE_PIN and EXPANSION_TEMPERATURE and EXPANSION_TEMPERATURE_MODE == 0)
       // Power Expansion down along the Raspberry Pi
       bExpansionPoweroff = true;
 #endif
@@ -719,10 +723,17 @@ void loop() {
   else if(fTemperature < EXPANSION_TEMPERATURE_OFF) {
     bExpansionPoweroff = true;
   }
-#if not EXPANSION_TEMPERATURE_ONLY
+#if EXPANSION_TEMPERATURE_MODE == 1
   // <-> force on when Raspberry Pi is on
   if(bPiPowered) {
     bExpansionPoweron = true;
+  }
+#endif
+#if EXPANSION_TEMPERATURE_MODE == 2
+  // <-> force off when Raspberry Pi is off
+  if(not bPiPowered) {
+    bExpansionPoweron = false;
+    bExpansionPoweroff = true;
   }
 #endif
 #endif
