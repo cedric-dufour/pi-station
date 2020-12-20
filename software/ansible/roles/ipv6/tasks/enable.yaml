@@ -1,0 +1,11 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## IPv6 setup: enable
+
+- name: "Enable IPv6"
+  tags:
+    - ethernet
+    - configure
+  file:
+    state: absent
+    name: "/etc/sysctl.d/05-ipv6-disable.conf"

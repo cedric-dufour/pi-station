@@ -5,6 +5,7 @@
   roles:
     - bash
     - ramoverlay
+    - ipv6
     - iptables
     - ethernet
     - wlan

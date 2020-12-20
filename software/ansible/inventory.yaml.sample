@@ -39,6 +39,9 @@ all:
     #RAMOVERLAY_DIR: "/tmp:/var/tmp:/var/cache:/var/log"
     #RAMOVERLAY_SIZE: 256
 
+    # ... ipv6
+    #IPV6_ENABLE: true
+
     # ... iptables
     #IPTABLES_ENABLE: true
     #IPTABLES_ICMPV4_TYPES: []
