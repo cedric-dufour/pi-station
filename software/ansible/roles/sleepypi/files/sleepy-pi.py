@@ -35,21 +35,25 @@ oArgumentParser.add_argument(
 
 # Day
 oArgumentParser.add_argument(
-    "--day", "-D",
+    "--day",
+    "-D",
     type=int,
     default=None,
 )
 
 # Hour
 oArgumentParser.add_argument(
-    "--hour", "-H",
+    "--hour",
+    "-H",
     type=int,
     default=None,
 )
 
 # Hour
 oArgumentParser.add_argument(
-    "--minute", "--min", "-M",
+    "--minute",
+    "--min",
+    "-M",
     type=int,
     default=None,
 )
@@ -75,14 +79,17 @@ SLEEPYPI_I2C_COMMAND_EXPANSIONON_W = 0x92
 
 ## Helpers
 
-def sleepypi_i2c_write(iCommand, lData=[]):
-    oI2C.write_i2c_block_data(SLEEPYPI_I2C_ADDRESS, iCommand, lData)
+
+def sleepypi_i2c_write(iCommand, lData=None):
+    oI2C.write_i2c_block_data(
+        SLEEPYPI_I2C_ADDRESS, iCommand, lData if lData is not None else []
+    )
 
 
 def sleepypi_i2c_read(iCommand):
     mValue = None
     sleepypi_i2c_write(SLEEPYPI_I2C_COMMAND_REFRESH_R)
-    for i in range(1, 10):
+    for _i in range(1, 40):
         time.sleep(SLEEPYPI_I2C_READ_DELAY)
         try:
             mValue = oI2C.read_word_data(SLEEPYPI_I2C_ADDRESS, iCommand)
@@ -97,18 +104,18 @@ def sleepypi_i2c_read(iCommand):
 ## Main
 oArguments = oArgumentParser.parse_args()
 oI2C = smbus.SMBus(SLEEPYPI_I2C_BUS)
-if oArguments.action == 'voltage':
+if oArguments.action == "voltage":
     fValue = sleepypi_i2c_read(SLEEPYPI_I2C_COMMAND_VOLTAGE_R) / 1000
     print(f"{fValue:.3f}")
-elif oArguments.action == 'current':
+elif oArguments.action == "current":
     fValue = sleepypi_i2c_read(SLEEPYPI_I2C_COMMAND_CURRENT_R) / 1000
     print(f"{fValue:.3f}")
-elif oArguments.action == 'temperature':
+elif oArguments.action == "temperature":
     fValue = sleepypi_i2c_read(SLEEPYPI_I2C_COMMAND_TEMPERATURE_R) / 100 - 273.16
     print(f"{fValue:.2f}")
-elif oArguments.action == 'shutdown':
+elif oArguments.action == "shutdown":
     sleepypi_i2c_write(SLEEPYPI_I2C_COMMAND_SHUTDOWN_W)
-elif oArguments.action == 'wakein':
+elif oArguments.action == "wakein":
     if all(v is None for v in (oArguments.minute, oArguments.hour, oArguments.day)):
         sys.exit(1)
     lData = [
@@ -117,7 +124,7 @@ elif oArguments.action == 'wakein':
         oArguments.day or 0,
     ]
     sleepypi_i2c_write(SLEEPYPI_I2C_COMMAND_WAKEIN_W, lData)
-elif oArguments.action == 'wakeat':
+elif oArguments.action == "wakeat":
     if any(v is None for v in (oArguments.minute, oArguments.hour)):
         sys.exit(1)
     lData = [
@@ -127,7 +134,7 @@ elif oArguments.action == 'wakeat':
     if oArguments.day is not None:
         lData.append(oArguments.day)
     sleepypi_i2c_write(SLEEPYPI_I2C_COMMAND_WAKEAT_W, lData)
-elif oArguments.action == 'expansionoff':
+elif oArguments.action == "expansionoff":
     sleepypi_i2c_write(SLEEPYPI_I2C_COMMAND_EXPANSIONOFF_W)
-elif oArguments.action == 'expansionon':
+elif oArguments.action == "expansionon":
     sleepypi_i2c_write(SLEEPYPI_I2C_COMMAND_EXPANSIONON_W)
