@@ -148,9 +148,8 @@ The following options are available to fine-tune the Sleepy Pi program (in [slee
   for the _Switched Expansion Power_ pins position
 
 * `EXPANSION_TEMPERATURE`: set to `true` to power the Sleepy Pi Expansion power depending on the
-  temperature (requires `TEMPERATURE_PIN` to bet set); if `EXPANSION_TEMPERATURE_ONLY` is set to
-  `false`, the Expansion power will always be switched on when the Raspberry Pi itself is on rather
-  than depending only on the temperature
+  temperature (requires `TEMPERATURE_PIN` to bet set), while the `EXPANSION_TEMPERATURE_MODE` allows
+  to specify whether to also depend on the Raspberry Pi power rather than only the temperature
 
 [sleepy-pi-pinout]: https://spellfoundry.com/docs/connecting-the-sleepy-pi-2-expansion-io/
 
@@ -189,6 +188,9 @@ ACTIONS:
 
   wakeat [write]
     Shut down and wake at the given date/time (UTC)
+
+  expansionoff / expansionon [write]
+    Switch the Sleepy Pi Expansion power off / on
 
 OPTIONS:
 
