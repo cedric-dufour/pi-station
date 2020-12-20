@@ -72,11 +72,15 @@ The following Roles are available to configure the Pi Station:
 * `ramoverlay`: setup a memory-based overlay over _specific_ well-known temporary directories (again,
   to limit write operations that would wear the SD card out)
 
+* `ipv6`: enable/disable IPv6
+
 * `iptables`: setup firewalling to protect your Internet-exposed Pi from network abuse
 
 * `ethernet`: setup Ethernet, wired LAN (hardware)
 
 * `wlan`: setup Wireless LAN (hardware and software dependencies)
+
+* `huawei_hilink`: setup Huawei HiLink device (hardware and software dependencies)
 
 * `wireguard`: setup [WireGuard (VPN)][wireguard]
 

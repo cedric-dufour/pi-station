@@ -55,6 +55,16 @@ all:
     # ... wlan
     #WLAN_ENABLE: true
 
+    # ... huawei_hilink
+    #HUAWEI_HILINK_ENABLE: false
+    #HUAWEI_HILINK_IFACE: "eth1"
+    #HUAWEI_HILINK_MACADDR: ""
+    #HUAWEI_HILINK_ENDPOINT: "192.168.8.1"
+    #HUAWEI_HILINK_SSL: false
+    #HUAWEI_HILINK_USERNAME: "admin"
+    #HUAWEI_HILINK_PASSWORD: ""
+    #HUAWEI_HILINK_PIN: ""
+
     # ... wireguard
     #WIREGUARD_ENABLE: false
     #WIREGUARD_PORT: 51820

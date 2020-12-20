@@ -1,0 +1,28 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Defaults
+HUAWEI_HILINK_ENABLE: false
+
+
+## Huawei HiLink configuration
+#  REF: https://github.com/cedric-dufour/scriptisms/blob/master/system/huawei-hilink.conf
+
+# Network device
+# (if MAC address is given, persistent UDev naming rule will be configured)
+HUAWEI_HILINK_IFACE: "eth1"
+HUAWEI_HILINK_MACADDR: ""
+
+# Device endpoint (IP address)
+HUAWEI_HILINK_ENDPOINT: "192.168.8.1"
+
+# Use HTTPS
+HUAWEI_HILINK_SSL: false
+
+# Administration credentials
+# (unauthenticated connection is used if password is left empty)
+HUAWEI_HILINK_USERNAME: "admin"
+HUAWEI_HILINK_PASSWORD: ""
+
+# SIM card PIN code
+# (if specified, SIM card will be unlocked when device shows up)
+HUAWEI_HILINK_PIN: ""

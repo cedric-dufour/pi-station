@@ -1,0 +1,79 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Huawei HiLink setup: disable
+
+- name: "Unconfigure Huawei HiLink repository preferences"
+  tags:
+    - huawei_hilink
+    - configure
+  file:
+    state: absent
+    dest: "/etc/apt/preferences.d/huawei-hilink.pref"
+
+- name: "Uninstall Huawei HiLink repository key"
+  tags:
+    - huawei_hilink
+    - install
+  apt_key:
+    state: absent
+    id: "8177FADDC92D9497E8DA12377FEA00A604652192"
+
+- name: "Uninstall Huawei HiLink repository"
+  tags:
+    - huawei_hilink
+    - install
+  apt_repository:
+    state: absent
+    filename: "huawei-hilink"
+    repo: "deb https://repository.salamek.cz/deb/pub all main"
+
+- name: "Uninstall Huawei HiLink control script"
+  tags:
+    - huawei_hilink
+    - install
+  file:
+    state: absent
+    name: "/usr/local/bin/huawei-hilink"
+
+- name: "Unconfigure Huawei HiLink control script"
+  tags:
+    - huawei_hilink
+    - configure
+  file:
+    state: absent
+    name: "/etc/huawei-hilink.conf"
+
+- name: "Unconfigure Huawei HiLink device (dhclient)"
+  tags:
+    - huawei_hilink
+    - configure
+  file:
+    state: absent
+    name: "/etc/dhcp/dhclient-exit-hooks.d/huawei-hilink"
+
+- name: "Unconfigure Huawei HiLink device (dhcpcd)"
+  tags:
+    - huawei_hilink
+    - configure
+  file:
+    state: absent
+    name: "/lib/dhcpcd/dhcpcd-hooks/90-huawei-hilink"
+
+- name: "Unconfigure Huawei HiLink device name"
+  tags:
+    - huawei_hilink
+    - configure
+  file:
+    state: absent
+    name: "/etc/udev/rules.d/80-huawei-hilink.rules"
+
+- name: "Uninstall Huawei HiLink packages"
+  tags:
+    - huawei_hilink
+    - install
+  apt:
+    state: absent
+    purge: true
+    autoremove: true
+    name:
+      - python3-huawei-lte-api

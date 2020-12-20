@@ -9,6 +9,7 @@
     - iptables
     - ethernet
     - wlan
+    - huawei_hilink
     - wireguard
     - freedns
     - inadyn

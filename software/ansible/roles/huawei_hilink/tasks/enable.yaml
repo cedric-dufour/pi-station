@@ -1,0 +1,105 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Huawei HiLink setup: enable
+
+- name: "Configure Huawei HiLink repository preferences"
+  tags:
+    - huawei_hilink
+    - configure
+  copy:
+    src: "huawei-hilink.pref"
+    dest: "/etc/apt/preferences.d/huawei-hilink.pref"
+    owner: "root"
+    group: "root"
+    mode: 0644
+
+# Adam Schubert (https://www.salamek.cz) APT repository
+# REF: https://repository.salamek.cz/
+- name: "Install Huawei HiLink repository key"
+  tags:
+    - huawei_hilink
+    - install
+  apt_key:
+    url: "https://repository.salamek.cz/deb/salamek.gpg.key"
+    id: "8177FADDC92D9497E8DA12377FEA00A604652192"
+
+- name: "Install Huawei HiLink repository"
+  tags:
+    - huawei_hilink
+    - install
+  apt_repository:
+    filename: "huawei-hilink"
+    repo: "deb https://repository.salamek.cz/deb/pub all main"
+
+- name: "Install Huawei HiLink packages"
+  tags:
+    - huawei_hilink
+    - install
+  apt:
+    state: present
+    name:
+      - python3-huawei-lte-api
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: "Install Huawei HiLink dependencies"
+  tags:
+    - huawei_hilink
+    - install
+  apt:
+    state: present
+    name:
+      - python3-toml
+      - usb-modeswitch
+
+- name: "Install Huawei HiLink control script"
+  tags:
+    - huawei_hilink
+    - install
+  get_url:
+    url: "https://raw.githubusercontent.com/cedric-dufour/scriptisms/master/system/huawei-hilink.py"
+    dest: "/usr/local/bin/huawei-hilink"
+    owner: "root"
+    group: "root"
+    mode: 0755
+
+- name: "Configure Huawei HiLink control script"
+  tags:
+    - huawei_hilink
+    - configure
+  template:
+    src: "huawei-hilink.conf.j2"
+    dest: "/etc/huawei-hilink.conf"
+    owner: "root"
+    group: "root"
+    mode: 0640
+
+- name: "Configure Huawei HiLink device (dhclient)"
+  tags:
+    - huawei_hilink
+    - configure
+  template:
+    src: "huawei-hilink.dhclient.hook.j2"
+    dest: "/etc/dhcp/dhclient-exit-hooks.d/huawei-hilink"
+    owner: "root"
+    group: "root"
+    mode: 0644
+
+- name: "Configure Huawei HiLink device (dhcpcd)"
+  tags:
+    - huawei_hilink
+    - configure
+  file:
+    state: link
+    src: "/etc/dhcp/dhclient-exit-hooks.d/huawei-hilink"
+    dest: "/lib/dhcpcd/dhcpcd-hooks/90-huawei-hilink"
+
+- name: "Configure Huawei HiLink device name"
+  tags:
+    - huawei_hilink
+    - configure
+  template:
+    src: "huawei-hilink.udev.rules.j2"
+    dest: "/etc/udev/rules.d/80-huawei-hilink.rules"
+    owner: "root"
+    group: "root"
+    mode: 0644

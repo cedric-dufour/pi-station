@@ -1,0 +1,9 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Huawei HiLink setup
+
+- name: "Huawei HiLink setup"
+  tags:
+    - huawei_hilink
+  include_tasks:
+    file: "{{ HUAWEI_HILINK_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"
