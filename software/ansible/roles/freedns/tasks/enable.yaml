@@ -15,7 +15,7 @@
 
 - name: "Install FreeDNS script"
   tags:
-    - ramoverlay
+    - freedns
     - install
   get_url:
     url: "https://raw.githubusercontent.com/cedric-dufour/scriptisms/master/system/freedns-v2.py"
