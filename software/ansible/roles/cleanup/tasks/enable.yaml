@@ -15,6 +15,7 @@
   # Do not install recommended or translation packages
   tags:
     - cleanup
+    - apt
   copy:
     src: "apt.conf"
     dest: "/etc/apt/apt.conf.d/90custom"
@@ -22,10 +23,32 @@
     group: "root"
     mode: 0644
 
+- name: "Lookup for Microsoft VS Code repository"
+  tags:
+    - cleanup
+    - apt
+    - vscode
+  stat:
+    path: "/etc/apt/sources.list.d/vscode.list"
+  register: cleanup_apt_vscode
+
+- name: "Disable Microsoft VS Code repository"
+  tags:
+    - cleanup
+    - apt
+    - vscode
+  lineinfile:
+    path: "/etc/apt/sources.list.d/vscode.list"
+    regexp: "^deb(.*)$"
+    line: "#deb\\1"
+    backrefs: true
+  when: cleanup_apt_vscode.stat.exists
+
 # Before any 'apt' task (which will need its hands free on APT/Dpkg locks)
 - name: "Wait for APT Daily lock"
   tags:
     - cleanup
+    - apt
   shell: |
     set -e -o pipefail
     systemctl stop apt-daily.timer
@@ -37,12 +60,14 @@
 - name: "Update APT cache"
   tags:
     - cleanup
+    - apt
   apt:
     update_cache: true
 
 - name: "Stop physical syslog"
   tags:
     - cleanup
+    - logs
   service:
     state: stopped
     name: "{{ item }}"
@@ -59,6 +84,7 @@
   # Logging wears the SD card out
   tags:
     - cleanup
+    - logs
   apt:
     state: absent
     purge: true
@@ -70,6 +96,7 @@
 - name: "Lookup physical logs"
   tags:
     - cleanup
+    - logs
   find:
     paths: "/var/log"
     recurse: true
@@ -90,6 +117,7 @@
 - name: "Cleanup physical logs"
   tags:
     - cleanup
+    - logs
   file:
     state: absent
     name: "{{ item.path }}"
@@ -101,6 +129,7 @@
 - name: "Install in-memory syslog"
   tags:
     - cleanup
+    - logs
   apt:
     state: present
     name:
@@ -110,6 +139,7 @@
   # Swapping wears the SD card out
   tags:
     - cleanup
+    - swap
   apt:
     state: absent
     purge: true
@@ -125,6 +155,7 @@
   # and wears the SD card out on updates
   tags:
     - cleanup
+    - packages
   apt:
     state: absent
     purge: true
@@ -158,6 +189,7 @@
 - name: "Remove build packages"
   tags:
     - cleanup
+    - packages
   apt:
     state: absent
     purge: true
@@ -180,6 +212,7 @@
 - name: "Lookup uninstalled packages dependencies"
   tags:
     - cleanup
+    - packages
   shell: |
     set -e -o pipefail
     dpkg --get-selections | awk '{if($2=="deinstall") print $1}'
@@ -190,6 +223,7 @@
 - name: "Remove uninstalled packages dependencies"
   tags:
     - cleanup
+    - packages
   apt:
     state: absent
     purge: true
@@ -201,12 +235,14 @@
 - name: "Update all installed packages"
   tags:
     - cleanup
+    - packages
   apt:
     upgrade: dist
 
 - name: "Lookup library packages"
   tags:
     - cleanup
+    - packages
   shell: |
     set -e -o pipefail
     dpkg --get-selections | awk '{if($1~"^lib") print $1}' | cut -d: -f1 | sort
@@ -217,6 +253,7 @@
 - name: "Lookup APT cache"
   tags:
     - cleanup
+    - apt
   find:
     paths: "/var/cache/apt/archives"
     patterns: "*.deb"
@@ -225,6 +262,7 @@
 - name: "Cleanup APT cache"
   tags:
     - cleanup
+    - apt
   command:
     cmd: "apt-get clean"
     warn: false
