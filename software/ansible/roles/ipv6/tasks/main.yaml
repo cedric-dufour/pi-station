@@ -6,4 +6,4 @@
   tags:
     - ipv6
   include_tasks:
-    file: "{{ ETHERNET_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"
+    file: "{{ IPV6_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"
