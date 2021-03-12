@@ -92,6 +92,7 @@
     state: link
     src: "/etc/dhcp/dhclient-exit-hooks.d/huawei-hilink"
     dest: "/lib/dhcpcd/dhcpcd-hooks/90-huawei-hilink"
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: "Configure Huawei HiLink device name"
   tags:
