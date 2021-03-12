@@ -1,0 +1,9 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## DHCP Client Daemon setup
+
+- name: "DHCP Client Daemon setup"
+  tags:
+    - dhcpcd
+  include_tasks:
+    file: "{{ DHCPCD_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"

@@ -76,6 +76,8 @@ The following Roles are available to configure the Pi Station:
 
 * `iptables`: setup firewalling to protect your Internet-exposed Pi from network abuse
 
+* `dhcpcd`: setup DHCP Client Daemon (custom configuration)
+
 * `ethernet`: setup Ethernet, wired LAN (hardware)
 
 * `wlan`: setup Wireless LAN (hardware and software dependencies)

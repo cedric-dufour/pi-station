@@ -1,0 +1,27 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## DHCP Client Daemon setup: disable
+
+- name: "Remove DHCP Client Daemon configuration directory"
+  tags:
+    - dhcpcd
+    - configure
+  file:
+    state: absent
+    name: "/etc/dhcpcd.d"
+
+- name: "Remove DHCP Client Daemon configuration"
+  tags:
+    - dhcpcd
+    - configure
+  file:
+    state: absent
+    name: "/etc/dhcpcd.d.conf"
+
+- name: "Unconfigure DHCP Client Daemon service"
+  tags:
+    - dhcpcd
+    - service
+  file:
+    state: absent
+    name: "/etc/systemd/system/dhcpcd.service.d/zzz-dhcpcd.conf"

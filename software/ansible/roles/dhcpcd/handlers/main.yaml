@@ -1,0 +1,15 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Handlers
+
+- name: "Update DHCP Client Daemon configuration"
+  tags:
+    - dhcpcd
+    - configure
+  assemble:
+    src: "/etc/dhcpcd.d"
+    dest: "/etc/dhcpcd.d.conf"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+    delimiter: "## Assembled by Ansible (dhcpcd)"

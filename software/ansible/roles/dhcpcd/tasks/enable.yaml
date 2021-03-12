@@ -1,0 +1,51 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## DHCP Client Daemon setup: enable
+
+- name: "Create DHCP Client Daemon configuration directory"
+  tags:
+    - dhcpcd
+    - configure
+  file:
+    state: directory
+    name: "/etc/dhcpcd.d"
+    owner: "root"
+    group: "root"
+    mode: "0755"
+
+- name: "Copy DHCP Client Daemon default configuration"
+  tags:
+    - dhcpcd
+    - configure
+  copy:
+    remote_src: true
+    src: "/etc/dhcpcd.conf"
+    dest: "/etc/dhcpcd.d/000-dhcpcd.conf"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+  notify: "Update DHCP Client Daemon configuration"
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: "Create DHCP Client Daemon service drop-in directory"
+  tags:
+    - dhcpcd
+    - service
+  file:
+    state: directory
+    name: "/etc/systemd/system/dhcpcd.service.d"
+    owner: "root"
+    group: "root"
+    mode: "0755"
+
+- name: "Configure DHCP Client Daemon service drop-in"
+  tags:
+    - dhcpcd
+    - service
+  copy:
+    src: "dhcpcd.service-dhcpcd.conf"
+    dest: "/etc/systemd/system/dhcpcd.service.d/zzz-dhcpcd.conf"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+  ignore_errors: "{{ ansible_check_mode }}"
