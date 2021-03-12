@@ -73,7 +73,30 @@
     group: "root"
     mode: 0640
 
-- name: "Configure Huawei HiLink device (dhclient)"
+- name: "Configure Huawei HiLink interface name (eth1)"
+  tags:
+    - huawei_hilink
+    - configure
+  template:
+    src: "huawei-hilink.udev.rules.j2"
+    dest: "/etc/udev/rules.d/80-huawei-hilink.rules"
+    owner: "root"
+    group: "root"
+    mode: 0644
+
+- name: "Configure Huawei HiLink interface (dhcpcd)"
+  tags:
+    - huawei_hilink
+    - configure
+  copy:
+    src: "huawei-hilink.dhcpcd"
+    dest: "/etc/dhcpcd.d/huawei-hilink"
+    owner: "root"
+    group: "root"
+    mode: 0644
+  notify: "Update DHCP Client Daemon configuration"
+
+- name: "Configure Huawei HiLink DHCP hook (dhclient)"
   tags:
     - huawei_hilink
     - configure
@@ -84,7 +107,7 @@
     group: "root"
     mode: 0644
 
-- name: "Configure Huawei HiLink device (dhcpcd)"
+- name: "Configure Huawei HiLink DHCP hook (dhcpcd)"
   tags:
     - huawei_hilink
     - configure
@@ -93,14 +116,3 @@
     src: "/etc/dhcp/dhclient-exit-hooks.d/huawei-hilink"
     dest: "/lib/dhcpcd/dhcpcd-hooks/90-huawei-hilink"
   ignore_errors: "{{ ansible_check_mode }}"
-
-- name: "Configure Huawei HiLink device name"
-  tags:
-    - huawei_hilink
-    - configure
-  template:
-    src: "huawei-hilink.udev.rules.j2"
-    dest: "/etc/udev/rules.d/80-huawei-hilink.rules"
-    owner: "root"
-    group: "root"
-    mode: 0644

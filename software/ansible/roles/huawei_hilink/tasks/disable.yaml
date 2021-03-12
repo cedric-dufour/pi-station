@@ -43,7 +43,24 @@
     state: absent
     name: "/etc/huawei-hilink.conf"
 
-- name: "Unconfigure Huawei HiLink device (dhclient)"
+- name: "Unconfigure Huawei HiLink interface name (eth1)"
+  tags:
+    - huawei_hilink
+    - configure
+  file:
+    state: absent
+    name: "/etc/udev/rules.d/80-huawei-hilink.rules"
+
+- name: "Unconfigure Huawei HiLink interface (dhcpcd)"
+  tags:
+    - huawei_hilink
+    - configure
+  file:
+    state: absent
+    name: "/etc/dhcpcd.d/huawei-hilink"
+  notify: "Update DHCP Client Daemon configuration"
+
+- name: "Unconfigure Huawei HiLink DHCP hook (dhclient)"
   tags:
     - huawei_hilink
     - configure
@@ -51,21 +68,13 @@
     state: absent
     name: "/etc/dhcp/dhclient-exit-hooks.d/huawei-hilink"
 
-- name: "Unconfigure Huawei HiLink device (dhcpcd)"
+- name: "Unconfigure Huawei HiLink DHCP hook (dhcpcd)"
   tags:
     - huawei_hilink
     - configure
   file:
     state: absent
     name: "/lib/dhcpcd/dhcpcd-hooks/90-huawei-hilink"
-
-- name: "Unconfigure Huawei HiLink device name"
-  tags:
-    - huawei_hilink
-    - configure
-  file:
-    state: absent
-    name: "/etc/udev/rules.d/80-huawei-hilink.rules"
 
 - name: "Uninstall Huawei HiLink packages"
   tags:
