@@ -125,13 +125,16 @@ all:
 
     # ... ogn
     #OGN_ENABLE: false
-    #OGN_VERSION: "0.2.6"
+    #OGN_VERSION: "0.2.8"
+    #OGN_ARCHITECTURE: "rpi-gpu"
     #OGN_FOLDER: "rtlsdr-ogn-{{ OGN_VERSION }}"
-    #OGN_TARBALL: "rtlsdr-ogn-bin-RPI-GPU-{{ OGN_VERSION }}.tgz"
-    #OGN_DOWNLOAD_URL: "http://download.glidernet.org/rpi-gpu/{{ OGN_TARBALL }}"
-    #OGN_CONF_RF_FREQCORR: "+50"
-    #OGN_CONF_RF_GSM_CENTERFREQ: "938.4"
-    #OGN_CONF_RF_GSM_GAIN: "25.0"
+    #OGN_TARBALL: "rtlsdr-ogn-bin-{{ OGN_ARCHITECTURE|upper }}-{{ OGN_VERSION }}.tgz"
+    #OGN_DOWNLOAD_URL: "http://download.glidernet.org/{{ OGN_ARCHITECTURE|lower }}/{{ OGN_TARBALL }}"
+    #OGN_CONF_RF_FREQCORR: "+0"
+    #OGN_CONF_RF_OGN_GAIN_MODE: "1"
+    #OGN_CONF_RF_OGN_GAIN: "60.0"
+    #OGN_CONF_RF_GSM_CENTERFREQ: "0.0"
+    #OGN_CONF_RF_GSM_GAIN: "20.0"
     #OGN_CONF_POSITION_LATITUDE: "+48.0000"
     #OGN_CONF_POSITION_LONGITUDE: "+9.0000"
     #OGN_CONF_POSITION_ALTITUDE: "100"

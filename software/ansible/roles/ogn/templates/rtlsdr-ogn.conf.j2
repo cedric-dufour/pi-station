@@ -8,13 +8,22 @@ RF:
   # [ppm] "big" R820T sticks have 40-80ppm correction factors, measure it with gsm_scan
   FreqCorr = {{ OGN_CONF_RF_FREQCORR }};
 
+  # for OGN (FLARM) reception
+  OGN:
+  {
+    # [int] 0=Auto, 1=Manual, 2=Linearity, 3=Sensitivity
+    GainMode = {{ OGN_CONF_RF_OGN_GAIN_MODE }};
+    # [dB]  RF input gain (high-gain antennas may require lower input gain)
+    Gain     = {{ OGN_CONF_RF_OGN_GAIN }};
+  } ;
+
   # for frequency calibration based on GSM signals
   GSM:
   {
     # [MHz] find the best GSM frequency with gsm_scan
-    CenterFreq  = {{ OGN_CONF_RF_GSM_CENTERFREQ }};
+    CenterFreq = {{ OGN_CONF_RF_GSM_CENTERFREQ }};
     # [dB]  RF input gain (beware that GSM signals are very strong !)
-    Gain        = {{ OGN_CONF_RF_GSM_GAIN }};
+    Gain       = {{ OGN_CONF_RF_GSM_GAIN }};
   } ;
 } ;
 
