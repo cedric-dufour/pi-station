@@ -5,5 +5,6 @@
 - name: "WireGuard (VPN) setup"
   tags:
     - wireguard
+    - always
   include_tasks:
     file: "{{ WIREGUARD_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"

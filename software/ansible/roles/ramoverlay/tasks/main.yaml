@@ -5,5 +5,6 @@
 - name: "RAM Overlay setup"
   tags:
     - ramoverlay
+    - always
   include_tasks:
     file: "{{ RAMOVERLAY_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"

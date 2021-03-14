@@ -5,6 +5,7 @@
 - name: "BASH setup"
   tags:
     - bash
+    - always
   include_tasks:
     file: "enable.yaml"
   when: BASH_ENABLE|bool

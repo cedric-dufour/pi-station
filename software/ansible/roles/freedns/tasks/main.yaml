@@ -5,5 +5,6 @@
 - name: "FreeDNS (dynamic DNS client) setup"
   tags:
     - freedns
+    - always
   include_tasks:
     file: "{{ FREEDNS_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"

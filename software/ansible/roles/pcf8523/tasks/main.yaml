@@ -5,5 +5,6 @@
 - name: "PCF8523 (RTC) setup"
   tags:
     - pcf8523
+    - always
   include_tasks:
     file: "{{ PCF8523_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"
