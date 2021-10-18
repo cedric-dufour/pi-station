@@ -77,6 +77,7 @@ alias _sa='sudo systemctl start'
 alias _so='sudo systemctl stop'
 alias _sr='sudo systemctl restart'
 alias _sl='sudo systemctl reload'
+alias _sc='systemctl cat'
 alias _sj='journalctl -u'
 # ... apt
 alias _au='sudo apt-get update'
