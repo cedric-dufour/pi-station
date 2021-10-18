@@ -7,6 +7,6 @@
     - wireguard
     - service
   service:
-    name: "wireguard@wg0"
+    name: "wg-quick@wg0"
     state: restarted
   ignore_errors: "{{ ansible_check_mode }}"

@@ -7,25 +7,9 @@
     - wireguard
     - service
   service:
-    name: "wireguard@wg0"
+    name: "wg-quick@wg0"
     state: stopped
   ignore_errors: true
-
-- name: "Uninstall WireGuard (VPN) service"
-  tags:
-    - wireguard
-    - install
-  file:
-    state: absent
-    name: "/etc/systemd/system/wireguard@.service"
-
-- name: "Unconfigure WireGuard (VPN) service"
-  tags:
-    - wireguard
-    - configure
-  file:
-    state: absent
-    name: "/etc/default/wireguard@wg0"
 
 - name: "Remove WireGuard (VPN) configuration directory"
   tags:

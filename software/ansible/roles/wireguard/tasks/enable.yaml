@@ -13,17 +13,6 @@
       - wireguard
   ignore_errors: "{{ ansible_check_mode }}"
 
-- name: "Install WireGuard (VPN) service"
-  tags:
-    - wireguard
-    - install
-  copy:
-    src: "wireguard@.service"
-    dest: "/etc/systemd/system/wireguard@.service"
-    owner: "root"
-    group: "root"
-    mode: 0644
-
 - name: "Create WireGuard (VPN) configuration directory"
   tags:
     - wireguard
@@ -47,24 +36,12 @@
     mode: 0640
   notify: "Restart WireGuard (VPN) service (reload configuration)"
 
-- name: "Configure WireGuard (VPN) service"
-  tags:
-    - wireguard
-    - configure
-  template:
-    src: "wg0.default.j2"
-    dest: "/etc/default/wireguard@wg0"
-    owner: "root"
-    group: "root"
-    mode: 0644
-  notify: "Restart WireGuard (VPN) service (reload configuration)"
-
 - name: "Enable and start WireGuard (VPN) service"
   tags:
     - wireguard
     - service
   service:
-    name: "wireguard@wg0"
+    name: "wg-quick@wg0"
     enabled: true
     state: started
   ignore_errors: "{{ ansible_check_mode }}"
