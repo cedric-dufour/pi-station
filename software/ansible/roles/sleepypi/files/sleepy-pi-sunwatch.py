@@ -70,6 +70,7 @@ oObserver.lat = str(oArguments.latitude)
 oObserver.lon = str(oArguments.longitude)
 
 # Loop
+oI2C = smbus.SMBus(SLEEPYPI_I2C_BUS)
 while True:
     oSun = ephem.Sun()
     dNow = ephem.now()
@@ -95,5 +96,4 @@ while True:
     print(f"Waking up at {dWakeup}")
     (iYear, iMonth, iDay, iHour, iMinute, iSecond) = dWakeup.tuple()
     # ... send shutdown + wake-up command (I2C)
-    oI2C = smbus.SMBus(SLEEPYPI_I2C_BUS)
     oI2C.write_i2c_block_data(SLEEPYPI_I2C_ADDRESS, SLEEPYPI_I2C_COMMAND_WAKEAT_W, [iHour, iMinute, iDay])

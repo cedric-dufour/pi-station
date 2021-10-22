@@ -13,7 +13,10 @@
 //   - wake on timer: on given elapsed day, hour and minute
 //   - wake on alarm: on given calendar day, hour and minute
 //
-// * Voltage control:
+// * (optional) Watchdog
+//   - restart the Raspberry Pi on missing heartbeat
+//
+// * (optional) Voltage control:
 //   - shut the Raspberry Pi down on low voltage
 //
 // * (optional) Temperature control
@@ -31,11 +34,12 @@
 //     > Temperature [cK]          : command 0x02, request 2 bytes
 //     > Refresh                   : command 0x80
 //   - write:
-//     > Shutdown                 : command 0x81
-//     > Shutdown + Wake-on-Timer : command 0x82, send 1(2,3) bytes: minute, (hour), (day)
-//     > Shutdown + Wake-on-Alarm : command 0x83, send 2(3) bytes: hour, minute, (day)
-//     > Expansion power off      : command 0x91
-//     > Expansion power on       : command 0x92
+//     > Shutdown                  : command 0x81
+//     > Shutdown + Wake-on-Timer  : command 0x82, send 1(2,3) bytes: minute, (hour), (day)
+//     > Shutdown + Wake-on-Alarm  : command 0x83, send 2(3) bytes: hour, minute, (day)
+//     > Expansion power off       : command 0x91
+//     > Expansion power on        : command 0x92
+//     > Watchdog heartbeat        : command 0xF0
 //   to read:
 //   - send the Refresh command;
 //     > i2cset -y 1 0x04 0x80
@@ -76,7 +80,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// CONSTANTS
+// CONSTANTS (USER-CONFIGURABLE)
 //
 
 // Debug (enable Serial output)
@@ -102,17 +106,24 @@
 // Raspberry Pi threshold current [mA] (power down <-> power up)
 #define POWER_CURRENT_THRESHOLD 90.0f
 
+// Watchdog
+#define WATCHDOG          false
+// ... time without heartbeat after which restart (power off -> on) will be triggered [s]
+#define WATCHDOG_TIMEOUT  300
+// ... max. consecutive restart to attempt
+#define WATCHDOG_ATTEMPTS 3
+
 // Power the Raspberry Pi on/off depending on the environment (voltage/temperature)
-#define POWER_CONTROL false
+#define POWER_CONTROL                  false
 // ... low Sleepy Pi supply voltage [V]
-#define POWER_CONTROL_VOLTAGE_LOW  11.5f  // ~ 10% capacity
-#define POWER_CONTROL_VOLTAGE_HIGH 12.3f  // ~ 50% capacity
+#define POWER_CONTROL_VOLTAGE_LOW      11.5f    // ~ 10% capacity
+#define POWER_CONTROL_VOLTAGE_HIGH     12.3f    // ~ 50% capacity
 // ... high temperature [K]
 #define POWER_CONTROL_TEMPERATURE_HIGH 323.16f  // 50°C
 #define POWER_CONTROL_TEMPERATURE_LOW  313.16f  // 40°C
 
 // Expansion power (e.g. fan)
-#define EXPANSION_ENABLE false
+#define POWER_EXPANSION false
 
 // Expansion temperatures (on <-> off) [K]
 // Modes:
@@ -123,6 +134,32 @@
 #define EXPANSION_TEMPERATURE_MODE 0
 #define EXPANSION_TEMPERATURE_ON   308.16f  // 35°C
 #define EXPANSION_TEMPERATURE_OFF  303.16f  // 30°C
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// CONSTANTS (INTERNAL; DO NOT MODIFY)
+//
+
+//
+// Power (bitmask)
+//
+
+// Status
+#define POWER_STATUS_MASK         0x01
+#define POWER_STATUS_ON           0x01
+
+// Actions
+#define POWER_ACTION_MASK         0x0E
+#define POWER_ACTION_ON           0x02
+#define POWER_ACTION_OFF          0x04
+#define POWER_ACTION_SHUTDOWN     0x08
+
+// Control
+#define POWER_CONTROL_MASK        0xF0
+#define POWER_CONTROL_VOLTAGE     0x10
+#define POWER_CONTROL_TEMPERATURE 0x20
 
 
 //
@@ -143,6 +180,7 @@
 #define I2C_OPCODE_WAKEONALARM_W  0x83
 #define I2C_OPCODE_EXPANSIONOFF_W 0x91
 #define I2C_OPCODE_EXPANSIONON_W  0x92
+#define I2C_OPCODE_HEARTBEAT      0xF0
 #define I2C_OPCODE_DETECT         0xFF
 
 // I2C values
@@ -186,24 +224,22 @@
 //
 
 // Raspberry Pi power
-bool bPiPowered;
-bool bPiShutdown;
-bool bPiPoweroff;
-bool bPiPoweron;
+uint8_t uiPowerPi;
 
 // Expansion power
-bool bExpansionPowered;
-bool bExpansionPoweroff;
-bool bExpansionPoweron;
+uint8_t uiPowerExpansion;
 
 // Environment
+uint32_t uiNow;      // [s]
 float fVoltage;      // [V]
 float fCurrent;      // [mA]
 float fTemperature;  // [K]
 
-// Power control
-bool bPowerControlVoltage;
-bool bPowerControlTemperature;
+#if WATCHDOG
+// Watchdog
+uint32_t uiWatchdogTime;
+int iWatchdogAttempts;
+#endif
 
 // Button state tracking
 volatile bool bButtonInterrupted;
@@ -332,13 +368,13 @@ void button() {
     digitalWrite(LED_PIN, LOW);
     unsigned long ulButtonPressedTimeElapsed = millis() - ulButtonPressedTime;
     if(ulButtonPressedTimeElapsed > BUTTON_ELAPSED_POWEROFF) {
-      bPiPoweroff = true;
+      uiPowerPi |= POWER_ACTION_OFF;
     }
     else if (ulButtonPressedTimeElapsed > BUTTON_ELAPSED_SHUTDOWN) {
-      bPiShutdown = true;
+      uiPowerPi |= POWER_ACTION_OFF|POWER_ACTION_SHUTDOWN;
     }
     else {
-      bPiPoweron = true;
+      uiPowerPi |= POWER_ACTION_ON;
     }
     attachInterrupt(BUTTON_INT, isrButton, FALLING);
     break;
@@ -373,7 +409,7 @@ void i2c() {
   switch(yI2cOpCode) {
 
   case I2C_OPCODE_SHUTDOWN_W:
-    bPiShutdown = true;
+    uiPowerPi |= POWER_ACTION_OFF|POWER_ACTION_SHUTDOWN;
     break;
 
   case I2C_OPCODE_WAKEONTIMER_W:
@@ -391,7 +427,7 @@ void i2c() {
       iRtcState = RTC_STATE_UNSET;
     }
     if(iRtcState != RTC_STATE_UNSET) {
-      bPiShutdown = true;
+      uiPowerPi |= POWER_ACTION_OFF|POWER_ACTION_SHUTDOWN;
     }
     break;
 
@@ -407,17 +443,24 @@ void i2c() {
       iRtcState = RTC_STATE_UNSET;
     }
     if(iRtcState != RTC_STATE_UNSET) {
-      bPiShutdown = true;
+      uiPowerPi |= POWER_ACTION_OFF|POWER_ACTION_SHUTDOWN;
     }
     break;
 
-#if EXPANSION_ENABLE and not (TEMPERATURE_PIN and EXPANSION_TEMPERATURE)
+#if POWER_EXPANSION and not (TEMPERATURE_PIN and EXPANSION_TEMPERATURE)
   case I2C_OPCODE_EXPANSIONOFF_W:
-    bExpansionPoweroff = true;
+    uiPowerExpansion |= POWER_ACTION_OFF;
     break;
 
   case I2C_OPCODE_EXPANSIONON_W:
-    bExpansionPoweron = true;
+    uiPowerExpansion |= POWER_ACTION_ON;
+    break;
+#endif
+
+#if WATCHDOG
+  case I2C_OPCODE_HEARTBEAT:
+    uiWatchdogTime = uiNow;
+    iWatchdogAttempts = 0;
     break;
 #endif
 
@@ -455,8 +498,7 @@ void rtcSet() {
   switch(iRtcState) {
 
   case RTC_STATE_TIMER: {
-    DateTime dtNow = SleepyPi.readTime();
-    DateTime dtAlarm(dtNow.unixtime() + 86400L*yI2cValDay + 3600L*yI2cValHour + 60L*yI2cValMinute);
+    DateTime dtAlarm(uiNow + 86400L*yI2cValDay + 3600L*yI2cValHour + 60L*yI2cValMinute);
     SleepyPi.setAlarm(dtAlarm.day(), dtAlarm.hour(), dtAlarm.minute());
     break;
   }
@@ -482,7 +524,7 @@ void rtcSet() {
   SleepyPi.rtcClearInterrupts();
   attachInterrupt(RTC_INT, isrRtc, FALLING);
 
-#if POWER_CONTROL or (EXPANSION_ENABLE and EXPANSION_TEMPERATURE and TEMPERATURE_PIN)
+#if POWER_CONTROL or (POWER_EXPANSION and EXPANSION_TEMPERATURE and TEMPERATURE_PIN)
   // QUIRK: The first occurence of the WDT interrupt is mistaken for an RTC/INT0 one (?!?)
   SleepyPi.powerStandby(SLEEP_15MS, ADC_ON, BOD_ON);
   bRtcInterrupted = false;
@@ -540,35 +582,41 @@ void setup() {
   digitalWrite(LED_PIN, LOW);
 
   // Environment
+  uiNow = SleepyPi.readTime().unixtime();  // <-> I2C (internally)
   fCurrent = SleepyPi.rpiCurrent();
 #if not TEMPERATURE_PIN
   fTemperature = 0.0f;
 #endif
 
-  // Power control
-  bPowerControlVoltage = false;
-  bPowerControlTemperature = false;
-
-  // Raspberry Pi status
-  bPiPowered = fCurrent > POWER_CURRENT_THRESHOLD;
+  // Raspberry Pi power
+  uiPowerPi = 0;
+  if(fCurrent > POWER_CURRENT_THRESHOLD) {
+    uiPowerPi |= POWER_STATUS_ON;
+  }
 #if POWER_AUTO
-  if(not bPiPowered) {
+  if(not (uiPowerPi & POWER_STATUS_ON)) {
     SleepyPi.enablePiPower(true);
     delay(1000);
-    bPiPowered = true;
+    uiPowerPi |= POWER_STATUS_ON;
   }
 #endif
 
-#if EXPANSION_ENABLE
+#if WATCHDOG
+  // Watchdog
+  uiWatchdogTime = uiNow;
+  iWatchdogAttempts = 0;
+#endif
+
+#if POWER_EXPANSION
   // Power Expansion
 #if not (TEMPERATURE_PIN and EXPANSION_TEMPERATURE)
   // <-> along the Raspberry Pi
-  bExpansionPowered = bPiPowered;
+  uiPowerExpansion |= uiPowerPi & POWER_STATUS_ON;
 #else
   // <-> temperature-controlled
-  bExpansionPowered = false;
+  uiPowerExpansion = 0;
 #endif
-  SleepyPi.enableExtPower(bExpansionPowered);
+  SleepyPi.enableExtPower((bool)(uiPowerExpansion & POWER_STATUS_ON));
 #else
   // Power Expansions down
   SleepyPi.enableExtPower(false);
@@ -601,14 +649,11 @@ void setup() {
 //
 
 void loop() {
-  // Raspberry Pi status
-  bPiShutdown = false;
-  bPiPoweroff = false;
-  bPiPoweron = false;
+  // Raspberry Pi power
+  uiPowerPi &= POWER_STATUS_MASK|POWER_CONTROL_MASK;
 
-  // Expansion status
-  bExpansionPoweroff = false;
-  bExpansionPoweron = false;
+  // Expansion power
+  uiPowerExpansion &= POWER_STATUS_MASK;
 
   // Button state tracking
   if(bButtonInterrupted) {
@@ -622,11 +667,12 @@ void loop() {
 
   // RTC state tracking
   if(bRtcInterrupted) {
-    bPiPoweron = true;
+    uiPowerPi |= POWER_ACTION_ON;
   }
   bRtcInterrupted = false;
 
   // Environment
+  uiNow = SleepyPi.readTime().unixtime();  // <-> I2C (internally)
   fVoltage = SleepyPi.supplyVoltage();
   fCurrent = SleepyPi.rpiCurrent();
 #if TEMPERATURE_PIN
@@ -634,6 +680,8 @@ void loop() {
   fTemperature = analogRead(TEMPERATURE_PIN) * ADC_REFERENCE_VOLTAGE / 1023.0f * 100.0f + 223.16f;  // [K]
 #endif
 #if DEBUG
+  Serial.print("Now [s]: ");
+  Serial.println(uiNow);
   Serial.print("Voltage [V]: ");
   Serial.println(fVoltage);
   Serial.print("Current [mA]: ");
@@ -649,20 +697,57 @@ void loop() {
   bI2cInterrupted = false;
 
   // Raspberry Pi status (cont'd)
-  bPiPowered = fCurrent > POWER_CURRENT_THRESHOLD;
+  if(fCurrent > POWER_CURRENT_THRESHOLD) {
+    uiPowerPi |= POWER_STATUS_ON;
+  }
 #if DEBUG
   Serial.print("Raspberry Pi: ");
-  Serial.println(bPiPowered ? "on" : "off");
+  Serial.println((uiPowerPi & POWER_STATUS_ON) ? "on" : "off");
+#endif
+
+#if WATCHDOG
+  // Watchdog
+  if(uiPowerPi & POWER_ACTION_ON) {
+    uiWatchdogTime = uiNow;
+    iWatchdogAttempts = 0;
+  }
+  else if((uiPowerPi & POWER_STATUS_ON) and not (uiPowerPi & POWER_ACTION_OFF)) {
+#if DEBUG
+    Serial.print("Watchdog [s] / attempts: ");
+    Serial.print(uiWatchdogTime);
+    Serial.print(" / ");
+    Serial.println(iWatchdogAttempts);
+#endif
+    if(uiNow - uiWatchdogTime > WATCHDOG_TIMEOUT) {
+#if DEBUG
+      Serial.println("Watchdog: timeout");
+      Serial.println("Raspberry Pi: shut down");
+#endif
+      SleepyPi.piShutdown();
+      uiPowerPi &= ~POWER_STATUS_MASK;
+      uiWatchdogTime = uiNow;
+      if(iWatchdogAttempts < WATCHDOG_ATTEMPTS) {
+        ++iWatchdogAttempts;
+        uiPowerPi |= POWER_ACTION_ON;
+      }
+      else {
+#if DEBUG
+        Serial.println("Watchdog: too many attempts");
+#endif
+        uiPowerPi |= POWER_ACTION_OFF;
+      }
+    }
+  }
 #endif
 
 #if POWER_CONTROL
   // Environment-based power control
-  if(fVoltage < (bPowerControlVoltage ? POWER_CONTROL_VOLTAGE_HIGH : POWER_CONTROL_VOLTAGE_LOW) and (bPiPowered or bPiPoweron)) {
+  if((uiPowerPi & (POWER_STATUS_ON|POWER_ACTION_ON)) and fVoltage < ((uiPowerPi & POWER_CONTROL_VOLTAGE) ? POWER_CONTROL_VOLTAGE_HIGH : POWER_CONTROL_VOLTAGE_LOW)) {
+    // ... voltage-driven
 #if DEBUG
     Serial.println("Environment: low voltage shutdown");
 #endif
-    bPowerControlVoltage = true;
-    bPiShutdown = true;
+    uiPowerPi |= POWER_ACTION_OFF|POWER_ACTION_SHUTDOWN|POWER_CONTROL_VOLTAGE;
     // Attempt to power-on in one hour and see what gives
     if(iRtcState == RTC_STATE_UNSET) {
       iRtcState = RTC_STATE_TIMER;
@@ -672,12 +757,12 @@ void loop() {
     }
   }
 #if TEMPERATURE_PIN
-  if(fTemperature > (bPowerControlTemperature ? POWER_CONTROL_TEMPERATURE_LOW : POWER_CONTROL_TEMPERATURE_HIGH) and (bPiPowered or bPiPoweron)) {
+  if((uiPowerPi & (POWER_STATUS_ON|POWER_ACTION_ON)) and fTemperature > ((uiPowerPi & POWER_CONTROL_TEMPERATURE) ? POWER_CONTROL_TEMPERATURE_LOW : POWER_CONTROL_TEMPERATURE_HIGH)) {
+    // ... temperature-driven
 #if DEBUG
     Serial.println("Environment: high temperature shutdown");
 #endif
-    bPowerControlTemperature = true;
-    bPiShutdown = true;
+    uiPowerPi |= POWER_ACTION_OFF|POWER_ACTION_SHUTDOWN|POWER_CONTROL_TEMPERATURE;
     // Attempt to power-on in one hour and see what gives
     if(iRtcState == RTC_STATE_UNSET) {
       iRtcState = RTC_STATE_TIMER;
@@ -690,9 +775,10 @@ void loop() {
 #endif
 
   // Raspberry Pi power
-  if(bPiShutdown or bPiPoweroff) {
-    if(bPiPowered) {
-      if(bPiPoweroff) {
+  // (action precedence: power off > shut down > power on)
+  if(uiPowerPi & POWER_ACTION_OFF) {
+    if(uiPowerPi & POWER_STATUS_ON) {
+      if(not (uiPowerPi & POWER_ACTION_SHUTDOWN)) {
 #if DEBUG
         Serial.println("Raspberry Pi: power off");
 #endif
@@ -704,69 +790,68 @@ void loop() {
 #endif
         SleepyPi.piShutdown();
       }
-      bPiPowered = false;
-#if EXPANSION_ENABLE and not (TEMPERATURE_PIN and EXPANSION_TEMPERATURE and EXPANSION_TEMPERATURE_MODE == 0)
+      uiPowerPi &= ~POWER_STATUS_MASK;
+#if POWER_EXPANSION and not (TEMPERATURE_PIN and EXPANSION_TEMPERATURE and EXPANSION_TEMPERATURE_MODE == 0)
       // Power Expansion down along the Raspberry Pi
-      bExpansionPoweroff = true;
+      uiPowerExpansion |= POWER_ACTION_OFF;
 #endif
     }
   }
-  else if(bPiPoweron) {
-    if(not bPiPowered) {
+  else if(uiPowerPi & POWER_ACTION_ON) {
+    if(not (uiPowerPi & POWER_STATUS_ON)) {
 #if DEBUG
       Serial.println("Raspberry Pi: power on");
 #endif
       SleepyPi.enablePiPower(true);
-      bPiPowered = true;
-#if EXPANSION_ENABLE and not (TEMPERATURE_PIN and EXPANSION_TEMPERATURE)
+      uiPowerPi |= POWER_STATUS_ON;
+#if POWER_EXPANSION and not (TEMPERATURE_PIN and EXPANSION_TEMPERATURE)
       // Power Expansion up along the Raspberry Pi
-      bExpansionPoweron = true;
+      uiPowerExpansion |= POWER_ACTION_ON;
 #endif
     }
-    bPowerControlVoltage = false;
-    bPowerControlTemperature = false;
+    uiPowerPi &= ~POWER_CONTROL_MASK;
   }
 
-#if EXPANSION_ENABLE
+#if POWER_EXPANSION
   // Power Expansion
 #if TEMPERATURE_PIN and EXPANSION_TEMPERATURE
   // <-> temperature-controlled
   if(fTemperature > EXPANSION_TEMPERATURE_ON) {
-    bExpansionPoweron = true;
+    uiPowerExpansion |= POWER_ACTION_ON;
   }
   else if(fTemperature < EXPANSION_TEMPERATURE_OFF) {
-    bExpansionPoweroff = true;
+    uiPowerExpansion |= POWER_ACTION_OFF;
   }
 #if EXPANSION_TEMPERATURE_MODE == 1
   // <-> force on when Raspberry Pi is on
-  if(bPiPowered) {
-    bExpansionPoweron = true;
+  if(uiPowerPi & POWER_STATUS_ON) {
+    uiPowerExpansion |= POWER_ACTION_ON;
   }
 #endif
 #if EXPANSION_TEMPERATURE_MODE == 2
   // <-> force off when Raspberry Pi is off
-  if(not bPiPowered) {
-    bExpansionPoweron = false;
-    bExpansionPoweroff = true;
+  if(not (uiPowerPi & POWER_STATUS_ON)) {
+    uiPowerExpansion &= ~POWER_ACTION_MASK;
+    uiPowerExpansion |= POWER_ACTION_OFF;
   }
 #endif
 #endif
-  if(bExpansionPoweron) {
-    if(not bExpansionPowered) {
+  if(uiPowerExpansion & POWER_ACTION_ON) {
+    if(not (uiPowerExpansion & POWER_STATUS_ON)) {
 #if DEBUG
       Serial.println("Expansion: power on");
 #endif
       SleepyPi.enableExtPower(true);
-      bExpansionPowered = true;
+      uiPowerExpansion |= POWER_STATUS_ON;
     }
   }
-  else if(bExpansionPoweroff) {
-    if(bExpansionPowered) {
+  else if(uiPowerExpansion & POWER_ACTION_OFF) {
+    if(uiPowerExpansion & POWER_STATUS_ON) {
 #if DEBUG
       Serial.println("Expansion: power off");
 #endif
       SleepyPi.enableExtPower(false);
-      bExpansionPowered = false;
+      uiPowerExpansion &= ~POWER_STATUS_MASK;
     }
   }
 #endif
@@ -787,7 +872,7 @@ void loop() {
   // Power the Sleepy Pi down
   // - Disable the Analog/Digital Converter (ADC)
   // - Disable the Brown-Out Detection (BOD; low-voltage detection)
-#if POWER_CONTROL or (EXPANSION_ENABLE and TEMPERATURE_PIN and EXPANSION_TEMPERATURE)
+#if WATCHDOG or POWER_CONTROL or (POWER_EXPANSION and TEMPERATURE_PIN and EXPANSION_TEMPERATURE)
   SleepyPi.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);
 #else
   SleepyPi.powerDown(SLEEP_FOREVER, ADC_OFF, BOD_OFF);

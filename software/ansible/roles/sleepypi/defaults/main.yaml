@@ -4,6 +4,13 @@
 SLEEPYPI_ENABLE: true
 
 
+## Sleepy Pi Watchdog configuration
+SLEEPYPI_WATCHDOG_ENABLE: false
+
+# Heartbeat interval (seconds)
+SLEEPYPI_WATCHDOG_INTERVAL: "60"
+
+
 ## Sleepy Pi Sunwatch configuration
 SLEEPYPI_SUNWATCH_ENABLE: false
 

@@ -13,7 +13,7 @@
       - python3-rpi.gpio
       - python3-smbus
 
-- name: "Install Spleepy Pi (client) script"
+- name: "Install Sleepy Pi (client) script"
   tags:
     - sleepypi
     - install
@@ -24,7 +24,7 @@
     group: "root"
     mode: 0755
 
-- name: "Install Spleepy Pi (agent) script"
+- name: "Install Sleepy Pi (agent) script"
   tags:
     - sleepypi
     - install
@@ -36,7 +36,19 @@
     mode: 0755
   notify: "Restart Sleepy Pi (agent) service (reload configuration)"
 
-- name: "Install Spleepy Pi (sunwatch) script"
+- name: "Install Sleepy Pi (watchdog) script"
+  tags:
+    - sleepypi
+    - install
+  copy:
+    src: "sleepy-pi-watchdog.py"
+    dest: "/usr/local/bin/sleepy-pi-watchdog"
+    owner: "root"
+    group: "root"
+    mode: 0755
+  notify: "Restart Sleepy Pi (watchdog) service (reload configuration)"
+
+- name: "Install Sleepy Pi (sunwatch) script"
   tags:
     - sleepypi
     - install
@@ -48,7 +60,7 @@
     mode: 0755
   notify: "Restart Sleepy Pi (sunwatch) service (reload configuration)"
 
-- name: "Install Spleepy Pi (agent) service"
+- name: "Install Sleepy Pi (agent) service"
   tags:
     - sleepypi
     - install
@@ -60,7 +72,31 @@
     mode: 0644
   notify: "Restart Sleepy Pi (agent) service (reload configuration)"
 
-- name: "Install Spleepy Pi (sunwatch) service"
+- name: "Install Sleepy Pi (watchdog) service"
+  tags:
+    - sleepypi
+    - install
+  copy:
+    src: "sleepy-pi-watchdog.service"
+    dest: "/etc/systemd/system/sleepy-pi-watchdog.service"
+    owner: "root"
+    group: "root"
+    mode: 0644
+  notify: "Restart Sleepy Pi (watchdog) service (reload configuration)"
+
+- name: "Configure Sleepy Pi (watchdog) service"
+  tags:
+    - sleepypi
+    - configure
+  template:
+    src: "sleepy-pi-watchdog.j2"
+    dest: "/etc/default/sleepy-pi-watchdog"
+    owner: "root"
+    group: "root"
+    mode: 0644
+  notify: "Restart Sleepy Pi (watchdog) service (reload configuration)"
+
+- name: "Install Sleepy Pi (sunwatch) service"
   tags:
     - sleepypi
     - install
@@ -72,7 +108,7 @@
     mode: 0644
   notify: "Restart Sleepy Pi (sunwatch) service (reload configuration)"
 
-- name: "Configure Spleepy Pi (sunwatch) service"
+- name: "Configure Sleepy Pi (sunwatch) service"
   tags:
     - sleepypi
     - configure
@@ -84,7 +120,7 @@
     mode: 0644
   notify: "Restart Sleepy Pi (sunwatch) service (reload configuration)"
 
-- name: "Enable and start Spleepy Pi (agent) service"
+- name: "Enable and start Sleepy Pi (agent) service"
   tags:
     - sleepypi
     - service
@@ -94,7 +130,17 @@
     state: started
   ignore_errors: "{{ ansible_check_mode }}"
 
-- name: "Enable and start Spleepy Pi (sunwatch) service"
+- name: "Enable and start Sleepy Pi (watchdog) service"
+  tags:
+    - sleepypi
+    - service
+  service:
+    name: "sleepy-pi-watchdog"
+    enabled: "{{ SLEEPYPI_WATCHDOG_ENABLE|bool | ternary('yes', 'no') }}"
+    state: "{{ SLEEPYPI_WATCHDOG_ENABLE|bool | ternary('started', 'stopped') }}"
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: "Enable and start Sleepy Pi (sunwatch) service"
   tags:
     - sleepypi
     - service

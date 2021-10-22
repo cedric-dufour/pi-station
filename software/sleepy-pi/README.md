@@ -140,10 +140,13 @@ The following options are available to fine-tune the Sleepy Pi program (in [slee
   sensor available; see the [Sleepy Pi Expansion Pinout][sleepy-pi-pinout] for the _A0/A1_ pins
   position
 
+* `WATCHDOG`: set to `true` to enable the Raspberry Pi wacthdog and trigger restart on missing
+  heartbeat; **WARNING:** make sure to install and run the `sleepy-pi-watchdog` script/service!
+
 * `POWER_CONTROL`: set to `true` to swith the Raspberry Pi on/off dependending on
   "safe" (low) voltage or (high) temperature thresholds
 
-* `EXPANSION_ENABLE`: set to `true` to power the Sleepy Pi Expansion power along the
+* `POWER_EXPANSION`: set to `true` to power the Sleepy Pi Expansion power along the
   Raspberry Pi (e.g. to control an external fan); see the [Sleepy Pi Expansion Pinout][sleepy-pi-pinout]
   for the _Switched Expansion Power_ pins position
 

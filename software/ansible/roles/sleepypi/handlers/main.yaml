@@ -11,6 +11,16 @@
     state: restarted
   ignore_errors: "{{ ansible_check_mode }}"
 
+- name: "Restart Sleepy Pi (watchdog) service (reload configuration)"
+  tags:
+    - sleepypi
+    - service
+  service:
+    name: "sleepy-pi-watchdog"
+    state: restarted
+  when: SLEEPYPI_WATCHDOG_ENABLE|bool
+  ignore_errors: "{{ ansible_check_mode }}"
+
 - name: "Restart Sleepy Pi (sunwatch) service (reload configuration)"
   tags:
     - sleepypi
