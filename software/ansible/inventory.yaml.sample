@@ -106,6 +106,12 @@ all:
     # ... v4l
     #V4L_ENABLE: false
 
+    # ... reboot
+    #REBOOT_ENABLE: false
+    #REBOOT_SCHEDULED_ONCALENDAR: "weekly"
+    #REBOOT_SCHEDULED_FORCED: true
+    #REBOOT_SCHEDULED_UNGRACEFUL: false
+
     # ... i2c
     #I2C_ENABLE: true
 

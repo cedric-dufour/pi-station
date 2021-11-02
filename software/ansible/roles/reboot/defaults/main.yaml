@@ -1,0 +1,15 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Defaults
+REBOOT_ENABLE: false
+
+## Scheduled reboot configuration
+
+# Schedule (systemd OnCalendar stanza)
+# REF: https://www.freedesktop.org/software/systemd/man/systemd.timer.html#OnCalendar=
+REBOOT_SCHEDULED_ONCALENDAR: "weekly"
+
+# Reboot type
+# REF: https://freedesktop.org/software/systemd/man/systemctl.html#reboot
+REBOOT_SCHEDULED_FORCED: true
+REBOOT_SCHEDULED_UNGRACEFUL: false

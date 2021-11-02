@@ -1,0 +1,14 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Scheduled Reboot setup: disable
+
+- name: "Uninstall Scheduled Reboot timer/service"
+  tags:
+    - reboot
+    - install
+  file:
+    state: absent
+    name: "/etc/systemd/system/scheduled-reboot.{{ item }}"
+  loop:
+    - "timer"
+    - "service"

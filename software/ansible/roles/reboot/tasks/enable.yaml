@@ -1,0 +1,27 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Scheduled Reboot setup: enable
+
+- name: "Install Scheduled Reboot timer/service"
+  tags:
+    - reboot
+    - install
+  template:
+    src: "scheduled-reboot.{{ item }}.j2"
+    dest: "/etc/systemd/system/scheduled-reboot.{{ item }}"
+    owner: "root"
+    group: "root"
+    mode: 0644
+  loop:
+    - "service"
+    - "timer"
+
+- name: "Enable and start Scheduled Reboot timer"
+  tags:
+    - reboot
+    - service
+  service:
+    name: "scheduled-reboot.timer"
+    enabled: true
+    state: started
+  ignore_errors: "{{ ansible_check_mode }}"

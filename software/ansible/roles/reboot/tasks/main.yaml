@@ -1,0 +1,10 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Scheduled Reboot setup
+
+- name: "Scheduled Reboot setup"
+  tags:
+    - reboot
+    - always
+  include_tasks:
+    file: "{{ REBOOT_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"

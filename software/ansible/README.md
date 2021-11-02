@@ -96,6 +96,8 @@ The following Roles are available to configure the Pi Station:
 
 * `v4l`: setup Video-4-Linux (V4L) cameras (hardware and software dependencies)
 
+* `reboot`: schedule regular reboot
+
 * `i2c`: setup the I2C bus (hardware and software dependencies)
 
 * `pcf8523`: setup the PCF8523 Real-Time Clock (RTC)
