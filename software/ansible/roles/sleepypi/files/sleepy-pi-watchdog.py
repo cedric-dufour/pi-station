@@ -26,6 +26,14 @@ oArgumentParser.add_argument(
     default=int(os.environ.get('SLEEPYPI_WATCHDOG_INTERVAL', 60)),
 )
 
+# Verbose
+oArgumentParser.add_argument(
+    "--verbose",
+    help="Verbose output",
+    action="store_true",
+    default=False,
+)
+
 
 ## Constants
 
@@ -39,12 +47,14 @@ SLEEPYPI_I2C_COMMAND_HEARTBEAT_W = 0xF0
 ## Main
 oArguments = oArgumentParser.parse_args()
 iInterval = oArguments.interval
+bVerbose = oArguments.verbose
 
 # Loop
 oI2C = smbus.SMBus(SLEEPYPI_I2C_BUS)
 while True:
     # Heartbeat
-    print(f"Heartbeat")
+    if(bVerbose):
+        print(f"Heartbeat")
     # ... send heartbeat command (I2C)
     oI2C.write_i2c_block_data(SLEEPYPI_I2C_ADDRESS, SLEEPYPI_I2C_COMMAND_HEARTBEAT_W, [])
     time.sleep(iInterval)
