@@ -7,11 +7,3 @@
     - cleanup
   command:
     cmd: "swapoff --all"
-
-- name: "Uninstall orphaned library packages"
-  tags:
-    - cleanup
-  include_tasks:
-    file: "handlers/orphan_item.yaml"
-  loop: "{{ cleanup_library_packages.stdout_lines }}"
-  when: CLEANUP_ORPHANLIBS|bool and cleanup_library_packages.stdout

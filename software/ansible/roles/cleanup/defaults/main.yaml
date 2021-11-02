@@ -10,6 +10,5 @@ CLEANUP_ENABLE: true
 # (if you need to compile some custom software on the Pi, set this to false)
 CLEANUP_BUILDUTILS: true
 
-# Uninstall orphaned libraries
-# (this takes several minutes)
-CLEANUP_ORPHANLIBS: true
+# Uninstall orphaned packages
+CLEANUP_ORPHANS: true

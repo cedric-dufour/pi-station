@@ -10,6 +10,7 @@
     name:
       - python3
       - python3-apt
+      - deborphan
 
 - name: "Configure APT"
   # Do not install recommended or translation packages
@@ -91,7 +92,6 @@
     autoremove: true
     name:
       - rsyslog
-  notify: "Uninstall orphaned library packages"
 
 - name: "Lookup physical logs"
   tags:
@@ -146,9 +146,7 @@
     autoremove: true
     name:
       - dphys-swapfile
-  notify:
-    - "Disable swap"
-    - "Uninstall orphaned library packages"
+  notify: "Disable swap"
 
 - name: "Remove unnecessary packages"
   # Each package that is uninstalled is one package less that uses disk capacity, requires updating
@@ -184,7 +182,6 @@
       - tasksel
       - tasksel-data
       - triggerhappy
-  notify: "Uninstall orphaned library packages"
 
 - name: "Remove build packages"
   tags:
@@ -206,7 +203,6 @@
       - gcc-7-base
       - g++
       - g++-8
-  notify: "Uninstall orphaned library packages"
   when: CLEANUP_BUILDUTILS|bool
 
 - name: "Lookup uninstalled packages dependencies"
@@ -229,7 +225,6 @@
     purge: true
     autoremove: true
     name: "{{ cleanup_deinstalled.stdout_lines }}"
-  notify: "Uninstall orphaned library packages"
   when: cleanup_deinstalled.stdout
 
 - name: "Update all installed packages"
@@ -239,16 +234,29 @@
   apt:
     upgrade: dist
 
-- name: "Lookup library packages"
+- name: "Lookup orphaned packages"
   tags:
     - cleanup
     - packages
   shell: |
     set -e -o pipefail
-    dpkg --get-selections | awk '{if($1~"^lib") print $1}' | cut -d: -f1 | sort
-  register: cleanup_library_packages
+    join -v 1 \
+      <(deborphan --guess-common --guess-data --guess-dev | sort) \
+      <(apt-mark showmanual | sort)
+  register: cleanup_orphans
   changed_when: false
   check_mode: false
+
+- name: "Remove orphaned packages"
+  tags:
+    - cleanup
+    - packages
+  apt:
+    state: absent
+    purge: true
+    autoremove: true
+    name: "{{ cleanup_orphans.stdout_lines }}"
+  when: CLEANUP_ORPHANS|bool
 
 - name: "Lookup APT cache"
   tags:
