@@ -11,7 +11,8 @@ On a workstation/laptop:
 
 ``` bash
 # Download
-wget https://downloads.raspberrypi.org/raspios_lite_armhf_latest -O raspios.zip
+wget https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2021-05-28/2021-05-07-raspios-buster-armhf-lite.zip
+ln -s 2021-05-07-raspios-buster-armhf-lite.zip raspios.zip
 ```
 
 * Insert the SD card and mark its device identifier (`sdX`):
@@ -87,6 +88,9 @@ SSH Access
 * Install and enable SSH:
 
 ``` bash
+# Update APT software repository
+sudo agt-get update
+
 # Install the OpenSSH server
 sudo apt-get install --no-install-recommends openssh-server
 
