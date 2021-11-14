@@ -107,7 +107,15 @@ The following Roles are available to configure the Pi Station:
 
 * `rtlsdr`: setup the Realtek RTL2832U Software Defined Radio (SDR)
 
-* `ogn`: setup the [Open Glider Network (OGN)][ogn] receiver and decoder
+* `ogn`: setup the [Open Glider Network (OGN)][ogn] receiver and decoder.
+  **WARNING:** RaspiOS 11 (Bullseye, 64-bit) is not (yet) officially supported by OGN;
+  **meanwhile**, please override the following configuration in your `inventory.yaml`:
+
+``` yaml
+OGN_VERSION: "0.2.9"
+OGN_TARBALL: "rtlsdr-ogn-bin-{{ OGN_ARCHITECTURE|lower }}-{{ OGN_VERSION }}_Buster.tgz"
+OGN_DOWNLOAD_URL: "https://github.com/pjalocha/ogn-frb-search/raw/main/rtlsdr-ogn/{{ OGN_TARBALL }}"
+```
 
 [wireguard]: https://www.wireguard.com/
 [freedns]: https://freedns.afraid.org/

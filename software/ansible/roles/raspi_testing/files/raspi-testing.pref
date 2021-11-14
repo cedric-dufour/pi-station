@@ -2,5 +2,5 @@
 
 # Priority pinning
 Package: *
-Pin: release n=bullseye
+Pin: release n=bookworm
 Pin-Priority: 50

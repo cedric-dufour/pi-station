@@ -11,8 +11,8 @@ On a workstation/laptop:
 
 ``` bash
 # Download
-wget https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2021-05-28/2021-05-07-raspios-buster-armhf-lite.zip
-ln -s 2021-05-07-raspios-buster-armhf-lite.zip raspios.zip
+wget https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2021-11-08/2021-10-30-raspios-bullseye-arm64-lite.zip
+ln -s 2021-10-30-raspios-bullseye-arm64-lite.zip raspios.zip
 ```
 
 * Insert the SD card and mark its device identifier (`sdX`):
@@ -63,7 +63,7 @@ Bootstrap
 sudo raspi-config
 
 # Change user password
-# > 1. Change User Password
+# > 1 System Options > S3 Password
 ```
 
 * Configure the WLAN connection:
@@ -72,9 +72,8 @@ sudo raspi-config
 # Start the Raspberry Pi configuration utility
 sudo raspi-config
 
-# Set the WLAN country
-# > 4. Localisation Options > I4. Change WLAN Country
-# > 2. Network Options >  N2. Wireless LAN
+# Set the Wireless LAN
+# > 1 System Options > S1 Wireless LAN
 
 # Verify an IP address is obtained (via DHCP)
 ip addr show dev wlan0

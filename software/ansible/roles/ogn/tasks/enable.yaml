@@ -28,8 +28,7 @@
     name:
       - libconfig9
       - libfftw3-3
-      - libjpeg8
-      - reptyr
+      #- reptyr  # Currently N/A for arm64
 
 - name: "Create OGN group"
   tags:

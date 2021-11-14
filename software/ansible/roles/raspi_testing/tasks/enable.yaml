@@ -19,4 +19,4 @@
     - install
   apt_repository:
     filename: "raspi-testing"
-    repo: "deb http://raspbian.raspberrypi.org/raspbian/ bullseye main contrib non-free rpi"
+    repo: "deb http://raspbian.raspberrypi.org/raspbian/ bookworm main contrib non-free rpi"

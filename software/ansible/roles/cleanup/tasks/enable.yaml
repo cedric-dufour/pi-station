@@ -182,6 +182,7 @@
       - tasksel
       - tasksel-data
       - triggerhappy
+      - vcdbg
 
 - name: "Remove build packages"
   tags:
@@ -194,14 +195,20 @@
     name:
       - build-essential
       - cpp
-      - cpp-8
+      - cpp-10
       - gcc
-      - gcc-8
-      - gcc-4.9-base
-      - gcc-5-base
-      - gcc-6-base
+      - gcc-10
+      - gcc-9-base
+      - gcc-8-base
       - gcc-7-base
       - g++
+      - g++-10
+      # (buster legacy)
+      - cpp-8
+      - gcc-8
+      - gcc-6-base
+      - gcc-5-base
+      - gcc-4.9-base
       - g++-8
   when: CLEANUP_BUILDUTILS|bool
 
