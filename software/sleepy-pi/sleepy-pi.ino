@@ -459,7 +459,9 @@ void i2c() {
 
 #if WATCHDOG
   case I2C_OPCODE_HEARTBEAT:
-    uiWatchdogTime = uiNow;
+    if(uiNow > uiWatchdogTime) {  // WARNING: RTC may return erroneous (past) value!
+      uiWatchdogTime = uiNow;
+    }
     iWatchdogAttempts = 0;
     break;
 #endif  // WATCHDOG
@@ -660,7 +662,7 @@ void loop() {
   }
   bButtonInterrupted = false;
   if(iButtonState == BUTTON_STATE_PRESSED) {
-    delay(250);
+    delay(100);
     goto endLoop;
   }
 
@@ -706,7 +708,7 @@ void loop() {
 
 #if WATCHDOG
   // Watchdog
-  if(uiWatchdogTime != 0) {
+  if(uiWatchdogTime != 0 and uiNow > uiWatchdogTime) {  // WARNING: RTC may return erroneous (past) value!
     if(uiPowerPi & POWER_ACTION_ON) {
       uiWatchdogTime = uiNow;
       iWatchdogAttempts = 0;
@@ -723,7 +725,7 @@ void loop() {
         Serial.println("Watchdog: timeout");
         Serial.println("Raspberry Pi: shut down");
 #endif  // DEBUG
-        SleepyPi.piShutdown();
+        SleepyPi.piShutdown((long)POWER_CURRENT_THRESHOLD);
         uiPowerPi &= ~POWER_STATUS_MASK;
         uiWatchdogTime = uiNow;
         if(iWatchdogAttempts < WATCHDOG_ATTEMPTS) {
@@ -884,6 +886,7 @@ void loop() {
 #if DEBUG
   Serial.println("AWOKEN");
 #endif  // DEBUG
+  delay(100);  // give ISRs and ADCs some time
   if(iRtcState and (bButtonInterrupted or bRtcInterrupted)) {
     rtcUnset();  // <-> I2C (internally)
   }
