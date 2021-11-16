@@ -464,12 +464,11 @@ void i2c() {
     break;
 #endif  // WATCHDOG
 
-  case I2C_OPCODE_REFRESH:
-    // A request ought to come soon
-    delay(1000);
-    break;
-
   default:
+    if(yI2cOpCode < I2C_OPCODE_REFRESH) {
+      // A request ought to come soon
+      delay(1000);
+    }
     break;
 
   }
@@ -671,6 +670,12 @@ void loop() {
   }
   bRtcInterrupted = false;
 
+  // I2C
+  if(yI2cOpCode > I2C_OPCODE_NONE) {
+    i2c();
+  }
+  bI2cInterrupted = false;
+
   // Environment
   uiNow = SleepyPi.readTime().unixtime();  // <-> I2C (internally)
   fVoltage = SleepyPi.supplyVoltage();
@@ -689,12 +694,6 @@ void loop() {
   Serial.print("Temperature Ambient [K]: ");
   Serial.println(fTemperature);
 #endif  // DEBUG
-
-  // I2C
-  if(yI2cOpCode > I2C_OPCODE_NONE) {
-    i2c();
-  }
-  bI2cInterrupted = false;
 
   // Raspberry Pi status (cont'd)
   if(fCurrent > POWER_CURRENT_THRESHOLD) {
@@ -869,7 +868,7 @@ void loop() {
   // Sleep
 #if DEBUG
   Serial.println("SLEEP");
-  delay(250);  // allow Serial.print-ed content to reach the line
+  delay(100);  // allow Serial.print-ed content to reach the line
 #endif  // DEBUG
   // Power the Sleepy Pi down
   // - Disable the Analog/Digital Converter (ADC)

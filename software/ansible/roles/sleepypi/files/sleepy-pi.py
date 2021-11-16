@@ -65,6 +65,7 @@ oArgumentParser.add_argument(
 SLEEPYPI_I2C_BUS = 1
 SLEEPYPI_I2C_ADDRESS = 0x40
 SLEEPYPI_I2C_READ_DELAY = 0.250
+SLEEPYPI_I2C_READ_ATTEMPTS = 20
 # ... commands
 SLEEPYPI_I2C_COMMAND_VOLTAGE_R = 0x01
 SLEEPYPI_I2C_COMMAND_CURRENT_R = 0x02
@@ -89,7 +90,7 @@ def sleepypi_i2c_write(iCommand, lData=None):
 def sleepypi_i2c_read(iCommand):
     mValue = None
     sleepypi_i2c_write(SLEEPYPI_I2C_COMMAND_REFRESH_R)
-    for _i in range(1, 40):
+    for _i in range(1, SLEEPYPI_I2C_READ_ATTEMPTS):
         time.sleep(SLEEPYPI_I2C_READ_DELAY)
         try:
             mValue = oI2C.read_word_data(SLEEPYPI_I2C_ADDRESS, iCommand)
@@ -138,3 +139,4 @@ elif oArguments.action == "expansionoff":
     sleepypi_i2c_write(SLEEPYPI_I2C_COMMAND_EXPANSIONOFF_W)
 elif oArguments.action == "expansionon":
     sleepypi_i2c_write(SLEEPYPI_I2C_COMMAND_EXPANSIONON_W)
+oI2C.close()
