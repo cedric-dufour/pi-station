@@ -56,7 +56,7 @@ oArgumentParser.add_argument(
 
 # I2C
 SLEEPYPI_I2C_BUS = 1
-SLEEPYPI_I2C_ADDRESS = 0x04
+SLEEPYPI_I2C_ADDRESS = 0x40
 # ... commands
 SLEEPYPI_I2C_COMMAND_WAKEAT_W = 0x83
 

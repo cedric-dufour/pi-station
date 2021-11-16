@@ -27,7 +27,7 @@
 //   OR
 //   - power Expansion along the temperature
 //
-// * I2C slave, on address 0x04:
+// * I2C slave, on address 0x40:
 //   - read:
 //     > Sleepy Pi voltage [mV]    : command 0x01, request 2 bytes
 //     > Raspberry Pi current [mA] : command 0x02, request 2 bytes
@@ -42,13 +42,13 @@
 //     > Watchdog heartbeat        : command 0xF0
 //   to read:
 //   - send the Refresh command;
-//     > i2cset -y 1 0x04 0x80
+//     > i2cset -y 1 0x40 0x80
 //   - wait 250ms (for the Sleepy Pi to wake-up and perform ADC readings)
 //   - request the desired data (within 500ms of the command); e.g read Sleepy Pi voltage
-//     > i2cget -y 1 0x04 0x01 w
+//     > i2cget -y 1 0x40 0x01 w
 //   to write:
 //   - send the desired command/data; e.g. Wake-on-Alarm at 08h05 (UTC)
-//     > i2cset -y 1 0x04 0x82 0x08 0x05 i
+//     > i2cset -y 1 0x40 0x82 0x08 0x05 i
 //
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -167,7 +167,7 @@
 //
 
 // I2C (slave) address
-#define I2C_ADDRESS 0x04
+#define I2C_ADDRESS 0x40
 
 // I2C commands
 #define I2C_OPCODE_NONE           0x00
