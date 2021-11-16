@@ -50,11 +50,12 @@ iInterval = oArguments.interval
 bVerbose = oArguments.verbose
 
 # Loop
-oI2C = smbus.SMBus(SLEEPYPI_I2C_BUS)
 while True:
     # Heartbeat
     if(bVerbose):
         print(f"Heartbeat")
     # ... send heartbeat command (I2C)
+    oI2C = smbus.SMBus(SLEEPYPI_I2C_BUS)
     oI2C.write_i2c_block_data(SLEEPYPI_I2C_ADDRESS, SLEEPYPI_I2C_COMMAND_HEARTBEAT_W, [])
+    oI2C.close()
     time.sleep(iInterval)
