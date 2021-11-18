@@ -32,23 +32,25 @@
 //     > Sleepy Pi voltage [mV]    : command 0x01, request 2 bytes
 //     > Raspberry Pi current [mA] : command 0x02, request 2 bytes
 //     > Temperature [cK]          : command 0x02, request 2 bytes
-//     > Refresh                   : command 0x80
+//     > Request                   : command 0x80
 //   - write:
 //     > Shutdown                  : command 0x81
 //     > Shutdown + Wake-on-Timer  : command 0x82, send 1(2,3) bytes: minute, (hour), (day)
 //     > Shutdown + Wake-on-Alarm  : command 0x83, send 2(3) bytes: hour, minute, (day)
 //     > Expansion power off       : command 0x91
 //     > Expansion power on        : command 0x92
-//     > Watchdog heartbeat        : command 0xF0
+//     > Watchdog heartbeat (on)   : command 0xA1
+//     > Watchdog off              : command 0xA2
 //   to read:
-//   - send the Refresh command;
-//     > i2cset -y 1 0x40 0x80
-//   - wait 250ms (for the Sleepy Pi to wake-up and perform ADC readings)
-//   - request the desired data (within 500ms of the command); e.g read Sleepy Pi voltage
-//     > i2cget -y 1 0x40 0x01 w
+//   - refresh the desired data; e.g Sleepy Pi voltage
+//     > i2cset -y 1 0x40 0x01
+//   - wait 250ms (for the Sleepy Pi to wake-up, perform ADC readings and update I2C registers)
+//     > sleep 0.25
+//   - read the desired data
+//     > i2cget -y 1 0x40 0x80 w
 //   to write:
 //   - send the desired command/data; e.g. Wake-on-Alarm at 08h05 (UTC)
-//     > i2cset -y 1 0x40 0x82 0x08 0x05 i
+//     > i2cset -y 1 0x40 0x83 0x08 0x05 i
 //
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -170,21 +172,28 @@
 #define I2C_ADDRESS 0x40
 
 // I2C commands
-#define I2C_OPCODE_NONE           0x00
-#define I2C_OPCODE_VOLTAGE_R      0x01
-#define I2C_OPCODE_CURRENT_R      0x02
-#define I2C_OPCODE_TEMPERATURE_R  0x03
-#define I2C_OPCODE_REFRESH        0x80
-#define I2C_OPCODE_SHUTDOWN_W     0x81
-#define I2C_OPCODE_WAKEONTIMER_W  0x82
-#define I2C_OPCODE_WAKEONALARM_W  0x83
-#define I2C_OPCODE_EXPANSIONOFF_W 0x91
-#define I2C_OPCODE_EXPANSIONON_W  0x92
-#define I2C_OPCODE_HEARTBEAT      0xF0
-#define I2C_OPCODE_DETECT         0xFF
+#define I2C_OPCODE_NONE          0x00
+// ... read
+#define I2C_OPCODE_VOLTAGE_R     0x01
+#define I2C_OPCODE_CURRENT_R     0x02
+#define I2C_OPCODE_TEMPERATURE_R 0x03
+#define I2C_OPCODE_REQUEST       0x80
+// ... write
+#define I2C_OPCODE_SHUTDOWN      0x81
+#define I2C_OPCODE_RTC_TIMER_W   0x82
+#define I2C_OPCODE_RTC_ALARM_W   0x83
+#define I2C_OPCODE_EXPANSION_OFF 0x91
+#define I2C_OPCODE_EXPANSION_ON  0x92
+#define I2C_OPCODE_WATCHDOG_PING 0xA1
+#define I2C_OPCODE_WATCHDOG_OFF  0xA2
+#define I2C_OPCODE_DETECT        0xFF
 
 // I2C values
 #define I2C_VALUE_UNSET 0xFF
+
+// I2C buffers
+#define I2C_BUFFER_RECEIVE_SIZE 3
+#define I2C_BUFFER_REQUEST_SIZE 2
 
 
 //
@@ -238,24 +247,27 @@ float fTemperature;  // [K]
 #if WATCHDOG
 // Watchdog
 uint32_t uiWatchdogTime;
-int iWatchdogAttempts;
+uint8_t yWatchdogAttempts;
 #endif  // WATCHDOG
 
 // Button state tracking
 volatile bool bButtonInterrupted;
-int iButtonState;
+uint8_t yButtonState;
 unsigned long ulButtonPressedTime;
 
 // RTC state tracking
 volatile bool bRtcInterrupted;
-int iRtcState;
+uint8_t yRtcState;
+uint8_t yRtcDay;
+uint8_t yRtcHour;
+uint8_t yRtcMinute;
 
 // I2C state tracking
 volatile bool bI2cInterrupted;
 volatile uint8_t yI2cOpCode;
-volatile uint8_t yI2cValDay;
-volatile uint8_t yI2cValHour;
-volatile uint8_t yI2cValMinute;
+volatile uint8_t pyI2cReceiveBuffer[I2C_BUFFER_RECEIVE_SIZE];
+uint8_t pyI2cRequestBuffer[I2C_BUFFER_REQUEST_SIZE];
+uint8_t yI2cRequestSize;
 
 
 
@@ -285,64 +297,19 @@ void isrRtc() {
 void isrI2cReceive(int iBytes) {
   bI2cInterrupted = true;
   yI2cOpCode = iBytes-- > 0 ? Wire.read() : I2C_OPCODE_NONE;
-  switch(yI2cOpCode) {
-
-  case I2C_OPCODE_WAKEONTIMER_W:
-    yI2cValMinute = iBytes-- > 0 ? Wire.read() : I2C_VALUE_UNSET;
-    yI2cValHour = iBytes-- > 0 ? Wire.read() : I2C_VALUE_UNSET;
-    yI2cValDay = iBytes-- > 0 ? Wire.read() : I2C_VALUE_UNSET;
-    break;
-
-  case I2C_OPCODE_WAKEONALARM_W:
-    yI2cValHour = iBytes-- > 0 ? Wire.read() : I2C_VALUE_UNSET;
-    yI2cValMinute = iBytes-- > 0 ? Wire.read() : I2C_VALUE_UNSET;
-    yI2cValDay = iBytes-- > 0 ? Wire.read() : I2C_VALUE_UNSET;
-    break;
-
-  default:
-    break;
-
+  if(yI2cOpCode > I2C_OPCODE_REQUEST) {
+    for(int8_t i=0; i<I2C_BUFFER_RECEIVE_SIZE; i++) {
+      pyI2cReceiveBuffer[i] = iBytes-- > 0 ? Wire.read() : I2C_VALUE_UNSET;
+    }
   }
 }
 
 // I2C Request
 void isrI2cRequest() {
   bI2cInterrupted = true;
-
-  // OpCode -> Value
-  uint32_t uiValue;
-  int iBytes;
-  switch(yI2cOpCode) {
-
-  case I2C_OPCODE_VOLTAGE_R:
-    uiValue = (uint32_t)(1000.0f*fVoltage);  // [mV]
-    iBytes = 2;
-    break;
-
-  case I2C_OPCODE_CURRENT_R:
-    uiValue = (uint32_t)fCurrent;  // [mA]
-    iBytes = 2;
-    break;
-
-  case I2C_OPCODE_TEMPERATURE_R:
-    uiValue = (uint32_t)(100.0f*fTemperature);  // [cK]
-    iBytes = 2;
-    break;
-
-  default:
-    uiValue = 0U;
-    iBytes = 1;
-    break;
-
+  if(yI2cRequestSize != 0) {
+    Wire.write(pyI2cRequestBuffer, yI2cRequestSize);
   }
-  yI2cOpCode = I2C_OPCODE_NONE;
-
-  // Send
-  char pValue[4];
-  for(int i=iBytes; i>=0; i--) {
-    pValue[i] = (uint8_t)(uiValue >> 8*i);
-  }
-  Wire.write(pValue, iBytes);
 }
 
 
@@ -354,17 +321,17 @@ void button() {
   detachInterrupt(BUTTON_INT);
   bButtonInterrupted = false;
 
-  switch(iButtonState) {
+  switch(yButtonState) {
 
   case BUTTON_STATE_RELEASED:
-    iButtonState = BUTTON_STATE_PRESSED;
+    yButtonState = BUTTON_STATE_PRESSED;
     digitalWrite(LED_PIN, HIGH);
     ulButtonPressedTime = millis();
     attachInterrupt(BUTTON_INT, isrButton, RISING);
     break;
 
   case BUTTON_STATE_PRESSED: {
-    iButtonState = BUTTON_STATE_RELEASED;
+    yButtonState = BUTTON_STATE_RELEASED;
     digitalWrite(LED_PIN, LOW);
     unsigned long ulButtonPressedTimeElapsed = millis() - ulButtonPressedTime;
     if(ulButtonPressedTimeElapsed > BUTTON_ELAPSED_POWEROFF) {
@@ -387,7 +354,7 @@ void button() {
 
 #if DEBUG
   Serial.print("Button: ");
-  Serial.println(iButtonState == BUTTON_STATE_PRESSED ? "pressed" : "released");
+  Serial.println(yButtonState == BUTTON_STATE_PRESSED ? "pressed" : "released");
 #endif  // DEBUG
 }
 
@@ -395,84 +362,125 @@ void i2c() {
 #if DEBUG
   Serial.print("I2C Command: ");
   Serial.println(yI2cOpCode);
-  if(yI2cOpCode > I2C_OPCODE_REFRESH) {
-    Serial.print("I2C Values (day, hour, minute): ");
-    Serial.print(yI2cValDay);
-    Serial.print(", ");
-    Serial.print(yI2cValHour);
-    Serial.print(", ");
-    Serial.println(yI2cValMinute);
+  if(yI2cOpCode > I2C_OPCODE_REQUEST) {
+    Serial.print("I2C Receive Buffer: [ ");
+    for(int8_t i=0; i<I2C_BUFFER_RECEIVE_SIZE; i++) {
+      Serial.print(pyI2cReceiveBuffer[i]);
+      Serial.print(" ");
+    }
+    Serial.println("]");
   }
 #endif  // DEBUG
 
   // I2C command
+  uint32_t uiRequestValue;
+  uint8_t yRequestSize = 0;
   switch(yI2cOpCode) {
 
-  case I2C_OPCODE_SHUTDOWN_W:
+  case I2C_OPCODE_VOLTAGE_R:
+    uiRequestValue = (uint32_t)(1000.0f*fVoltage);  // [mV]
+    yRequestSize = 2;
+    break;
+
+  case I2C_OPCODE_CURRENT_R:
+    uiRequestValue = (uint32_t)fCurrent;  // [mA]
+    yRequestSize = 2;
+    break;
+
+  case I2C_OPCODE_TEMPERATURE_R:
+    uiRequestValue = (uint32_t)(100.0f*fTemperature);  // [cK]
+    yRequestSize = 2;
+    break;
+
+  case I2C_OPCODE_SHUTDOWN:
     uiPowerPi |= POWER_ACTION_OFF|POWER_ACTION_SHUTDOWN;
     break;
 
-  case I2C_OPCODE_WAKEONTIMER_W:
-    iRtcState = RTC_STATE_TIMER;
-    if(yI2cValDay == I2C_VALUE_UNSET) {
-      yI2cValDay = 0;
+  case I2C_OPCODE_RTC_TIMER_W:
+    yRtcState = RTC_STATE_TIMER;
+    yRtcMinute = pyI2cReceiveBuffer[0];
+    yRtcHour = pyI2cReceiveBuffer[1];
+    yRtcDay = pyI2cReceiveBuffer[2];
+    if(yRtcDay == I2C_VALUE_UNSET) {
+      yRtcDay = 0;
     }
-    if(yI2cValHour == I2C_VALUE_UNSET) {
-      yI2cValHour = 0;
+    if(yRtcHour == I2C_VALUE_UNSET) {
+      yRtcHour = 0;
     }
-    if(yI2cValMinute == I2C_VALUE_UNSET) {
-      yI2cValHour = 0;
+    if(yRtcMinute == I2C_VALUE_UNSET) {
+      yRtcHour = 0;
     }
-    if(yI2cValDay == 0 and yI2cValHour == 0 and yI2cValMinute == 0) {
-      iRtcState = RTC_STATE_UNSET;
+    if(yRtcDay == 0 and yRtcHour == 0 and yRtcMinute == 0) {
+      yRtcState = RTC_STATE_UNSET;
     }
-    if(iRtcState != RTC_STATE_UNSET) {
+    if(yRtcState != RTC_STATE_UNSET) {
       uiPowerPi |= POWER_ACTION_OFF|POWER_ACTION_SHUTDOWN;
     }
     break;
 
-  case I2C_OPCODE_WAKEONALARM_W:
-    iRtcState = RTC_STATE_ALARM;
-    if(yI2cValDay != I2C_VALUE_UNSET and (yI2cValDay < 1 or yI2cValDay > 31)) {
-      iRtcState = RTC_STATE_UNSET;
+  case I2C_OPCODE_RTC_ALARM_W:
+    yRtcHour = pyI2cReceiveBuffer[0];
+    yRtcMinute = pyI2cReceiveBuffer[1];
+    yRtcDay = pyI2cReceiveBuffer[2];
+    yRtcState = RTC_STATE_ALARM;
+    if(yRtcDay != I2C_VALUE_UNSET and (yRtcDay < 1 or yRtcDay > 31)) {
+      yRtcState = RTC_STATE_UNSET;
     }
-    if(yI2cValHour == I2C_VALUE_UNSET or yI2cValHour > 23) {
-      iRtcState = RTC_STATE_UNSET;
+    if(yRtcHour == I2C_VALUE_UNSET or yRtcHour > 23) {
+      yRtcState = RTC_STATE_UNSET;
     }
-    if(yI2cValMinute == I2C_VALUE_UNSET or yI2cValMinute > 59) {
-      iRtcState = RTC_STATE_UNSET;
+    if(yRtcMinute == I2C_VALUE_UNSET or yRtcMinute > 59) {
+      yRtcState = RTC_STATE_UNSET;
     }
-    if(iRtcState != RTC_STATE_UNSET) {
+    if(yRtcState != RTC_STATE_UNSET) {
       uiPowerPi |= POWER_ACTION_OFF|POWER_ACTION_SHUTDOWN;
     }
     break;
 
 #if POWER_EXPANSION and not (TEMPERATURE_PIN and EXPANSION_TEMPERATURE)
-  case I2C_OPCODE_EXPANSIONOFF_W:
+  case I2C_OPCODE_EXPANSION_OFF:
     uiPowerExpansion |= POWER_ACTION_OFF;
     break;
 
-  case I2C_OPCODE_EXPANSIONON_W:
+  case I2C_OPCODE_EXPANSION_ON:
     uiPowerExpansion |= POWER_ACTION_ON;
     break;
 #endif  // POWER_EXPANSION and not (TEMPERATURE_PIN and EXPANSION_TEMPERATURE)
 
 #if WATCHDOG
-  case I2C_OPCODE_HEARTBEAT:
+  case I2C_OPCODE_WATCHDOG_PING:
     if(uiNow > uiWatchdogTime) {  // WARNING: RTC may return erroneous (past) value!
       uiWatchdogTime = uiNow;
     }
-    iWatchdogAttempts = 0;
+    yWatchdogAttempts = 0;
+    break;
+
+  case I2C_OPCODE_WATCHDOG_OFF:
+    uiWatchdogTime = 0;  // 0 = pending activation (via heartbeat)
+    yWatchdogAttempts = 0;
     break;
 #endif  // WATCHDOG
 
   default:
-    if(yI2cOpCode < I2C_OPCODE_REFRESH) {
-      // A request ought to come soon
-      delay(1000);
-    }
     break;
 
+  }
+
+  // Read command ?
+  if(yI2cOpCode < I2C_OPCODE_REQUEST) {
+    // I2C is LSB first
+    for(int8_t i=yRequestSize-1; i>=0; i--) {
+      pyI2cRequestBuffer[i] = (uint8_t)(uiRequestValue >> 8*i);
+    }
+    yI2cRequestSize = yRequestSize;
+#if DEBUG
+    Serial.print("I2C Request Buffer: [ ");
+    for(int8_t i=0; i<yI2cRequestSize; i++) {
+      Serial.print(pyI2cRequestBuffer[i]);
+      Serial.print(" ");
+    }
+    Serial.println("]");
+#endif  // DEBUG
   }
 
   yI2cOpCode = I2C_OPCODE_NONE;
@@ -486,40 +494,39 @@ void i2c() {
 void rtcSet() {
 #if DEBUG
   Serial.print("RTC Set (state): ");
-  Serial.println(iRtcState);
+  Serial.println(yRtcState);
   Serial.print("RTC Values (day, hour, minute): ");
-  Serial.print(yI2cValDay);
+  Serial.print(yRtcDay);
   Serial.print(", ");
-  Serial.print(yI2cValHour);
+  Serial.print(yRtcHour);
   Serial.print(", ");
-  Serial.println(yI2cValMinute);
+  Serial.println(yRtcMinute);
 #endif  // DEBUG
 
   // Enable the RTC trigger
-  switch(iRtcState) {
+  switch(yRtcState) {
 
   case RTC_STATE_TIMER: {
-    DateTime dtAlarm(uiNow + 86400L*yI2cValDay + 3600L*yI2cValHour + 60L*yI2cValMinute);
+    DateTime dtAlarm(uiNow + 86400L*yRtcDay + 3600L*yRtcHour + 60L*yRtcMinute);
     SleepyPi.setAlarm(dtAlarm.day(), dtAlarm.hour(), dtAlarm.minute());
     break;
   }
 
   case RTC_STATE_ALARM:
-    if(yI2cValDay == I2C_VALUE_UNSET) {
-      SleepyPi.setAlarm(yI2cValHour, yI2cValMinute);
+    if(yRtcDay == I2C_VALUE_UNSET) {
+      SleepyPi.setAlarm(yRtcHour, yRtcMinute);
     }
     else {
-      SleepyPi.setAlarm(yI2cValDay, yI2cValHour, yI2cValMinute);
+      SleepyPi.setAlarm(yRtcDay, yRtcHour, yRtcMinute);
     }
     break;
 
   default:
-    iRtcState = RTC_STATE_UNSET;
+    yRtcState = RTC_STATE_UNSET;
     return;
   }
   SleepyPi.enableAlarm(true);
-  iRtcState = RTC_STATE_SET;
-  yI2cValDay = yI2cValHour = yI2cValMinute = I2C_VALUE_UNSET;
+  yRtcState = RTC_STATE_SET;
 
   // Enable interrupt: Sleepy Pi RTC
   SleepyPi.rtcClearInterrupts();
@@ -543,7 +550,7 @@ void rtcUnset() {
   // Acknowledge the RTC trigger
   SleepyPi.ackAlarm();
   SleepyPi.enableAlarm(false);
-  iRtcState = RTC_STATE_UNSET;
+  yRtcState = RTC_STATE_UNSET;
 }
 
 
@@ -604,8 +611,8 @@ void setup() {
 
 #if WATCHDOG
   // Watchdog
-  uiWatchdogTime = 0;  // 0 = pending activation (via I2C heartbeat)
-  iWatchdogAttempts = 0;
+  uiWatchdogTime = 0;  // 0 = pending activation (via heartbeat)
+  yWatchdogAttempts = 0;
 #endif  // WATCHDOG
 
 #if POWER_EXPANSION
@@ -625,7 +632,7 @@ void setup() {
 
   // Button state tracking
   bButtonInterrupted = false;
-  iButtonState = BUTTON_STATE_RELEASED;
+  yButtonState = BUTTON_STATE_RELEASED;
   ulButtonPressedTime = 0;
 
   // Enable interrupt: Sleepy Pi Button
@@ -636,11 +643,17 @@ void setup() {
 
   // RTC state tracking
   bRtcInterrupted = false;
-  iRtcState = RTC_STATE_UNSET;
+  yRtcState = RTC_STATE_UNSET;
 
   // I2C (Raspberry Pi <-> Sleepy Pi)
   yI2cOpCode = I2C_OPCODE_NONE;
-  yI2cValDay = yI2cValHour = yI2cValMinute = I2C_VALUE_UNSET;
+  for(int8_t i=0; i<I2C_BUFFER_RECEIVE_SIZE; i++) {
+    pyI2cReceiveBuffer[i] = I2C_VALUE_UNSET;
+  }
+  for(int8_t i=0; i<I2C_BUFFER_REQUEST_SIZE; i++) {
+    pyI2cRequestBuffer[i] = I2C_VALUE_UNSET;
+  }
+  yI2cRequestSize = 0;
   i2cSlave();
 }
 
@@ -661,7 +674,7 @@ void loop() {
     button();
   }
   bButtonInterrupted = false;
-  if(iButtonState == BUTTON_STATE_PRESSED) {
+  if(yButtonState == BUTTON_STATE_PRESSED) {
     delay(100);
     goto endLoop;
   }
@@ -671,12 +684,6 @@ void loop() {
     uiPowerPi |= POWER_ACTION_ON;
   }
   bRtcInterrupted = false;
-
-  // I2C
-  if(yI2cOpCode > I2C_OPCODE_NONE) {
-    i2c();
-  }
-  bI2cInterrupted = false;
 
   // Environment
   uiNow = SleepyPi.readTime().unixtime();  // <-> I2C (internally)
@@ -697,6 +704,12 @@ void loop() {
   Serial.println(fTemperature);
 #endif  // DEBUG
 
+  // I2C
+  if(yI2cOpCode > I2C_OPCODE_NONE) {
+    i2c();
+  }
+  bI2cInterrupted = false;
+
   // Raspberry Pi status (cont'd)
   if(fCurrent > POWER_CURRENT_THRESHOLD) {
     uiPowerPi |= POWER_STATUS_ON;
@@ -711,14 +724,14 @@ void loop() {
   if(uiWatchdogTime != 0 and uiNow > uiWatchdogTime) {  // WARNING: RTC may return erroneous (past) value!
     if(uiPowerPi & POWER_ACTION_ON) {
       uiWatchdogTime = uiNow;
-      iWatchdogAttempts = 0;
+      yWatchdogAttempts = 0;
     }
     else if((uiPowerPi & POWER_STATUS_ON) and not (uiPowerPi & POWER_ACTION_OFF)) {
 #if DEBUG
       Serial.print("Watchdog [s] / attempts: ");
       Serial.print(uiWatchdogTime);
       Serial.print(" / ");
-      Serial.println(iWatchdogAttempts);
+      Serial.println(yWatchdogAttempts);
 #endif  // DEBUG
       if(uiNow - uiWatchdogTime > WATCHDOG_TIMEOUT) {
 #if DEBUG
@@ -726,10 +739,11 @@ void loop() {
         Serial.println("Raspberry Pi: shut down");
 #endif  // DEBUG
         SleepyPi.piShutdown((long)POWER_CURRENT_THRESHOLD);
+        delay(1000);  // cold restart
         uiPowerPi &= ~POWER_STATUS_MASK;
         uiWatchdogTime = uiNow;
-        if(iWatchdogAttempts < WATCHDOG_ATTEMPTS) {
-          ++iWatchdogAttempts;
+        if(yWatchdogAttempts < WATCHDOG_ATTEMPTS) {
+          ++yWatchdogAttempts;
           uiPowerPi |= POWER_ACTION_ON;
         }
         else {
@@ -752,11 +766,11 @@ void loop() {
 #endif  // DEBUG
     uiPowerPi |= POWER_ACTION_OFF|POWER_ACTION_SHUTDOWN|POWER_CONTROL_VOLTAGE;
     // Attempt to power-on in one hour and see what gives
-    if(iRtcState == RTC_STATE_UNSET) {
-      iRtcState = RTC_STATE_TIMER;
-      yI2cValMinute = 0;
-      yI2cValHour = 1;
-      yI2cValDay = 0;
+    if(yRtcState == RTC_STATE_UNSET) {
+      yRtcState = RTC_STATE_TIMER;
+      yRtcMinute = 0;
+      yRtcHour = 1;
+      yRtcDay = 0;
     }
   }
 #if TEMPERATURE_PIN
@@ -767,11 +781,11 @@ void loop() {
 #endif  // DEBUG
     uiPowerPi |= POWER_ACTION_OFF|POWER_ACTION_SHUTDOWN|POWER_CONTROL_TEMPERATURE;
     // Attempt to power-on in one hour and see what gives
-    if(iRtcState == RTC_STATE_UNSET) {
-      iRtcState = RTC_STATE_TIMER;
-      yI2cValMinute = 0;
-      yI2cValHour = 1;
-      yI2cValDay = 0;
+    if(yRtcState == RTC_STATE_UNSET) {
+      yRtcState = RTC_STATE_TIMER;
+      yRtcMinute = 0;
+      yRtcHour = 1;
+      yRtcDay = 0;
     }
   }
 #endif  // TEMPERATURE_PIN
@@ -860,7 +874,7 @@ void loop() {
 #endif  // POWER_EXPANSION
 
   // Set RTC before sleep
-  if(iRtcState and iRtcState != RTC_STATE_SET) {
+  if(yRtcState and yRtcState != RTC_STATE_SET) {
     rtcSet();  // <-> I2C (internally)
   }
 
@@ -887,7 +901,7 @@ void loop() {
   Serial.println("AWOKEN");
 #endif  // DEBUG
   delay(100);  // give ISRs and ADCs some time
-  if(iRtcState and (bButtonInterrupted or bRtcInterrupted)) {
+  if(yRtcState and (bButtonInterrupted or bRtcInterrupted)) {
     rtcUnset();  // <-> I2C (internally)
   }
 

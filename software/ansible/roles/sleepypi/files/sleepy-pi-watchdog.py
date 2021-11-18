@@ -41,7 +41,7 @@ oArgumentParser.add_argument(
 SLEEPYPI_I2C_BUS = 1
 SLEEPYPI_I2C_ADDRESS = 0x40
 # ... commands
-SLEEPYPI_I2C_COMMAND_HEARTBEAT_W = 0xF0
+SLEEPYPI_I2C_COMMAND_WATCHDOG_PING = 0xA1
 
 
 ## Main
@@ -56,6 +56,6 @@ while True:
         print(f"Heartbeat")
     # ... send heartbeat command (I2C)
     oI2C = smbus.SMBus(SLEEPYPI_I2C_BUS)
-    oI2C.write_i2c_block_data(SLEEPYPI_I2C_ADDRESS, SLEEPYPI_I2C_COMMAND_HEARTBEAT_W, [])
+    oI2C.write_i2c_block_data(SLEEPYPI_I2C_ADDRESS, SLEEPYPI_I2C_COMMAND_WATCHDOG_PING, [])
     oI2C.close()
     time.sleep(iInterval)
