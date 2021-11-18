@@ -30,6 +30,7 @@ oArgumentParser.add_argument(
         "wakeat",
         "expansionoff",
         "expansionon",
+        "watchdogoff",
     ],
 )
 
@@ -70,12 +71,13 @@ SLEEPYPI_I2C_READ_ATTEMPTS = 20
 SLEEPYPI_I2C_COMMAND_VOLTAGE_R = 0x01
 SLEEPYPI_I2C_COMMAND_CURRENT_R = 0x02
 SLEEPYPI_I2C_COMMAND_TEMPERATURE_R = 0x03
-SLEEPYPI_I2C_COMMAND_REFRESH_R = 0x80
-SLEEPYPI_I2C_COMMAND_SHUTDOWN_W = 0x81
+SLEEPYPI_I2C_COMMAND_REQUEST = 0x80
+SLEEPYPI_I2C_COMMAND_SHUTDOWN = 0x81
 SLEEPYPI_I2C_COMMAND_WAKEIN_W = 0x82
 SLEEPYPI_I2C_COMMAND_WAKEAT_W = 0x83
-SLEEPYPI_I2C_COMMAND_EXPANSIONOFF_W = 0x91
-SLEEPYPI_I2C_COMMAND_EXPANSIONON_W = 0x92
+SLEEPYPI_I2C_COMMAND_EXPANSION_OFF = 0x91
+SLEEPYPI_I2C_COMMAND_EXPANSION_ON = 0x92
+SLEEPYPI_I2C_COMMAND_WATCHDOG_OFF = 0xA2
 
 
 ## Helpers
@@ -89,11 +91,13 @@ def sleepypi_i2c_write(iCommand, lData=None):
 
 def sleepypi_i2c_read(iCommand):
     mValue = None
-    sleepypi_i2c_write(SLEEPYPI_I2C_COMMAND_REFRESH_R)
+    sleepypi_i2c_write(iCommand)
     for _i in range(1, SLEEPYPI_I2C_READ_ATTEMPTS):
         time.sleep(SLEEPYPI_I2C_READ_DELAY)
         try:
-            mValue = oI2C.read_word_data(SLEEPYPI_I2C_ADDRESS, iCommand)
+            mValue = oI2C.read_word_data(SLEEPYPI_I2C_ADDRESS, SLEEPYPI_I2C_COMMAND_REQUEST)
+            if mValue == 0 or mValue == 0xFFFF:  # most likely I2C bus errors
+                continue
             break
         except OSError:
             pass
@@ -115,7 +119,7 @@ elif oArguments.action == "temperature":
     fValue = sleepypi_i2c_read(SLEEPYPI_I2C_COMMAND_TEMPERATURE_R) / 100 - 273.16
     print(f"{fValue:.2f}")
 elif oArguments.action == "shutdown":
-    sleepypi_i2c_write(SLEEPYPI_I2C_COMMAND_SHUTDOWN_W)
+    sleepypi_i2c_write(SLEEPYPI_I2C_COMMAND_SHUTDOWN)
 elif oArguments.action == "wakein":
     if all(v is None for v in (oArguments.minute, oArguments.hour, oArguments.day)):
         sys.exit(1)
@@ -136,7 +140,9 @@ elif oArguments.action == "wakeat":
         lData.append(oArguments.day)
     sleepypi_i2c_write(SLEEPYPI_I2C_COMMAND_WAKEAT_W, lData)
 elif oArguments.action == "expansionoff":
-    sleepypi_i2c_write(SLEEPYPI_I2C_COMMAND_EXPANSIONOFF_W)
+    sleepypi_i2c_write(SLEEPYPI_I2C_COMMAND_EXPANSION_OFF)
 elif oArguments.action == "expansionon":
-    sleepypi_i2c_write(SLEEPYPI_I2C_COMMAND_EXPANSIONON_W)
+    sleepypi_i2c_write(SLEEPYPI_I2C_COMMAND_EXPANSION_ON)
+elif oArguments.action == "watchdogoff":
+    sleepypi_i2c_write(SLEEPYPI_I2C_COMMAND_WATCHDOG_OFF)
 oI2C.close()
