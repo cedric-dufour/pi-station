@@ -2,3 +2,9 @@
 #  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
 ## Defaults
 I2C_ENABLE: true
+
+
+## I2C configuration
+
+# [Hz] clock frequency, aka. baud rate (0 = use hardware default)
+I2C_CLOCK_FREQUENCY: 0
