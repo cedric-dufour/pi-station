@@ -114,6 +114,7 @@ all:
 
     # ... i2c
     #I2C_ENABLE: true
+    #I2C_CLOCK_FREQUENCY: 0
 
     # ... pcf8523
     #PCF8523_ENABLE: true
