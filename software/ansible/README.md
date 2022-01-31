@@ -84,6 +84,8 @@ The following Roles are available to configure the Pi Station:
 
 * `huawei_hilink`: setup Huawei HiLink device (hardware and software dependencies)
 
+* `rngd`: setup Random Number Generator (RNG) Daemon (software dependencies)
+
 * `wireguard`: setup [WireGuard (VPN)][wireguard]
 
 * `freedns`: setup [FreeDNS (dynamic DNS)][freedns] (specific) client

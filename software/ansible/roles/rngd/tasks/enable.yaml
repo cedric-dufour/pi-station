@@ -1,0 +1,22 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Random Number Generator (RNG) Daemon setup: enable
+
+- name: "Random Number Generator (RNG) Daemon packages"
+  tags:
+    - rngd
+    - install
+  apt:
+    state: present
+    name:
+      - rng-tools-debian
+
+- name: "Configure Random Number Generator (RNG) Daemon service"
+  tags:
+    - rngd
+    - configure
+  lineinfile:
+    path: "/etc/default/rng-tools-debian"
+    regexp: "--stats-interval="
+    line: "RNGDOPTIONS=\"${RNGDOPTIONS=:+${RNGDOPTIONS} }--stats-interval={{ RNGD_STATS_INTERVAL }}\""
+  notify: "Restart Random Number Generator (RNG) Daemon service (reload configuration)"
