@@ -1,0 +1,24 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Random Number Generator (RNG) Daemon setup: disable
+
+- name: "Stop Random Number Generator (RNG) Daemon service"
+  tags:
+    - rngd
+    - service
+  service:
+    name: "rng-tools-debian"
+    state: stopped
+  ignore_errors: true
+
+- name: "Uninstall Random Number Generator (RNG) Daemon packages"
+  tags:
+    - rngd
+    - install
+  apt:
+    state: absent
+    purge: true
+    autoremove: true
+    name:
+      - rng-tools-debian
+      - rng-tools

@@ -1,0 +1,10 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Defaults
+RNGD_ENABLE: true
+
+
+## Random Number Generator (RNG) Daemon configuration
+
+# Statistics reporting (seconds; 0 to disable)
+RNGD_STATS_INTERVAL: 0

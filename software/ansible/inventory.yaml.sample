@@ -65,6 +65,10 @@ all:
     #HUAWEI_HILINK_PASSWORD: ""
     #HUAWEI_HILINK_PIN: ""
 
+    # ... rngd
+    #RNGD_ENABLE: true
+    #RNGD_STATS_INTERVAL: 0
+
     # ... wireguard
     #WIREGUARD_ENABLE: false
     #WIREGUARD_PORT: 51820
