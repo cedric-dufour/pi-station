@@ -1,4 +1,4 @@
-ansible
+ansible-core
 ansible-lint
 flake8
 flake8-bugbear
