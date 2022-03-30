@@ -328,22 +328,22 @@ void isrI2cRequest() {
 //
 
 void button() {
-  detachInterrupt(BUTTON_INT);
   bButtonInterrupted = false;
 
   switch(yButtonState) {
 
   case BUTTON_STATE_RELEASED:
     yButtonState = BUTTON_STATE_PRESSED;
-    digitalWrite(LED_PIN, HIGH);
-    ulButtonPressedTime = millis();
     attachInterrupt(BUTTON_INT, isrButton, RISING);
+    digitalWrite(LED_PIN, HIGH);
+    ulButtonPressedTime = ulNowInternal;
     break;
 
   case BUTTON_STATE_PRESSED: {
     yButtonState = BUTTON_STATE_RELEASED;
+    attachInterrupt(BUTTON_INT, isrButton, FALLING);
     digitalWrite(LED_PIN, LOW);
-    unsigned long ulButtonPressedTimeElapsed = millis() - ulButtonPressedTime;
+    unsigned long ulButtonPressedTimeElapsed = ulNowInternal - ulButtonPressedTime;
     if(ulButtonPressedTimeElapsed > BUTTON_ELAPSED_POWEROFF) {
       uiPowerPi |= POWER_ACTION_OFF;
     }
@@ -353,7 +353,6 @@ void button() {
     else {
       uiPowerPi |= POWER_ACTION_ON;
     }
-    attachInterrupt(BUTTON_INT, isrButton, FALLING);
     break;
   }
 
