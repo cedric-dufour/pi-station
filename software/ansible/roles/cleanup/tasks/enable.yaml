@@ -81,6 +81,16 @@
     - "systemd-journald.socket"
     - "systemd-journald"
 
+- name: "Disable systemd persistent journal"
+  # Logging wears the SD card out
+  # (systemd will fall back to tmpfs-based /run/log/journal instead)
+  tags:
+    - cleanup
+    - logs
+  file:
+    state: absent
+    path: "/var/log/journal"
+
 - name: "Uninstall physical syslog"
   # Logging wears the SD card out
   tags:
