@@ -31,7 +31,10 @@
 //   - read:
 //     > Sleepy Pi voltage [mV]    : command 0x01, request 2 bytes
 //     > Raspberry Pi current [mA] : command 0x02, request 2 bytes
-//     > Temperature [cK]          : command 0x02, request 2 bytes
+//     > Temperature [cK]          : command 0x03, request 2 bytes
+//     > Watchdog, elapsed [s]     : command 0x04, request 2 bytes
+//     > Version, internal         : command 0x71, request 2 bytes
+//     > Version, user             : command 0x72, request 2 bytes
 //     > Request                   : command 0x80
 //   - write:
 //     > Shutdown                  : command 0x81
@@ -84,6 +87,8 @@
 //
 // CONSTANTS (USER-CONFIGURABLE)
 //
+
+#define VERSION_USER 0
 
 // Debug (enable Serial output)
 #define DEBUG false
@@ -144,6 +149,8 @@
 // CONSTANTS (INTERNAL; DO NOT MODIFY)
 //
 
+#define VERSION_INTERNAL 100  // 100*version + revision
+
 //
 // Power (bitmask)
 //
@@ -172,21 +179,24 @@
 #define I2C_ADDRESS 0x40
 
 // I2C commands
-#define I2C_OPCODE_NONE          0x00
+#define I2C_OPCODE_NONE               0x00
 // ... read
-#define I2C_OPCODE_VOLTAGE_R     0x01
-#define I2C_OPCODE_CURRENT_R     0x02
-#define I2C_OPCODE_TEMPERATURE_R 0x03
-#define I2C_OPCODE_REQUEST       0x80
+#define I2C_OPCODE_VOLTAGE_R          0x01
+#define I2C_OPCODE_CURRENT_R          0x02
+#define I2C_OPCODE_TEMPERATURE_R      0x03
+#define I2C_OPCODE_WATCHDOG_R         0x04
+#define I2C_OPCODE_VERSION_INTERNAL_R 0x71
+#define I2C_OPCODE_VERSION_USER_R     0x72
+#define I2C_OPCODE_REQUEST            0x80
 // ... write
-#define I2C_OPCODE_SHUTDOWN      0x81
-#define I2C_OPCODE_RTC_TIMER_W   0x82
-#define I2C_OPCODE_RTC_ALARM_W   0x83
-#define I2C_OPCODE_EXPANSION_OFF 0x91
-#define I2C_OPCODE_EXPANSION_ON  0x92
-#define I2C_OPCODE_WATCHDOG_PING 0xA1
-#define I2C_OPCODE_WATCHDOG_OFF  0xA2
-#define I2C_OPCODE_DETECT        0xFF
+#define I2C_OPCODE_SHUTDOWN           0x81
+#define I2C_OPCODE_RTC_TIMER_W        0x82
+#define I2C_OPCODE_RTC_ALARM_W        0x83
+#define I2C_OPCODE_EXPANSION_OFF      0x91
+#define I2C_OPCODE_EXPANSION_ON       0x92
+#define I2C_OPCODE_WATCHDOG_PING      0xA1
+#define I2C_OPCODE_WATCHDOG_OFF       0xA2
+#define I2C_OPCODE_DETECT             0xFF
 
 // I2C values
 #define I2C_VALUE_UNSET 0xFF
@@ -389,6 +399,31 @@ void i2c() {
 
   case I2C_OPCODE_TEMPERATURE_R:
     uiRequestValue = (uint32_t)(100.0f*fTemperature);  // [cK]
+    yRequestSize = 2;
+    break;
+
+#if WATCHDOG
+  case I2C_OPCODE_WATCHDOG_R:
+    if(uiWatchdogTime == 0) {  // 0 = pending activation (via heartbeat)
+      uiRequestValue = (uint32_t)0;
+    }
+    else if(uiNowRtc == 0 or uiNowRtc - uiWatchdogTime >= 0xFFFF) {
+      uiRequestValue = (uint32_t)0xFFFF;
+    }
+    else {
+      uiRequestValue = (uint32_t)(uiNowRtc - uiWatchdogTime);
+    }
+    yRequestSize = 2;
+    break;
+#endif  // WATCHDOG
+
+  case I2C_OPCODE_VERSION_INTERNAL_R:
+    uiRequestValue = (uint32_t)VERSION_INTERNAL;
+    yRequestSize = 2;
+    break;
+
+  case I2C_OPCODE_VERSION_USER_R:
+    uiRequestValue = (uint32_t)VERSION_USER;
     yRequestSize = 2;
     break;
 

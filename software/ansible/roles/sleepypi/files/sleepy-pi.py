@@ -22,9 +22,11 @@ oArgumentParser = argparse.ArgumentParser(
 oArgumentParser.add_argument(
     "action",
     choices=[
+        "version",
         "voltage",
         "current",
         "temperature",
+        "watchdog",
         "shutdown",
         "wakein",
         "wakeat",
@@ -66,11 +68,14 @@ oArgumentParser.add_argument(
 SLEEPYPI_I2C_BUS = 1
 SLEEPYPI_I2C_ADDRESS = 0x40
 SLEEPYPI_I2C_READ_DELAY = 0.250
-SLEEPYPI_I2C_READ_ATTEMPTS = 20
+SLEEPYPI_I2C_READ_ATTEMPTS = 4
 # ... commands
 SLEEPYPI_I2C_COMMAND_VOLTAGE_R = 0x01
 SLEEPYPI_I2C_COMMAND_CURRENT_R = 0x02
 SLEEPYPI_I2C_COMMAND_TEMPERATURE_R = 0x03
+SLEEPYPI_I2C_COMMAND_WATCHDOG_R = 0x04
+SLEEPYPI_I2C_COMMAND_VERSION_INTERNAL_R = 0x71
+SLEEPYPI_I2C_COMMAND_VERSION_USER_R = 0x72
 SLEEPYPI_I2C_COMMAND_REQUEST = 0x80
 SLEEPYPI_I2C_COMMAND_SHUTDOWN = 0x81
 SLEEPYPI_I2C_COMMAND_WAKEIN_W = 0x82
@@ -92,7 +97,7 @@ def sleepypi_i2c_write(iCommand, lData=None):
 def sleepypi_i2c_read(iCommand):
     mValue = None
     sleepypi_i2c_write(iCommand)
-    for _i in range(1, SLEEPYPI_I2C_READ_ATTEMPTS):
+    for _i in range(0, SLEEPYPI_I2C_READ_ATTEMPTS):
         time.sleep(SLEEPYPI_I2C_READ_DELAY)
         try:
             mValue = oI2C.read_word_data(SLEEPYPI_I2C_ADDRESS, SLEEPYPI_I2C_COMMAND_REQUEST)
@@ -109,7 +114,11 @@ def sleepypi_i2c_read(iCommand):
 ## Main
 oArguments = oArgumentParser.parse_args()
 oI2C = smbus.SMBus(SLEEPYPI_I2C_BUS)
-if oArguments.action == "voltage":
+if oArguments.action == "version":
+    iValue1 = sleepypi_i2c_read(SLEEPYPI_I2C_COMMAND_VERSION_INTERNAL_R)
+    iValue2 = sleepypi_i2c_read(SLEEPYPI_I2C_COMMAND_VERSION_USER_R)
+    print("{:d}.{:02d} [{:05d}]".format(int(iValue1/100), iValue1%100, iValue2))
+elif oArguments.action == "voltage":
     fValue = sleepypi_i2c_read(SLEEPYPI_I2C_COMMAND_VOLTAGE_R) / 1000
     print(f"{fValue:.3f}")
 elif oArguments.action == "current":
@@ -118,6 +127,9 @@ elif oArguments.action == "current":
 elif oArguments.action == "temperature":
     fValue = sleepypi_i2c_read(SLEEPYPI_I2C_COMMAND_TEMPERATURE_R) / 100 - 273.16
     print(f"{fValue:.2f}")
+elif oArguments.action == "watchdog":
+    iValue = sleepypi_i2c_read(SLEEPYPI_I2C_COMMAND_WATCHDOG_R)
+    print(f"{iValue:d}")
 elif oArguments.action == "shutdown":
     sleepypi_i2c_write(SLEEPYPI_I2C_COMMAND_SHUTDOWN)
 elif oArguments.action == "wakein":
