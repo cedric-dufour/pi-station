@@ -25,3 +25,13 @@
     enabled: true
     state: started
   ignore_errors: "{{ ansible_check_mode }}"
+
+# WARNING: Prevent timers to start before we have a valid system time!
+- name: "Enforce system (network-)time synchronization at boot"
+  tags:
+    - reboot
+    - service
+  service:
+    name: "systemd-time-wait-sync.service"
+    enabled: true
+    state: started
