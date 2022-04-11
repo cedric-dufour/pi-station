@@ -1,0 +1,65 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Network Time (NTP) setup: enable
+
+- name: "Install Network Time (NTP) packages"
+  tags:
+    - ntp
+    - install
+  apt:
+    state: present
+    name:
+      - ntp
+
+- name: "Uninstall default time synchronization packages"
+  tags:
+    - ntp
+    - install
+  apt:
+    state: absent
+    purge: true
+    autoremove: true
+    name:
+      - systemd-timesyncd
+
+- name: "Install Network Time (NTP) synchronization wait service"
+  tags:
+    - ntp
+    - install
+  copy:
+    src: "ntp-wait.service"
+    dest: "/etc/systemd/system/ntp-wait.service"
+    owner: "root"
+    group: "root"
+    mode: 0644
+
+- name: "Configure Network Time (NTP)"
+  tags:
+    - ntp
+    - configure
+  template:
+    src: "ntp.conf.j2"
+    dest: "/etc/ntp.conf"
+    owner: "root"
+    group: "root"
+    mode: 0646
+  notify: "Restart Network Time (NTP) service (reload configuration)"
+
+- name: "Enable Network Time (NTP) synchronization wait service"
+  tags:
+    - ntp
+    - service
+  service:
+    name: "ntp-wait"
+    enabled: true
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: "Enable and start Network Time (NTP) service"
+  tags:
+    - ntp
+    - service
+  service:
+    name: "ntp"
+    enabled: true
+    state: started
+  ignore_errors: "{{ ansible_check_mode }}"

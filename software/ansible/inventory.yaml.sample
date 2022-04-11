@@ -69,6 +69,13 @@ all:
     #RNGD_ENABLE: true
     #RNGD_STATS_INTERVAL: 0
 
+    # ... ntp
+    #NTP_ENABLE: true
+    #NTP_SERVERS: []
+    #NTP_POOLS: ["0.debian.pool.ntp.org", "1.debian.pool.ntp.org", "2.debian.pool.ntp.org", "3.debian.pool.ntp.org"]
+    #NTP_MINPOLL: 6
+    #NTP_MAXPOLL: 10
+
     # ... wireguard
     #WIREGUARD_ENABLE: false
     #WIREGUARD_PORT: 51820

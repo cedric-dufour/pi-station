@@ -86,6 +86,8 @@ The following Roles are available to configure the Pi Station:
 
 * `rngd`: setup Random Number Generator (RNG) Daemon (software dependencies)
 
+* `ntp`: setup Network Time (NTP) synchronization (software dependencies)
+
 * `wireguard`: setup [WireGuard (VPN)][wireguard]
 
 * `freedns`: setup [FreeDNS (dynamic DNS)][freedns] (specific) client
