@@ -1,0 +1,48 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Network Time (NTP) setup: disable
+
+- name: "Stop Network Time (NTP) service"
+  tags:
+    - ntp
+    - service
+  service:
+    name: "ntp"
+    state: stopped
+  ignore_errors: true
+
+- name: "Remove Network Time (NTP) configuration"
+  tags:
+    - ntp
+    - configure
+  file:
+    state: absent
+    name: "/etc/ntp.conf"
+
+- name: "Uninstall Network Time (NTP) synchronization wait service"
+  tags:
+    - ntp
+    - install
+  file:
+    state: absent
+    path: "/etc/systemd/system/ntp-wait.service"
+
+- name: "Uninstall Network Time (NTP) packages"
+  tags:
+    - ntp
+    - install
+  apt:
+    state: absent
+    purge: true
+    autoremove: true
+    name:
+      - ntp
+
+- name: "Reinstall default time synchronization packages"
+  tags:
+    - ntp
+    - install
+  apt:
+    state: present
+    name:
+      - systemd-timesyncd

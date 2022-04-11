@@ -12,6 +12,7 @@
     - wlan
     - huawei_hilink
     - rngd
+    - ntp
     - wireguard
     - freedns
     - inadyn

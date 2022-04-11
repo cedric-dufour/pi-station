@@ -81,6 +81,14 @@ ip addr show dev wlan0
 #inet 192.168.1.101/24 brd 192.168.1.255 scope global dynamic noprefixroute wlan0
 ```
 
+* Configure the timezone:
+
+``` bash
+# Change the timezone
+# (recommended: UTC)
+sudo dpkg-reconfigure tzdata
+```
+
 SSH Access
 ----------
 

@@ -1,0 +1,10 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Network Time (NTP) setup
+
+- name: "Network Time (NTP) setup"
+  tags:
+    - ntp
+    - always
+  include_tasks:
+    file: "{{ NTP_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"
