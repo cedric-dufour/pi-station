@@ -12,7 +12,3 @@ galaxy_info:
     - name: Raspberry Pi OS
       versions:
         - all
-
-# Dependencies
-dependencies:
-  - role: raspi_testing

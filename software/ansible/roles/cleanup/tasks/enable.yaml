@@ -222,11 +222,12 @@
       - cpp-10
       - gcc
       - gcc-10
-      - gcc-9-base
       - gcc-8-base
       - gcc-7-base
+      - gcc-9-base
       - g++
       - g++-10
+      - make
       # (buster legacy)
       - cpp-8
       - gcc-8

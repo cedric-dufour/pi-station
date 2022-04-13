@@ -19,6 +19,8 @@ all:
           children:
             buster:
               # -> see ./group_vars/buster.yaml
+            bullseye:
+              # -> see ./group_vars/bullseye.yaml
               hosts:
                 raspberrypi.example.org:
 

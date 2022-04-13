@@ -9,9 +9,7 @@
   apt:
     state: present
     name:
-      - raspberrypi-kernel-headers
       - wireguard
-  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: "Create WireGuard (VPN) configuration directory"
   tags:
