@@ -6,6 +6,10 @@ CLEANUP_ENABLE: true
 
 ## Cleanup configuration
 
+# Cleanup documentation resources
+# (e.g. man pages)
+CLEANUP_DOCUMENTATION: true
+
 # Cleanup build utilities
 # (if you need to compile some custom software on the Pi, set this to false)
 CLEANUP_BUILDUTILS: true
