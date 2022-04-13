@@ -194,6 +194,20 @@
       - triggerhappy
       - vcdbg
 
+- name: "Remove documentation packages"
+  tags:
+    - cleanup
+    - packages
+  apt:
+    state: absent
+    purge: true
+    autoremove: true
+    name:
+      - man-db
+      - manpages
+      - manpages-dev
+  when: CLEANUP_DOCUMENTATION|bool
+
 - name: "Remove build packages"
   tags:
     - cleanup
