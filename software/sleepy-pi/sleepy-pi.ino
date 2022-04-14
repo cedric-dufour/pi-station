@@ -119,8 +119,8 @@
 
 // Watchdog
 #define WATCHDOG          false
-// ... time without heartbeat after which restart (power off -> on) will be triggered [s]
-#define WATCHDOG_TIMEOUT  300
+// ... time without heartbeat after which restart (power off -> on) will be triggered [sleep cycles (8s)]
+#define WATCHDOG_TIMEOUT  38  // 304s
 // ... max. consecutive restarts to attempt
 #define WATCHDOG_ATTEMPTS 3
 
@@ -153,7 +153,7 @@
 // CONSTANTS (INTERNAL; DO NOT MODIFY)
 //
 
-#define VERSION_INTERNAL 101  // 100*version + revision
+#define VERSION_INTERNAL 102  // 100*version + revision
 
 //
 // Power (bitmask)
@@ -249,15 +249,13 @@
 
 // Internal time
 unsigned long ulNowInternal;  // [ms]
+uint32_t uiSleepCycles;
 
 // Raspberry Pi power
 uint8_t uiPowerPi;
 
 // Expansion power
 uint8_t uiPowerExpansion;
-
-// RTC time
-uint32_t uiNowRtc;  // [s]
 
 // Environment
 float fVoltage;      // [V]
@@ -266,7 +264,7 @@ float fTemperature;  // [K]
 
 #if WATCHDOG
 // Watchdog
-uint32_t uiWatchdogTime;
+uint32_t uiWatchdogCycles;
 uint8_t yWatchdogAttempts;
 #endif  // WATCHDOG
 
@@ -378,6 +376,8 @@ void button() {
 }
 
 void i2c() {
+  // Disable interrupts
+  noInterrupts();
 #if DEBUG
   Serial.print("I2C Command: ");
   Serial.println(yI2cOpCode);
@@ -413,14 +413,14 @@ void i2c() {
 
 #if WATCHDOG
   case I2C_OPCODE_WATCHDOG_R:
-    if(uiWatchdogTime == 0) {  // 0 = pending activation (via heartbeat)
+    if(uiWatchdogCycles == 0) {  // 0 = pending activation (via heartbeat)
       uiRequestValue = (uint32_t)0;
     }
-    else if(uiNowRtc == 0 or uiNowRtc - uiWatchdogTime >= 0xFFFF) {
+    else if(uiSleepCycles - uiWatchdogCycles >= 0x2000) {
       uiRequestValue = (uint32_t)0xFFFF;
     }
     else {
-      uiRequestValue = (uint32_t)(uiNowRtc - uiWatchdogTime);
+      uiRequestValue = (uint32_t)((uiSleepCycles - uiWatchdogCycles) * 8);
     }
     yRequestSize = 2;
     break;
@@ -493,14 +493,12 @@ void i2c() {
 
 #if WATCHDOG
   case I2C_OPCODE_WATCHDOG_PING:
-    if(uiNowRtc != 0) {
-      uiWatchdogTime = uiNowRtc;
-    }
+    uiWatchdogCycles = uiSleepCycles;
     yWatchdogAttempts = 0;
     break;
 
   case I2C_OPCODE_WATCHDOG_OFF:
-    uiWatchdogTime = 0;  // 0 = pending activation (via heartbeat)
+    uiWatchdogCycles = 0;  // 0 = pending activation (via heartbeat)
     yWatchdogAttempts = 0;
     break;
 #endif  // WATCHDOG
@@ -535,40 +533,15 @@ void i2c() {
   }
 
   yI2cOpCode = I2C_OPCODE_NONE;
+
+  // Re-enable interrupts
+  interrupts();
 }
 
 
 //
 // RTC
 //
-
-uint32_t rtcRead(uint32_t uiReference) {
-  // WARNING: RTC may return erroneous value!
-  uint32_t uiPrevious = uiReference;
-  uint32_t uiCurrent;
-  for(int8_t i=0; i<4; i++) {
-    Wire.clearWireTimeoutFlag();
-    uiCurrent = SleepyPi.readTime().unixtime();
-#if DEBUG
-    Serial.print("RTC (Unix Epoch) [s]: ");
-    if(Wire.getWireTimeoutFlag()) {
-      Serial.println("TIMEOUT");
-    }
-    else {
-      Serial.println(uiCurrent);
-    }
-#endif  // DEBUG
-    if(uiCurrent >= uiPrevious and uiCurrent - uiPrevious < 60) {
-      return uiCurrent;
-    }
-    if(uiReference == 0 or i >= 1) {
-      uiPrevious = uiCurrent;
-    }
-    wdt_reset();
-    delay(100);
-  }
-  return uiReference;
-}
 
 void rtcSet() {
 #if DEBUG
@@ -587,10 +560,7 @@ void rtcSet() {
   switch(yRtcState) {
 
   case RTC_STATE_TIMER: {
-    if(uiNowRtc == 0) {
-      yRtcState = RTC_STATE_UNSET;
-      return;
-    }
+    unsigned long uiNowRtc = SleepyPi.readTime().unixtime();
     DateTime dtAlarm(uiNowRtc + 86400L*yRtcDay + 3600L*yRtcHour + 60L*yRtcMinute);
     SleepyPi.setAlarm(dtAlarm.day(), dtAlarm.hour(), dtAlarm.minute());
     break;
@@ -691,6 +661,7 @@ void setup() {
 
   // Internal time
   ulNowInternal = millis();
+  uiSleepCycles = 0;
 
   // Environment
   fCurrent = SleepyPi.rpiCurrent();
@@ -700,7 +671,7 @@ void setup() {
 
 #if WATCHDOG
   // Watchdog
-  uiWatchdogTime = 0;  // 0 = pending activation (via heartbeat)
+  uiWatchdogCycles = 0;  // 0 = pending activation (via heartbeat)
   yWatchdogAttempts = 0;
 #endif  // WATCHDOG
 
@@ -714,9 +685,6 @@ void setup() {
 
   // Initialize the RTC
   SleepyPi.rtcInit(true);
-
-  // RTC time
-  uiNowRtc = 0;
 
   // RTC state tracking
   bRtcInterrupted = false;
@@ -774,8 +742,10 @@ void loop() {
   // Internal time
   ulNowInternal = millis();
 #if DEBUG
-  Serial.print("Now (internal) [ms]: ");
+  Serial.print("Now [ms]: ");
   Serial.println(ulNowInternal);
+  Serial.print("Sleep cycles [c]: ");
+  Serial.println(uiSleepCycles);
 #endif  // DEBUG
 
   // Raspberry Pi power
@@ -801,9 +771,6 @@ void loop() {
   }
   bRtcInterrupted = false;
 
-  // RTC time
-  uiNowRtc = rtcRead(uiNowRtc);  // <-> I2C (internally)
-
   // Environment
   fVoltage = SleepyPi.supplyVoltage();
   fCurrent = SleepyPi.rpiCurrent();
@@ -812,8 +779,6 @@ void loop() {
   fTemperature = analogRead(TEMPERATURE_PIN) * ADC_REFERENCE_VOLTAGE / 1023.0f * 100.0f + 223.16f;  // [K]
 #endif  // TEMPERATURE_PIN
 #if DEBUG
-  Serial.print("Now (Unix Epoch) [s]: ");
-  Serial.println(uiNowRtc);
   Serial.print("Voltage In [V]: ");
   Serial.println(fVoltage);
   Serial.print("Current Pi @ 5V [mA]: ");
@@ -839,19 +804,19 @@ void loop() {
 
 #if WATCHDOG
   // Watchdog
-  if(uiWatchdogTime != 0 and uiNowRtc != 0) {
+  if(uiWatchdogCycles != 0) {
     if(uiPowerPi & POWER_ACTION_ON) {
-      uiWatchdogTime = uiNowRtc;
+      uiWatchdogCycles = uiSleepCycles;
       yWatchdogAttempts = 0;
     }
     else if((uiPowerPi & POWER_STATUS_ON) and not (uiPowerPi & POWER_ACTION_OFF)) {
 #if DEBUG
-      Serial.print("Watchdog [s] / attempts: ");
-      Serial.print(uiWatchdogTime);
+      Serial.print("Watchdog [c] / attempts [N]: ");
+      Serial.print(uiWatchdogCycles);
       Serial.print(" / ");
       Serial.println(yWatchdogAttempts);
 #endif  // DEBUG
-      if(uiNowRtc - uiWatchdogTime > WATCHDOG_TIMEOUT) {
+      if(uiSleepCycles - uiWatchdogCycles > WATCHDOG_TIMEOUT) {
 #if DEBUG
         Serial.println("Watchdog: timeout");
         Serial.println("Raspberry Pi: shut down");
@@ -861,7 +826,7 @@ void loop() {
         delay(5000);  // cold restart
         wdt_enable(WDTO_1S);
         uiPowerPi &= ~POWER_STATUS_MASK;
-        uiWatchdogTime = uiNowRtc + (millis() - ulNowInternal) / 1000;
+        uiWatchdogCycles = uiSleepCycles + 1;
         if(yWatchdogAttempts < WATCHDOG_ATTEMPTS) {
           ++yWatchdogAttempts;
           uiPowerPi |= POWER_ACTION_ON;
@@ -936,7 +901,7 @@ void loop() {
 #endif  // POWER_EXPANSION and not (TEMPERATURE_PIN and EXPANSION_TEMPERATURE and EXPANSION_TEMPERATURE_MODE == 0)
     }
 #if WATCHDOG
-    uiWatchdogTime = 0;  // 0 = pending activation (via heartbeat)
+    uiWatchdogCycles = 0;  // 0 = pending activation (via heartbeat)
     yWatchdogAttempts = 0;
 #endif  // WATCHDOG
   }
@@ -1013,8 +978,8 @@ void loop() {
   // Sleep
 #if DEBUG
   Serial.println("SLEEP");
+  delay(50);  // give Serial some time
 #endif  // DEBUG
-  delay(50);  // give Serial and I2C some time
   // Power the Sleepy Pi down
   // - Disable the Analog/Digital Converter (ADC)
   // - Keep the Brown-Out Detection (BOD; low-voltage detection) on
@@ -1029,7 +994,10 @@ void loop() {
 #if DEBUG
   Serial.println("AWOKEN");
 #endif  // DEBUG
-  delay(50);  // give ADCs some time
+  delay(100);  // give ISRs and ADCs some time
+  if(!(bButtonInterrupted or bRtcInterrupted or bI2cInterrupted)) {
+    uiSleepCycles++;
+  }
 
   // Arm the internal watchdog
   wdt_enable(WDTO_1S);
