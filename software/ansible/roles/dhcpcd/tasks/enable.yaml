@@ -2,6 +2,16 @@
 #  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
 ## DHCP Client Daemon setup: enable
 
+- name: "Patch DHCP Client Daemon hooks"
+  tags:
+    - dhcpcd
+    - patch
+  patch:
+    state: present
+    basedir: "/lib/dhcpcd/dhcpcd-hooks"
+    src: "dhcpcd.ntp-no-unnecessary-restart.patch"
+    strip: 1
+
 - name: "Create DHCP Client Daemon configuration directory"
   tags:
     - dhcpcd
