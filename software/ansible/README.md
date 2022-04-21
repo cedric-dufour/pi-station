@@ -67,6 +67,8 @@ The following Roles are available to configure the Pi Station:
 * `cleanup`: cleanup the stock installation, by removing unnecessary packages and fine-tuning the
   system to limit write operations that would wear the SD card out
 
+* `hostname`: set the host name
+
 * `bash`: configure the command-line wickedly for the nerdy sysadmin you are
 
 * `ramoverlay`: setup a memory-based overlay over _specific_ well-known temporary directories (again,

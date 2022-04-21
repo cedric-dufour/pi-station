@@ -1,0 +1,11 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Hostname setup
+
+- name: "Hostname setup"
+  tags:
+    - hostname
+    - always
+  include_tasks:
+    file: "enable.yaml"
+  when: HOSTNAME_ENABLE|bool

@@ -33,6 +33,10 @@ all:
     #CLEANUP_ENABLE: true
     #CLEANUP_BUILDUTILS: true
 
+    # ... hostname
+    #HOSTNAME_NAME: "raspberrypi"
+    #HOSTNAME_DOMAIN: ""
+
     # ... bash
     #BASH_ENABLE: true
 

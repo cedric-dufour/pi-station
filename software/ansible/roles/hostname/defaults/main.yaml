@@ -1,0 +1,9 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Defaults
+HOSTNAME_ENABLE: true
+
+
+## Hostname configuration
+HOSTNAME_NAME: "raspberrypi"
+HOSTNAME_DOMAIN: ""

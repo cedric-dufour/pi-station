@@ -1,0 +1,17 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Hostname setup
+
+- name: "Configure hostname"
+  tags:
+    - hostname
+  template:
+    src: "{{ item }}.j2"
+    dest: "/etc/{{ item }}"
+    owner: "root"
+    group: "root"
+    mode: 0644
+  loop:
+    - "hostname"
+    - "hosts"
+  notify: "Hostname update"
