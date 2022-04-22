@@ -10,7 +10,7 @@ The following are required as base components:
 
 * heatsink for the Raspberry Pi SoC
 
-* heavy-duty [Transcend High Endurance][sd] SD card
+* industrial-grade [Kingston SDCIT2][sd] SD card
 
 * [Sleepy Pi][pm] power management controller (Raspberry Pi hat extension)
 
@@ -20,7 +20,7 @@ The following are required as base components:
 
 [pi]: ./ref/RaspberryPi%203Bp%20-%20datasheet.pdf
 [pm]: ./ref/Sleepy%20Pi%202%20(power%20management)%20-%20spellfoundry.pdf
-[sd]: ./ref/Transcend%20High%20Endurance%20(SD%20card)%20-%20datasheet.pdf
+[sd]: ./ref/Kingston%20SDCIT2%20(SD%20card)%20-%20datasheet.pdf
 [hub]: ./ref/EX-1197HMS%20(USB%203%20hub)%20-%20datasheet.pdf
 
 Leveraging the Sleepy Pi offers several benefits:
