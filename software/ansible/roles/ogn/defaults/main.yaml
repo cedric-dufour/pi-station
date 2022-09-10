@@ -11,8 +11,8 @@ OGN_ENABLE: false
 OGN_VERSION: "0.2.10"
 OGN_ARCHITECTURE: "arm64"
 OGN_FOLDER: "rtlsdr-ogn-{{ OGN_VERSION }}"
-OGN_TARBALL: "rtlsdr-ogn-bin-{{ OGN_ARCHITECTURE|lower }}-{{ OGN_VERSION }}.tgz"
-OGN_DOWNLOAD_URL: "http://download.glidernet.org/{{ OGN_ARCHITECTURE|lower }}/{{ OGN_TARBALL }}"
+OGN_TARBALL: "rtlsdr-ogn-bin-{{ OGN_ARCHITECTURE | lower }}-{{ OGN_VERSION }}.tgz"
+OGN_DOWNLOAD_URL: "http://download.glidernet.org/{{ OGN_ARCHITECTURE | lower }}/{{ OGN_TARBALL }}"
 
 
 ## OGN configuration

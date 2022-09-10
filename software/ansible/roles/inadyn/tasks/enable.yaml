@@ -30,7 +30,7 @@
   lineinfile:
     path: "/etc/default/inadyn"
     regexp: "^RUN_DAEMON="
-    line: "RUN_DAEMON='{{ INADYN_PROVIDER|length | ternary('yes', 'no') }}'"
+    line: "RUN_DAEMON='{{ INADYN_PROVIDER | length | ternary('yes', 'no') }}'"
   notify: "Restart In-a-Dyn service (reload configuration)"
 
 - name: "Enable and start In-a-Dyn service"

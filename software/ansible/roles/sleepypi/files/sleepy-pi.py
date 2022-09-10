@@ -119,7 +119,7 @@ oI2C = smbus.SMBus(SLEEPYPI_I2C_BUS)
 if oArguments.action == "version":
     iValue1 = sleepypi_i2c_read(SLEEPYPI_I2C_COMMAND_VERSION_INTERNAL_R)
     iValue2 = sleepypi_i2c_read(SLEEPYPI_I2C_COMMAND_VERSION_USER_R)
-    print("{:d}.{:02d} [{:05d}]".format(int(iValue1/100), iValue1%100, iValue2))
+    print("{:d}.{:02d} [{:05d}]".format(int(iValue1 / 100), iValue1 % 100, iValue2))
 elif oArguments.action == "voltage":
     fValue = sleepypi_i2c_read(SLEEPYPI_I2C_COMMAND_VOLTAGE_R) / 1000
     print(f"{fValue:.3f}")

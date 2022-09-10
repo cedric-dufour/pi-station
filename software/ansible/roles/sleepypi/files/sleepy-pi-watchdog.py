@@ -53,7 +53,7 @@ bVerbose = oArguments.verbose
 while True:
     # Heartbeat
     if(bVerbose):
-        print(f"Heartbeat")
+        print("Heartbeat")
     # ... send heartbeat command (I2C)
     oI2C = smbus.SMBus(SLEEPYPI_I2C_BUS)
     oI2C.write_i2c_block_data(SLEEPYPI_I2C_ADDRESS, SLEEPYPI_I2C_COMMAND_WATCHDOG_PING, [])

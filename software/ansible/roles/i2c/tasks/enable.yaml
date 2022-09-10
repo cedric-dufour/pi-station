@@ -18,7 +18,7 @@
   lineinfile:
     path: "/boot/config.txt"
     regexp: "^#?dtparam=i2c_arm_baudrate="
-    line: "{{ (I2C_CLOCK_FREQUENCY > 0) | ternary('dtparam=i2c_arm_baudrate='+I2C_CLOCK_FREQUENCY|string, '#dtparam=i2c_arm_baudrate=default') }}"
+    line: "{{ (I2C_CLOCK_FREQUENCY > 0) | ternary('dtparam=i2c_arm_baudrate='+I2C_CLOCK_FREQUENCY | string, '#dtparam=i2c_arm_baudrate=default') }}"
 
 - name: "Enable I2C module"
   tags:

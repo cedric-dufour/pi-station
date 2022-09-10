@@ -136,8 +136,8 @@
     - service
   service:
     name: "sleepy-pi-watchdog"
-    enabled: "{{ SLEEPYPI_WATCHDOG_ENABLE|bool | ternary('yes', 'no') }}"
-    state: "{{ SLEEPYPI_WATCHDOG_ENABLE|bool | ternary('started', 'stopped') }}"
+    enabled: "{{ SLEEPYPI_WATCHDOG_ENABLE | bool | ternary('yes', 'no') }}"
+    state: "{{ SLEEPYPI_WATCHDOG_ENABLE | bool | ternary('started', 'stopped') }}"
   ignore_errors: "{{ ansible_check_mode }}"
 
 - name: "Enable and start Sleepy Pi (sunwatch) service"
@@ -146,6 +146,6 @@
     - service
   service:
     name: "sleepy-pi-sunwatch"
-    enabled: "{{ SLEEPYPI_SUNWATCH_ENABLE|bool | ternary('yes', 'no') }}"
-    state: "{{ SLEEPYPI_SUNWATCH_ENABLE|bool | ternary('started', 'stopped') }}"
+    enabled: "{{ SLEEPYPI_SUNWATCH_ENABLE | bool | ternary('yes', 'no') }}"
+    state: "{{ SLEEPYPI_SUNWATCH_ENABLE | bool | ternary('started', 'stopped') }}"
   ignore_errors: "{{ ansible_check_mode }}"
