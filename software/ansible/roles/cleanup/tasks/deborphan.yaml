@@ -1,0 +1,42 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Cleanup orphaned packages
+
+- name: "Find orphaned packages"
+  tags:
+    - cleanup
+    - deborphan
+  shell: |
+    set -e -o pipefail
+    join -v 1 \
+    <(deborphan \
+        --guess-common \
+        --guess-data \
+        --guess-debug \
+        --guess-dev \
+        --guess-doc \
+        --guess-dummy \
+      | sort) \
+    <(apt-mark \
+        showmanual \
+      | sort)
+  register: deborphan
+  changed_when: false
+
+- name: "Remove orphaned packages"
+  tags:
+    - cleanup
+    - deborphan
+  apt:
+    state: absent
+    purge: true
+    autoremove: true
+    name: "{{ deborphan.stdout_lines }}"
+  check_mode: false
+
+- name: "Cleanup orphaned packages: LOOP"
+  tags:
+    - cleanup
+    - deborphan
+  include_tasks: "deborphan.yaml"
+  when: deborphan.stdout_lines|length

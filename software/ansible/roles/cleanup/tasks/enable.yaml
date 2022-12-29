@@ -266,28 +266,11 @@
   apt:
     upgrade: dist
 
-- name: "Lookup orphaned packages"
+- name: "Cleanup orphaned packages"
   tags:
     - cleanup
     - packages
-  shell: |
-    set -e -o pipefail
-    join -v 1 \
-      <(deborphan --guess-common --guess-data --guess-dev | sort) \
-      <(apt-mark showmanual | sort)
-  register: cleanup_orphans
-  changed_when: false
-  check_mode: false
-
-- name: "Remove orphaned packages"
-  tags:
-    - cleanup
-    - packages
-  apt:
-    state: absent
-    purge: true
-    autoremove: true
-    name: "{{ cleanup_orphans.stdout_lines }}"
+  include_tasks: "deborphan.yaml"
   when: CLEANUP_ORPHANS|bool
 
 - name: "Lookup APT cache"
@@ -303,7 +286,5 @@
   tags:
     - cleanup
     - apt
-  command:
-    cmd: "apt-get clean"
-    warn: false
+  command: "apt-get clean" # noqa command-instead-of-module
   when: cleanup_apt_cached.matched
