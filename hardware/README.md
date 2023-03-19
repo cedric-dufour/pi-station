@@ -70,12 +70,12 @@ Solar-powered version
 
 To use solar power - and make the station entirely independent - one needs to add:
 
-* [Phaesun SunPlus][sp] 10W solar panel
+* [Phaesun SunPlus][sp] 20W solar panel
 
 * [IVT Seriell][sc] 12V/4A solar charger (incl. deep discharge protection)
 
-* [Sonnenschein Battery][bat], recommendly 12V/5.5Ah along Power Management option
-  or 12V/12Ah for 24/24h use cases
+* [Sonnenschein Battery][bat], recommendly 12V/12Ah along Power Management option
+  or larger for 24/24h use cases
 
 * "large-factor" [Legrand][encl] enclosure (with battery inside)
 
