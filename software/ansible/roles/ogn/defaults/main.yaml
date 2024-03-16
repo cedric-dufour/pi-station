@@ -8,7 +8,7 @@ OGN_ENABLE: false
 #  REFs:
 #  - https://www.glidernet.org/
 #  - http://download.glidernet.org/
-OGN_VERSION: "0.2.8"
+OGN_VERSION: "0.3.0"
 OGN_ARCHITECTURE: "rpi-gpu"
 OGN_FOLDER: "rtlsdr-ogn-{{ OGN_VERSION }}"
 OGN_TARBALL: "rtlsdr-ogn-bin-{{ OGN_ARCHITECTURE|upper }}-{{ OGN_VERSION }}.tgz"
