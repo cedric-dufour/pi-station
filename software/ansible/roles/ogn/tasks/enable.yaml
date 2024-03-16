@@ -26,8 +26,7 @@
   apt:
     state: present
     name:
-      - libconfig9
-      - libfftw3-3
+      - libpng16-16
       #- reptyr  # Currently N/A for arm64
 
 - name: "Create OGN group"
