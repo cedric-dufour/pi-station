@@ -156,3 +156,14 @@ control; it needs to be re-programmed to provide the advanced power management a
 need.
 
 Please see the ad-hoc [README](./sleepy-pi/README.md) to continue.
+
+
+QEMU-lated Raspberry Pi (DEVELOPERS ONLY)
+-----------------------------------------
+
+The general-purpose [QEMU][qemu] emulator may come handy, should you want to test things out without
+having the hardware Raspberry Pi at hand.
+
+[qemu]: https://www.qemu.org/
+
+Please see the ad-hoc [README](./qemu/README.md) to continue.
