@@ -8,7 +8,7 @@ OGN_ENABLE: false
 #  REFs:
 #  - https://www.glidernet.org/
 #  - http://download.glidernet.org/
-OGN_VERSION: "0.3.0"
+OGN_VERSION: "0.3.2"
 OGN_ARCHITECTURE: "arm64"
 OGN_FOLDER: "rtlsdr-ogn-{{ OGN_VERSION }}"
 # Official version is available only for Bookworm (<-> GLIBC 2.34)
