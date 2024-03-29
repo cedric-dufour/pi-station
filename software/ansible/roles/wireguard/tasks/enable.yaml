@@ -20,7 +20,7 @@
     name: "/etc/wireguard"
     owner: "root"
     group: "root"
-    mode: 0750
+    mode: 0700
 
 - name: "Configure WireGuard (VPN) interface"
   tags:
@@ -31,7 +31,7 @@
     dest: "/etc/wireguard/wg0.conf"
     owner: "root"
     group: "root"
-    mode: 0640
+    mode: 0600
   notify: "Restart WireGuard (VPN) service (reload configuration)"
 
 - name: "Enable and start WireGuard (VPN) service"

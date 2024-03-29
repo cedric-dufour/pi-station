@@ -1,0 +1,12 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Handlers
+
+- name: "Restart Time Synchronization service (reload configuration)"
+  tags:
+    - timesyncd
+    - service
+  service:
+    name: "systemd-timesyncd"
+    state: restarted
+  ignore_errors: "{{ ansible_check_mode }}"

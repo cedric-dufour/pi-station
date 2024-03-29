@@ -27,7 +27,7 @@
     state: present
     name:
       - libpng16-16
-      #- reptyr  # Currently N/A for arm64
+      - reptyr
 
 - name: "Create OGN group"
   tags:

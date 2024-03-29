@@ -10,7 +10,7 @@ After=ntp.service
 [Service]
 Type=oneshot
 ExecStartPre=mkdir -p /run/systemd/timesync
-ExecStart=/usr/sbin/ntp-wait -n 600 -s 6
+ExecStart=/usr/sbin/ntpwait -n 600 -s 6
 ExecStartPost=touch /run/systemd/timesync/synchronized
 TimeoutStartSec=infinity
 RemainAfterExit=yes

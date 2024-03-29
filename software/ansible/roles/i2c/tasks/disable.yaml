@@ -7,7 +7,7 @@
     - i2c
     - configure
   lineinfile:
-    path: "/boot/config.txt"
+    path: "/boot/firmware/config.txt"
     regexp: "^#?dtparam=i2c_arm="
     line: "dtparam=i2c_arm=off"
 

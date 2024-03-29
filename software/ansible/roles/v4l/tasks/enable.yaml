@@ -17,4 +17,5 @@
   apt:
     state: present
     name:
+      - v4l-conf
       - v4l-utils

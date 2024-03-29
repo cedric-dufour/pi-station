@@ -7,7 +7,7 @@
     - wlan
     - configure
   lineinfile:
-    path: "/boot/config.txt"
+    path: "/boot/firmware/config.txt"
     regexp: "^#?dtoverlay=disable-wifi"
     line: "dtoverlay=disable-wifi"
 

@@ -1,0 +1,14 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## NetworkManager setup: disable
+
+- name: "Uninstall NetworkManager packages"
+  tags:
+    - networkmanager
+    - install
+  apt:
+    state: absent
+    purge: true
+    autoremove: true
+    name:
+      - network-manager

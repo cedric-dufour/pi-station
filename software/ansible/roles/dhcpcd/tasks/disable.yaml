@@ -25,3 +25,15 @@
   file:
     state: absent
     name: "/etc/systemd/system/dhcpcd.service.d/zzz-dhcpcd.conf"
+
+- name: "Uninstall DHCP Client Daemon packages"
+  tags:
+    - dhcpcd
+    - install
+  apt:
+    state: absent
+    purge: true
+    autoremove: true
+    name:
+      - dhcpcd
+      - dhcpcd5

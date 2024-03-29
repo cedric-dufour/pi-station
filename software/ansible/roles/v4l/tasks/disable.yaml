@@ -22,4 +22,5 @@
     purge: true
     autoremove: true
     name:
+      - v4l-conf
       - v4l-utils

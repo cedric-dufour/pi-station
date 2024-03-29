@@ -3,26 +3,22 @@
 ## Network Time (NTP) configuration
 
 # General settings
-driftfile /var/lib/ntp/ntp.drift
+driftfile /var/lib/ntpsec/ntp.drift
 leapfile /usr/share/zoneinfo/leap-seconds.list
 
 # Server(s)
 {% if NTP_SERVERS|length > 0 %}
 {% for server in NTP_SERVERS %}
-server {{ server }} iburst minpoll {{ NTP_MINPOLL }} maxpoll {{ NTP_MAXPOLL }}
+server {{ server }} iburst
 {% endfor %}
 {% else %}
 {% for pool in NTP_POOLS %}
-pool {{ pool }} iburst minpoll {{ NTP_MINPOLL }} maxpoll {{ NTP_MAXPOLL }}
+pool {{ pool }} iburst
 {% endfor %}
 {% endif %}
 
 # Permissions
-restrict -4 default notrap nomodify nopeer noquery
-restrict -6 default notrap nomodify nopeer noquery
+restrict -4 default nomodify nopeer noquery
+restrict -6 default nomodify nopeer noquery
 restrict 127.0.0.1
 restrict ::1
-{% if NTP_SERVERS|length <= 0 and NTP_POOLS|length > 0 %}
-# (allow pool members peering)
-restrict source notrap nomodify noquery
-{% endif %}

@@ -17,12 +17,16 @@ all:
         raspios:
           # -> see ./group_vars/raspios.yaml
           children:
-            buster:
-              # -> see ./group_vars/buster.yaml
-            bullseye:
-              # -> see ./group_vars/bullseye.yaml
+            bookworm:
+              # -> see ./group_vars/bookworm.yaml
               hosts:
                 raspberrypi.example.org:
+
+    pi_qemu:
+      vars:
+        ansible_port: 2222
+      hosts:
+        127.0.0.1:
 
   # Global Configuration
   vars:
@@ -76,11 +80,14 @@ all:
     #RNGD_STATS_INTERVAL: 0
 
     # ... ntp
-    #NTP_ENABLE: true
+    #NTP_ENABLE: false
     #NTP_SERVERS: []
     #NTP_POOLS: ["0.debian.pool.ntp.org", "1.debian.pool.ntp.org", "2.debian.pool.ntp.org", "3.debian.pool.ntp.org"]
-    #NTP_MINPOLL: 6
-    #NTP_MAXPOLL: 10
+
+    # ... timesyncd
+    #TIMESYNCD_ENABLE: true
+    #TIMESYNCD_SERVERS: []
+    #TIMESYNCD_FALLBACK_SERVERS: []
 
     # ... wireguard
     #WIREGUARD_ENABLE: false

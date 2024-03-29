@@ -39,4 +39,4 @@
     - cleanup
     - deborphan
   include_tasks: "deborphan.yaml"
-  when: deborphan.stdout_lines|length
+  when: deborphan.stdout_lines | length

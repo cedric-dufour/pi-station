@@ -7,7 +7,7 @@
     - bluetooth
     - configure
   lineinfile:
-    path: "/boot/config.txt"
+    path: "/boot/firmware/config.txt"
     regexp: "^#?dtoverlay=disable-bt"
     line: "dtoverlay=disable-bt"
 

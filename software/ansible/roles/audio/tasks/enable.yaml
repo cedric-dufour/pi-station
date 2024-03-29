@@ -7,7 +7,7 @@
     - audio
     - configure
   lineinfile:
-    path: "/boot/config.txt"
+    path: "/boot/firmware/config.txt"
     regexp: "^#?dtparam=audio"
     line: "dtparam=audio=on"
 

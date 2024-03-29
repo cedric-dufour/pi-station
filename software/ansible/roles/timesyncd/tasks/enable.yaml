@@ -1,0 +1,57 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Time Synchronization setup: enable
+
+- name: "Install Time Synchronization packages"
+  tags:
+    - timesyncd
+    - install
+  apt:
+    state: present
+    name:
+      - systemd-timesyncd
+
+- name: "Uninstall other time synchronization packages"
+  tags:
+    - timesyncd
+    - install
+  apt:
+    state: absent
+    purge: true
+    autoremove: true
+    name:
+      - chrony
+      - ntp
+      - ntpsec
+
+- name: "Configure Time Synchronization"
+  tags:
+    - timesyncd
+    - configure
+  template:
+    src: "timesyncd.conf.j2"
+    dest: "/etc/systemd/timesyncd.conf"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+  notify: "Restart Time Synchronization service (reload configuration)"
+
+- name: "Enable and start Time Synchronization service"
+  tags:
+    - timesyncd
+    - service
+  service:
+    name: "systemd-timesyncd"
+    enabled: true
+    state: started
+  ignore_errors: "{{ ansible_check_mode }}"
+
+# WARNING: Prevent timers to start before we have a valid system time!
+- name: "Enforce system (network-)time synchronization at boot"
+  tags:
+    - timesyncd
+    - service
+  service:
+    name: "systemd-time-wait-sync.service"
+    enabled: true
+    state: started

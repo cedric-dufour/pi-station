@@ -7,7 +7,7 @@
     - i2c
     - configure
   lineinfile:
-    path: "/boot/config.txt"
+    path: "/boot/firmware/config.txt"
     regexp: "^#?dtparam=i2c_arm="
     line: "dtparam=i2c_arm=on"
 
@@ -16,7 +16,7 @@
     - i2c
     - configure
   lineinfile:
-    path: "/boot/config.txt"
+    path: "/boot/firmware/config.txt"
     regexp: "^#?dtparam=i2c_arm_baudrate="
     line: "{{ (I2C_CLOCK_FREQUENCY > 0) | ternary('dtparam=i2c_arm_baudrate='+I2C_CLOCK_FREQUENCY | string, '#dtparam=i2c_arm_baudrate=default') }}"
 

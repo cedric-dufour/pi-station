@@ -174,25 +174,26 @@
       - avahi-daemon
       - cifs-utils
       - dmidecode
-      - dosfstools
+      - dphys-swapfile
+      - dpkg-dev
+      - eject
       - fakeroot
-      - fuse
+      - fuse3
       - gdb
-      - gdbm-l10n
-      - geoip-database
-      - info
-      - install-info
       - iso-codes
+      - mkvtoolnix
+      - modemmanager
       - ncdu
       - nfs-common
       - ntfs-3g
+      - p7zip
+      - p7zip-full
       - shared-mime-info
       - ssh-import-id
       - strace
       - tasksel
       - tasksel-data
       - triggerhappy
-      - vcdbg
 
 - name: "Remove documentation packages"
   tags:
@@ -206,7 +207,7 @@
       - man-db
       - manpages
       - manpages-dev
-  when: CLEANUP_DOCUMENTATION|bool
+  when: CLEANUP_DOCUMENTATION | bool
 
 - name: "Remove build packages"
   tags:
@@ -219,23 +220,13 @@
     name:
       - build-essential
       - cpp
-      - cpp-10
-      - gcc
-      - gcc-10
-      - gcc-8-base
-      - gcc-7-base
-      - gcc-9-base
+      - cpp-12
       - g++
-      - g++-10
+      - g++-12
+      - gcc
+      - gcc-12
       - make
-      # (buster legacy)
-      - cpp-8
-      - gcc-8
-      - gcc-6-base
-      - gcc-5-base
-      - gcc-4.9-base
-      - g++-8
-  when: CLEANUP_BUILDUTILS|bool
+  when: CLEANUP_BUILDUTILS | bool
 
 - name: "Lookup uninstalled packages dependencies"
   tags:
@@ -271,7 +262,7 @@
     - cleanup
     - packages
   include_tasks: "deborphan.yaml"
-  when: CLEANUP_ORPHANS|bool
+  when: CLEANUP_ORPHANS | bool
 
 - name: "Lookup APT cache"
   tags:

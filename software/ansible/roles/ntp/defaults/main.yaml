@@ -1,7 +1,7 @@
 ---
 #  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
 ## Defaults
-NTP_ENABLE: true
+NTP_ENABLE: false
 
 
 ## Network Time (NTP) configuration
@@ -16,7 +16,3 @@ NTP_POOLS:
   - "1.debian.pool.ntp.org"
   - "2.debian.pool.ntp.org"
   - "3.debian.pool.ntp.org"
-
-# Polling
-NTP_MINPOLL: 6
-NTP_MAXPOLL: 10

@@ -9,9 +9,9 @@
   apt:
     state: present
     name:
-      - ntp
+      - ntpsec
 
-- name: "Uninstall default time synchronization packages"
+- name: "Uninstall other time synchronization packages"
   tags:
     - ntp
     - install
@@ -20,6 +20,8 @@
     purge: true
     autoremove: true
     name:
+      - chrony
+      - ntp
       - systemd-timesyncd
 
 - name: "Install Network Time (NTP) synchronization wait service"
@@ -39,7 +41,7 @@
     - configure
   template:
     src: "ntp.conf.j2"
-    dest: "/etc/ntp.conf"
+    dest: "/etc/ntpsec/ntp.conf"
     owner: "root"
     group: "root"
     mode: "0644"
@@ -63,3 +65,13 @@
     enabled: true
     state: started
   ignore_errors: "{{ ansible_check_mode }}"
+
+# WARNING: Prevent timers to start before we have a valid system time!
+- name: "Enforce system (network-)time synchronization at boot"
+  tags:
+    - ntp
+    - service
+  service:
+    name: "systemd-time-wait-sync.service"
+    enabled: true
+    state: started

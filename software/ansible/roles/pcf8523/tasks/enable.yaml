@@ -7,7 +7,7 @@
     - pcf8523
     - configure
   lineinfile:
-    path: "/boot/config.txt"
+    path: "/boot/firmware/config.txt"
     regexp: "^#?dtoverlay=i2c-rtc,pcf8523"
     line: "dtoverlay=i2c-rtc,pcf8523"
 

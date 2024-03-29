@@ -1,0 +1,31 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Time Synchronization setup: disable
+
+- name: "Stop Time Synchronization service"
+  tags:
+    - timesyncd
+    - service
+  service:
+    name: "systemd-timesyncd"
+    state: stopped
+  ignore_errors: true
+
+- name: "Remove Time Synchronization configuration"
+  tags:
+    - timesyncd
+    - configure
+  file:
+    state: absent
+    name: "/etc/systemd/timesyncd.conf"
+
+- name: "Uninstall Time Synchronization packages"
+  tags:
+    - timesyncd
+    - install
+  apt:
+    state: absent
+    purge: true
+    autoremove: true
+    name:
+      - systemd-timesyncd

@@ -1,4 +1,6 @@
 ---
 #  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
-## Defaults
-DHCPCD_ENABLE: false
+## Playbook
+- hosts: all
+  roles:
+  - ../timesyncd

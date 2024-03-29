@@ -15,5 +15,4 @@
     - done
   command:
     cmd: "apt-get clean"
-    warn: false
   when: done_apt_cached.matched

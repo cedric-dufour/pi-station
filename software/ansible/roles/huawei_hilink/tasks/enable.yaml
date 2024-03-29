@@ -84,17 +84,46 @@
     group: "root"
     mode: 0644
 
+- name: "Check whether the DHCP Client Daemon (dhcpcd) is installed"
+  tags:
+    - huawei_hilink
+    - configure
+  stat:
+    path: "/usr/sbin/dhcpcd"
+  register: huawei_hilink_dhcpcd
+
 - name: "Configure Huawei HiLink interface (dhcpcd)"
   tags:
     - huawei_hilink
     - configure
-  copy:
-    src: "huawei-hilink.dhcpcd"
+  template:
+    src: "huawei-hilink.dhcpcd.j2"
     dest: "/etc/dhcpcd.d/huawei-hilink"
     owner: "root"
     group: "root"
     mode: 0644
+  when: huawei_hilink_dhcpcd.stat.exists
   notify: "Update DHCP Client Daemon configuration"
+
+- name: "Check whether NetworkManager is installed"
+  tags:
+    - huawei_hilink
+    - configure
+  stat:
+    path: "/usr/sbin/NetworkManager"
+  register: huawei_hilink_network_manager
+
+- name: "Configure Huawei HiLink interface (NetworkManager)"
+  tags:
+    - huawei_hilink
+    - configure
+  template:
+    src: "huawei-hilink.nmconnection.j2"
+    dest: "/etc/NetworkManager/system-connections/huawei-hilink.nmconnection"
+    owner: "root"
+    group: "root"
+    mode: 0600
+  when: huawei_hilink_network_manager.stat.exists
 
 - name: "Configure Huawei HiLink DHCP hook (dhclient)"
   tags:
@@ -115,4 +144,5 @@
     state: link
     src: "/etc/dhcp/dhclient-exit-hooks.d/huawei-hilink"
     dest: "/lib/dhcpcd/dhcpcd-hooks/90-huawei-hilink"
+  when: huawei_hilink_dhcpcd.stat.exists
   ignore_errors: "{{ ansible_check_mode }}"

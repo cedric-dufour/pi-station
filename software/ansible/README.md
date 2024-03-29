@@ -13,10 +13,10 @@ Or using a Python virtual environment:
 
 ``` bash
 # Create an Ansible-dedicated Python virtual environment
-virtualenv --python=/usr/bin/python3 "${HOME}/virtualenv/ansible"
+python -m venv "${HOME}/venv/ansible"
 
 # Activate the virtual environment
-source "${HOME}/virtualenv/ansible/bin/activate"
+source "${HOME}/venv/ansible/bin/activate"
 
 # Install Ansible and other dependencies in the virtual environment
 pip install -r ./requirements.txt
@@ -27,6 +27,12 @@ deactivate
 
 [ansible]: https://www.ansible.com/
 
+Then install Ansible dependencies:
+
+``` bash
+# Install Ansible dependencies
+ansible-galaxy collection install -r ansible-requirements.yaml
+```
 
 Pre-requisites
 --------------
@@ -78,7 +84,10 @@ The following Roles are available to configure the Pi Station:
 
 * `iptables`: setup firewalling to protect your Internet-exposed Pi from network abuse
 
+* `networkmanager`: setup NetworkManager (custom configuration)
+
 * `dhcpcd`: setup DHCP Client Daemon (custom configuration)
+  [legacy; not recommended; replaced by `networkmanager`]
 
 * `ethernet`: setup Ethernet, wired LAN (hardware)
 
@@ -88,7 +97,10 @@ The following Roles are available to configure the Pi Station:
 
 * `rngd`: setup Random Number Generator (RNG) Daemon (software dependencies)
 
+* `timesyncd`: setup Time Synchronization (software dependencies)
+
 * `ntp`: setup Network Time (NTP) synchronization (software dependencies)
+  [legacy; not recommeded; replaced by `timesyncd`]
 
 * `wireguard`: setup [WireGuard (VPN)][wireguard]
 
@@ -105,7 +117,7 @@ The following Roles are available to configure the Pi Station:
 * `reboot`: schedule regular reboot
 
 * `i2c`: setup the I2C bus (hardware and software dependencies).
-  **WARNING:** RaspiOS 11 (Bullseye, 64-bit) introduced some change that might require
+  **WARNING:** Raspberry PI OS 11 (Bullseye, 64-bit) introduced some change that requires
   to set an artifically low I2C clock frequency (especially along the Sleepy Pi);
   as **workaround**, in your `inventory.yaml`:
 
@@ -121,14 +133,6 @@ I2C_CLOCK_FREQUENCY: 10000  # 10kHz
 * `rtlsdr`: setup the Realtek RTL2832U Software Defined Radio (SDR)
 
 * `ogn`: setup the [Open Glider Network (OGN)][ogn] receiver and decoder.
-  **WARNING:** RaspiOS 11 (Bullseye, 64-bit) is not (yet) officially supported by OGN;
-  **meanwhile**, please override the following configuration in your `inventory.yaml`:
-
-``` yaml
-OGN_VERSION: "0.2.9"
-OGN_TARBALL: "rtlsdr-ogn-bin-{{ OGN_ARCHITECTURE|lower }}-{{ OGN_VERSION }}_Buster.tgz"
-OGN_DOWNLOAD_URL: "https://github.com/pjalocha/ogn-frb-search/raw/main/rtlsdr-ogn/{{ OGN_TARBALL }}"
-```
 
 [wireguard]: https://www.wireguard.com/
 [freedns]: https://freedns.afraid.org/
@@ -185,7 +189,7 @@ and their default values.
 Raspberry Pi hardware configuration
 -----------------------------------
 
-Most of the Rabsberry Pi low-level hardware configuration is done in the `/boot/config.txt` file.
+Most of the Rabsberry Pi low-level hardware configuration is done in the `/boot/firmware/config.txt` file.
 
 **Enabling/disabling** hardware components is achived via [Device Tree directives][rpi-config-dt] while
 hardware **configuration** is done using ad-hoc [Configuration settings][rpi-config].

@@ -11,11 +11,8 @@ OGN_ENABLE: false
 OGN_VERSION: "0.3.2"
 OGN_ARCHITECTURE: "arm64"
 OGN_FOLDER: "rtlsdr-ogn-{{ OGN_VERSION }}"
-# Official version is available only for Bookworm (<-> GLIBC 2.34)
-#OGN_TARBALL: "rtlsdr-ogn-bin-{{ OGN_ARCHITECTURE | lower }}-{{ OGN_VERSION }}.tgz"
-#OGN_DOWNLOAD_URL: "http://download.glidernet.org/{{ OGN_ARCHITECTURE | lower }}/{{ OGN_TARBALL }}"
-OGN_TARBALL: "rtlsdr-ogn-bin-{{ OGN_ARCHITECTURE | lower }}-{{ OGN_VERSION }}_Bullseye.tgz"
-OGN_DOWNLOAD_URL: "https://github.com/VirusPilot/ogn-pi34/raw/master/{{ OGN_TARBALL }}"
+OGN_TARBALL: "rtlsdr-ogn-bin-{{ OGN_ARCHITECTURE | lower }}-{{ OGN_VERSION }}.tgz"
+OGN_DOWNLOAD_URL: "http://download.glidernet.org/{{ OGN_ARCHITECTURE | lower }}/{{ OGN_TARBALL }}"
 
 
 ## OGN configuration

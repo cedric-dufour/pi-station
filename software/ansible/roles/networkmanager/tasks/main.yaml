@@ -1,0 +1,10 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## NetworkManager setup
+
+- name: "NetworkManager setup"
+  tags:
+    - networkmanager
+    - always
+  include_tasks:
+    file: "{{ NETWORKMANAGER_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"

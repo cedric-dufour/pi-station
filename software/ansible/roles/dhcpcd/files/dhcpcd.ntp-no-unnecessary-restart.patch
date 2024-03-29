@@ -8,20 +8,8 @@ diff -urN dhcpcd-hooks.orig/60-ntp-common.conf dhcpcd-hooks/60-ntp-common.conf
 +	elif [ ! -f "$SERVERFILE" ] && [ -z "$new_ntp_servers" ]; then
 +		return
  	fi
- 
+
  	rm -f "$SERVERFILE"
-diff -urN dhcpcd-hooks.orig/66-ntp.conf dhcpcd-hooks/66-ntp.conf
---- dhcpcd-hooks.orig/66-ntp.conf	2019-05-03 13:14:43.000000000 +0000
-+++ dhcpcd-hooks/66-ntp.conf	2022-04-15 05:39:08.978222860 +0000
-@@ -7,6 +7,8 @@
- 	# exit early if there's nothing to do
- 	if [ -f "$SERVERFILE" ] && [ "$new_ntp_servers" = "$old_ntp_servers" ]; then
- 		return
-+	elif [ ! -f "$SERVERFILE" ] && [ -z "$new_ntp_servers" ]; then
-+		return
- 	fi
- 
- 	insert_servers iburst
 diff -urN dhcpcd-hooks.orig/68-openntpd.conf dhcpcd-hooks/68-openntpd.conf
 --- dhcpcd-hooks.orig/68-openntpd.conf	2019-05-03 13:14:43.000000000 +0000
 +++ dhcpcd-hooks/68-openntpd.conf	2022-04-15 05:39:57.397945060 +0000
@@ -32,5 +20,5 @@ diff -urN dhcpcd-hooks.orig/68-openntpd.conf dhcpcd-hooks/68-openntpd.conf
 +	elif [ ! -f "$SERVERFILE" ] && [ -z "$new_ntp_servers" ]; then
 +		return
  	fi
- 
+
  	insert_servers

@@ -1,3 +1,4 @@
 ---
 #  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
-## Debian 11 (Bullseye) variables
+## Defaults
+NETWORKMANAGER_ENABLE: true

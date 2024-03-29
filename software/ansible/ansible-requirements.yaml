@@ -1,0 +1,8 @@
+---
+# REF: https://docs.ansible.com/ansible/latest/galaxy/user_guide.html#installing-roles-from-galaxy
+# HINT: ansible-galaxy collection install [--upgrade] -r ansible-requirements.yaml
+
+collections:
+
+  # REF:https://docs.ansible.com/ansible/latest/collections/ansible/posix/
+  - name: "ansible.posix"

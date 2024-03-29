@@ -8,11 +8,13 @@
     - ramoverlay
     - ipv6
     - iptables
+    - networkmanager
     - dhcpcd
     - ethernet
     - wlan
     - huawei_hilink
     - rngd
+    - timesyncd
     - ntp
     - wireguard
     - freedns
