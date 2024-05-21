@@ -1,5 +1,5 @@
 ## Ansible
-inventory.yaml
+inventory
 *.retry
 
 ## Python artefacts

@@ -56,10 +56,10 @@ the _Facts_ about your Pi:
 
 ``` bash
 # Execute the `facts` playbook
-ansible-playbook -i inventory.yaml playbook-facts.yaml
+ansible-playbook playbook-facts.yaml
 
 # OR (by targeting the role-specific playbook directly)
-ansible-playbook -i inventory.yaml roles/facts/playbook.yaml
+ansible-playbook roles/facts/playbook.yaml
 ```
 
 
@@ -155,7 +155,7 @@ Those can easily be played "as logical units" thanks to corresponding Playbooks:
 
 ``` bash
 # Execute all "base" roles
-ansible-playbook -i inventory.yaml playbook-base.yaml
+ansible-playbook playbook-base.yaml
 ```
 _NOTE:_ you can easily enable/disable each Role thanks to the corresponding `<ROLE>_ENABLE; {True|False}`
 in the `inventory.yaml` file.
@@ -164,7 +164,7 @@ Or played individually:
 
 ``` bash
 # Execute a given role
-ansible-playbook -i inventory.yaml roles/<role>/playbook.yaml
+ansible-playbook roles/<role>/playbook.yaml
 ```
 
 ### Testing (dry-run)
@@ -173,7 +173,7 @@ To test what a Role/Playbook would do _without_ actually applying its changes:
 
 ``` bash
 # Test a playbook
-ansible-playbook -i inventory.yaml roles/<role>/playbook.yaml --diff --check
+ansible-playbook roles/<role>/playbook.yaml --diff --check
 ```
 
 
