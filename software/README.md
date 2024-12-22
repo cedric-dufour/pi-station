@@ -14,8 +14,8 @@ On a workstation/laptop:
 
 ``` bash
 # Download
-wget https://downloads.raspberrypi.com/raspios_lite_arm64/images/raspios_lite_arm64-2024-03-15/2024-03-15-raspios-bookworm-arm64-lite.img.xz
-ln -s 2024-03-15-raspios-bookworm-arm64-lite.img.xz raspios.img.xz
+wget https://downloads.raspberrypi.com/raspios_lite_arm64/images/raspios_lite_arm64-2024-11-19/2024-03-19-raspios-bookworm-arm64-lite.img.xz
+ln -s 2024-11-19-raspios-bookworm-arm64-lite.img.xz raspios.img.xz
 ```
 
 * Insert the SD card and mark its device identifier (`sdX`):
@@ -35,7 +35,7 @@ sudo dmesg | tail -n 25
 
 * Install the OS on the SD card (`/dev/sdX`):
 
-```
+``` bash
 # Install the image to the SD card
 xzcat raspios.img.xz | sudo dd of=/dev/sdX bs=4M status=progress
 # [output]
@@ -90,7 +90,7 @@ SSH Access
 sudo systemctl enable ssh
 sudo systemctl start ssh
 
-# Verify the SSH server is enabed and running
+# Verify the SSH server is enabled and running
 sudo systemctl status ssh
 # [output]
 #ssh.service - OpenBSD Secure Shell server

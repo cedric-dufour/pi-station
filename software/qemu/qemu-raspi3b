@@ -3,13 +3,13 @@ set -e -o pipefail
 SCRIPT="${0##*/}"
 # shellcheck disable=SC2034
 SCRIPT_DIR="$(dirname "$(realpath -e "${0}")")"
-VERSION='1.0.20240329a'
+VERSION='1.0.20241207a'
 trap 'echo "ERROR[${SCRIPT}]: Internal error" >&2' ERR
 
 
 ## Defaults
-: "${PI_STATION_IMG_URL:=https://downloads.raspberrypi.com/raspios_lite_arm64/images/raspios_lite_arm64-2024-03-15/2024-03-15-raspios-bookworm-arm64-lite.img.xz}"
-: "${PI_STATION_IMG_HASH:=58a3ec57402c86332e67789a6b8f149aeeb4e7bb0a16c9388a66ea6e07012e45}"
+: "${PI_STATION_IMG_URL:=https://downloads.raspberrypi.com/raspios_lite_arm64/images/raspios_lite_arm64-2024-11-19/2024-11-19-raspios-bookworm-arm64-lite.img.xz}"
+: "${PI_STATION_IMG_HASH:=6ac3a10a1f144c7e9d1f8e568d75ca809288280a593eb6ca053e49b539f465a4}"
 : "${PI_STATION_QEMU_DIR:=${SCRIPT_DIR}/data}"
 : "${PI_STATION_QEMU_VNC:=127.0.0.1:0}"
 : "${PI_STATION_QEMU_SSH:=2222}"
@@ -136,7 +136,7 @@ if [ ! -e "${image}" ]; then
     'img'): cat "${download}" > "${image}";;
     *) __ERROR "Unsupported image format (${extension})" 1;;
   esac
-  qemu-img resize -f raw "${image}" 4G  # Or QEMU will complain about SD card size
+  qemu-img resize -f raw "${image}" 8G  # Or QEMU will complain about SD card size
 fi
 
 # Prepare QEMU boot
@@ -170,7 +170,7 @@ if [ ! -e "${qemudir}" ]; then
         read -srp "Confirm new password for 'pi' user: " password_confirm
         echo
     done
-    password="$(echo "${password}" | mkpasswd -s -m SHA-512 -R 100000)"
+    password="$(echo "${password}" | mkpasswd -s -m yescrypt -R 6)"
     echo "pi:${password}" | sudo tee "${mountpoint}/userconf.txt" >/dev/null
     sudo touch "${mountpoint}/ssh"
   fi
