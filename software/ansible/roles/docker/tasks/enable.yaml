@@ -1,0 +1,205 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Docker (containers) setup: enable
+
+- name: "Configure the (APT) packages source (download.docker.com) [1/2:key]"
+  tags:
+    - docker
+    - configure
+  get_url:
+    url: "https://download.docker.com/linux/debian/gpg"
+    checksum: "sha256:1500c1f56fa9e26b9b8f42452a553675796ade0807cdce11975eb98170b3a570"
+    dest: "/etc/apt/keyrings/docker.asc"
+    owner: "root"
+    group: "root"
+    mode: 0o644
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: "Configure the (APT) packages source (download.docker.com) [2/2:source]"
+  tags:
+    - docker
+    - configure
+  apt_repository:
+    filename: "docker"
+    repo: "deb [arch=arm64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian {{ ansible_facts['distribution_release'] }} stable"
+
+- name: "Install Docker packages"
+  tags:
+    - docker
+    - install
+  apt:
+    name:
+      - "containerd.io"
+      - "docker-ce"
+      - "docker-ce-cli"
+      - "docker-compose-plugin"
+      - "python3-requests"  # required by 'community.docker' modules
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: "Configure Docker (daemon)"
+  tags:
+    - docker
+    - configure
+  template:
+    src: "docker-daemon.json.j2"
+    dest: "/etc/docker/daemon.json"
+    owner: "root"
+    group: "root"
+    mode: 0o644
+
+- name: "Docker Compose service (docker-compose@.service)"
+  tags:
+    - docker
+    - install
+  copy:
+    src: "docker-compose@.service"
+    dest: "/etc/systemd/system/docker-compose@.service"
+    owner: "root"
+    group: "root"
+    mode: 0o644
+
+- name: "Create applications environnement (.env)"
+  tags:
+    - docker
+    - configure
+  template:
+    src: "docker-compose.env.j2"
+    dest: "{{ '%s/.env' | format(application.meta['project_src']) }}"
+    owner: "root"
+    group: "root"
+    mode: 0o640
+  loop: >-
+    {{
+      DOCKER_COMPOSE_APPS
+      | dict2items(key_name='name', value_name='meta')
+      | selectattr('meta.environment', 'defined')
+    }}
+  loop_control:
+    loop_var: "application"
+    label: "{{ '%s/.env' | format(application.meta['project_src']) }}"
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: "Cleanup applications environnement (.env)"
+  tags:
+    - docker
+    - configure
+  file:
+    state: absent
+    path: "{{ '%s/.env' | format(application.meta['project_src']) }}"
+  loop: >-
+    {{
+      DOCKER_COMPOSE_APPS
+      | dict2items(key_name='name', value_name='meta')
+      | rejectattr('meta.environment', 'defined')
+    }}
+  loop_control:
+    loop_var: "application"
+    label: "{{ '%s/.env' | format(application.meta['project_src']) }}"
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: "Create/configure Docker networks"
+  tags:
+    - docker
+    - deploy
+  community.docker.docker_network:
+    state: "{{ network.meta['state'] | default('present') }}"
+    name: "{{ network.name }}"
+    scope: "{{ network.meta['scope'] | default('local') }}"
+    ipam_config: "{{ network.meta['ipam_config'] | default(null) }}"
+    appends: true
+  loop: >-
+    {{
+      DOCKER_NETWORKS
+      | dict2items(key_name='name', value_name='meta')
+    }}
+  loop_control:
+    loop_var: "network"
+    label: "{{ network.name }}"
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: "Start applications (docker compose)"
+  tags:
+    - docker
+    - deploy
+  community.docker.docker_compose_v2:
+    state: "{{ application.meta['state'] | default('present') }}"
+    project_name: "{{ application.name }}"
+    project_src: "{{ application.meta['project_src'] }}"
+    build: "{{ application.meta['build'] | default('policy') }}"
+    pull: "{{ application.meta['pull'] | default('policy') }}"
+  loop: >-
+    {{
+      DOCKER_COMPOSE_APPS
+      | dict2items(key_name='name', value_name='meta')
+      | json_query('[?meta.manage].{name: name, meta: meta}')
+    }}
+  loop_control:
+    loop_var: "application"
+    label: "{{ application.name }}"
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: "Enable applications (docker-compose@.service) [1/2]"
+  tags:
+    - docker
+    - deploy
+  command:
+    argv:
+      - "systemd-escape"
+      - "{{ application.meta['project_src'] }}"
+  loop: >-
+    {{
+      DOCKER_COMPOSE_APPS
+      | dict2items(key_name='name', value_name='meta')
+      | json_query('[?meta.manage && !contains([`stop`, `absent`], meta.state)].{name: name, meta: meta}')
+    }}
+  loop_control:
+    loop_var: "application"
+    label: "{{ application.name }} <-> {{ application.meta['project_src'] }}"
+  register: docker_application_unit_enable
+  changed_when: false
+  check_mode: false
+
+- name: "Enable applications (docker-compose@.service) [2/2]"
+  tags:
+    - docker
+    - deploy
+  service:
+    name: "docker-compose@{{ item.stdout }}.service"
+    enabled: true
+    state: started
+  loop: "{{ docker_application_unit_enable.results }}"
+  loop_control:
+    label: "{{ item.stdout }}"
+
+- name: "Disable applications (docker-compose@.service) [1/2]"
+  tags:
+    - docker
+    - deploy
+  command:
+    argv:
+      - "systemd-escape"
+      - "{{ application.meta['project_src'] }}"
+  loop: >-
+    {{
+      DOCKER_COMPOSE_APPS
+      | dict2items(key_name='name', value_name='meta')
+      | json_query('[?meta.manage && contains([`stop`, `absent`], meta.state)].{name: name, meta: meta}')
+    }}
+  loop_control:
+    loop_var: "application"
+    label: "{{ application.name }} <-> {{ application.meta['project_src'] }}"
+  register: docker_application_unit_disable
+  changed_when: false
+  check_mode: false
+
+- name: "Disable applications (docker-compose@.service) [2/2]"
+  tags:
+    - docker
+    - deploy
+  service:
+    name: "docker-compose@{{ item.stdout }}.service"
+    enabled: false
+    state: stopped
+  loop: "{{ docker_application_unit_disable.results }}"
+  loop_control:
+    label: "{{ item.stdout }}"

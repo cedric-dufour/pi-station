@@ -1,0 +1,1 @@
+{{ DOCKER_DAEMON_CONFIG_DEFAULT | combine(DOCKER_DAEMON_CONFIG, recursive=True) | to_json(indent=2) }}

@@ -1,0 +1,120 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Docker (containers) setup: disable
+
+- name: "Stop applications (docker compose)"
+  tags:
+    - docker
+    - deploy
+  community.docker.docker_compose_v2:
+    state: absent
+    project_name: "{{ application.name }}"
+    project_src: "{{ application.meta['project_src'] }}"
+  loop: "{{ DOCKER_COMPOSE_APPS | dict2items(key_name='name', value_name='meta') }}"
+  loop_control:
+    loop_var: "application"
+    label: "{{ application.name }}"
+  ignore_errors: true  # noqa ignore-errors
+
+- name: "Disable applications (docker-compose@.service) [1/2]"
+  tags:
+    - docker
+    - deploy
+  command:
+    argv:
+      - "systemd-escape"
+      - "{{ application.meta['project_src'] }}"
+  loop: >-
+    {{
+      DOCKER_COMPOSE_APPS
+      | dict2items(key_name='name', value_name='meta')
+    }}
+  loop_control:
+    loop_var: "application"
+    label: "{{ application.name }} <-> {{ application.meta['project_src'] }}"
+  register: docker_application_unit_disable
+  changed_when: false
+  check_mode: false
+
+- name: "Disable applications (docker-compose@.service) [2/2]"
+  tags:
+    - docker
+    - deploy
+  service:
+    name: "docker-compose@{{ item.stdout }}.service"
+    enabled: false
+    state: stopped
+  loop: "{{ docker_application_unit_disable.results }}"
+  loop_control:
+    label: "{{ item.stdout }}"
+
+- name: "Remove/unconfigure Docker networks"
+  tags:
+    - docker
+    - deploy
+  community.docker.docker_network:
+    state: absent
+    name: "{{ network.name }}"
+    scope: "{{ network.meta['scope'] | default('local') }}"
+  loop: "{{ DOCKER_NETWORKS | dict2items(key_name='name', value_name='meta') }}"
+  loop_control:
+    loop_var: "network"
+    label: "{{ network.name }}"
+  ignore_errors: true  # noqa ignore-errors
+
+- name: "Remove applications environnement (.env)"
+  tags:
+    - docker
+    - configure
+  file:
+    state: absent
+    path: "{{ '%s/.env' | format(application.meta['project_src']) }}"
+  loop: "{{ DOCKER_COMPOSE_APPS | dict2items(key_name='name', value_name='meta') }}"
+  loop_control:
+    loop_var: "application"
+    label: "{{ '%s/.env' | format(application.meta['project_src']) }}"
+
+- name: "Uninstall Docker Compose service (docker-compose@.service)"
+  tags:
+    - docker
+    - install
+  file:
+    state: absent
+    path: "/etc/systemd/system/docker-compose@.service"
+
+- name: "Uninstall Docker packages"
+  tags:
+    - docker
+    - install
+  apt:
+    state: absent
+    name:
+      - "containerd.io"
+      - "docker-ce"
+      - "docker-ce-cli"
+      - "docker-compose-plugin"
+  ignore_errors: true  # noqa ignore-errors
+
+- name: "Unconfigure the (APT) packages source (download.docker.com) [1/2:key]"
+  tags:
+    - docker
+    - configure
+  file:
+    state: absent
+    path: "/etc/apt/keyrings/docker.asc"
+
+- name: "Unconfigure the (APT) packages source (download.docker.com) [2/2:source]"
+  tags:
+    - docker
+    - configure
+  file:
+    state: absent
+    path: "/etc/apt/sources.list.d/docker.list"
+
+- name: "Unconfigure Docker (daemon)"
+  tags:
+    - docker
+    - configure
+  file:
+    state: absent
+    path: "/etc/docker/daemon.json"

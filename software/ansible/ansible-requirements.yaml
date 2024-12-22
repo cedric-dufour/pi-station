@@ -9,3 +9,6 @@ collections:
 
   # REF: https://galaxy.ansible.com/community/general
   - name: "community.general"
+
+  # REF: https://galaxy.ansible.com/community/docker
+  - name: "community.docker"

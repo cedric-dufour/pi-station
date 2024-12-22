@@ -136,11 +136,16 @@ I2C_CLOCK_FREQUENCY: 10000  # 10kHz
 
 * `ogn`: setup the [Open Glider Network (OGN)][ogn] receiver and decoder.
 
+* `docker`: manage [Docker][docker] Compose'd applications
+
 [wireguard]: https://www.wireguard.com/
 [freedns]: https://freedns.afraid.org/
 [inadyn]: https://github.com/troglobit/inadyn
 [sleepy-pi]: https://spellfoundry.com/product/sleepy-pi-2/
 [ogn]: https://www.glidernet.org/
+[docker]: https://www.docker.com/
+
+* `docker`: manage Docker Compose'd applications
 
 ### Playbooks
 

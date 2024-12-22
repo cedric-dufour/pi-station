@@ -1,0 +1,32 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Defaults
+DOCKER_ENABLE: true
+
+
+# Docker bridge (docker0)
+DOCKER_BRIDGE_IPADDRESS: "192.168.17.1/24"
+# REFs:
+# - https://docs.docker.com/config/daemon/
+# - https://docs.docker.com/reference/cli/dockerd/#daemon-configuration-file
+# - https://docs.docker.com/engine/network/drivers/bridge/
+# - https://docs.docker.com/engine/daemon/live-restore/
+DOCKER_DAEMON_CONFIG_DEFAULT:
+  bip: "{{ DOCKER_BRIDGE_IPADDRESS }}"
+  live-restore: true
+DOCKER_DAEMON_CONFIG: {}
+
+# Networks; format:
+#   <name>:
+# REFs:
+# - https://docs.ansible.com/ansible/latest/collections/community/docker/docker_network_module.html
+DOCKER_NETWORKS: {}
+
+# Applications (<-> docker compose):
+#   <name>:
+#     project_src: <path>
+#     environment:
+#       "key": "value"
+# REFs:
+# - https://docs.ansible.com/ansible/latest/collections/community/docker/docker_compose_v2_module.html
+DOCKER_COMPOSE_APPS: {}
