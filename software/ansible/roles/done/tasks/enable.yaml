@@ -14,5 +14,6 @@
   tags:
     - done
   command:
-    cmd: "apt-get clean"
+    cmd: "apt-get clean"  # noqa command-instead-of-module
   when: done_apt_cached.matched
+  changed_when: true

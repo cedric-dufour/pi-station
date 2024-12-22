@@ -7,4 +7,4 @@
     - dhcpcd
     - always
   include_tasks:
-    file: "{{ DHCPCD_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"
+    file: "{{ DHCPCD_ENABLE | bool | ternary('enable.yaml', 'disable.yaml') }}"

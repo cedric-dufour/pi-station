@@ -3,9 +3,9 @@
 # ex: filetype=python tabstop=4 softtabstop=4 shiftwidth=4 expandtab autoindent smartindent
 
 import argparse
-import time
 import os
 import sys
+import time
 
 import smbus
 
@@ -20,10 +20,11 @@ oArgumentParser = argparse.ArgumentParser(
 
 # Interval
 oArgumentParser.add_argument(
-    "--interval", "-i",
+    "--interval",
+    "-i",
     help="Heartbeat interval (seconds)",
     type=int,
-    default=int(os.environ.get('SLEEPYPI_WATCHDOG_INTERVAL', 60)),
+    default=int(os.environ.get("SLEEPYPI_WATCHDOG_INTERVAL", 60)),
 )
 
 # Verbose
@@ -52,7 +53,7 @@ bVerbose = oArguments.verbose
 # Loop
 while True:
     # Heartbeat
-    if(bVerbose):
+    if bVerbose:
         print("Heartbeat")
     # ... send heartbeat command (I2C)
     oI2C = smbus.SMBus(SLEEPYPI_I2C_BUS)

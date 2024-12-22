@@ -7,4 +7,4 @@
     - ethernet
     - always
   include_tasks:
-    file: "{{ ETHERNET_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"
+    file: "{{ ETHERNET_ENABLE | bool | ternary('enable.yaml', 'disable.yaml') }}"

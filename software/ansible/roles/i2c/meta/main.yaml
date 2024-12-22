@@ -4,11 +4,11 @@
 
 # Galaxy
 galaxy_info:
-  description: I2C (bus) setup
-  author: Cédric Dufour <http://cedric.dufour.name>
-  license: GNU AGPLv3
-  min_ansible_version: 2.9
+  description: "I2C (bus) setup"
+  author: "Cédric Dufour <http://cedric.dufour.name>"
+  license: "GNU AGPLv3"
+  min_ansible_version: "2.9"
   platforms:
-    - name: Raspberry Pi OS
+    - name: "Debian"
       versions:
         - all

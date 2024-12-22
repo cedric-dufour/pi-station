@@ -1,6 +1,7 @@
 ---
 #  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
 ## Playbook
-- hosts: all
+- name: "Open Glider Network (OGN) setup"
+  hosts: all
   roles:
-  - ../ogn
+   - ../ogn

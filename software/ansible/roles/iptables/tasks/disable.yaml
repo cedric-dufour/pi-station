@@ -9,7 +9,7 @@
   service:
     name: "netfilter-persistent"
     state: stopped
-  ignore_errors: true
+  ignore_errors: true  # noqa ignore-errors
 
 - name: "Unconfigure IPtables user rules"
   tags:

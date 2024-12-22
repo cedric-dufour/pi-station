@@ -9,7 +9,7 @@
   service:
     name: "sleepy-pi-agent"
     state: stopped
-  ignore_errors: true
+  ignore_errors: true  # noqa ignore-errors
 
 - name: "Stop Sleepy Pi (watchdog) service"
   tags:
@@ -18,7 +18,7 @@
   service:
     name: "sleepy-pi-watchdog"
     state: stopped
-  ignore_errors: true
+  ignore_errors: true  # noqa ignore-errors
 
 - name: "Stop Sleepy Pi (sunwatch) service"
   tags:
@@ -27,7 +27,7 @@
   service:
     name: "sleepy-pi-sunwatch"
     state: stopped
-  ignore_errors: true
+  ignore_errors: true  # noqa ignore-errors
 
 - name: "Uninstall Sleepy Pi (agent) service"
   tags:

@@ -9,7 +9,7 @@
   service:
     name: "inadyn"
     state: stopped
-  ignore_errors: true
+  ignore_errors: true  # noqa ignore-errors
 
 - name: "Uninstall In-a-Dyn packages"
   tags:

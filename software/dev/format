@@ -1,0 +1,15 @@
+#!/bin/bash
+set -e
+SELF_DIR="$(realpath -e "$(dirname "${0}")")"
+SRC_DIR="$(dirname "${SELF_DIR}")"
+cd "${SRC_DIR}"
+
+## Format
+
+# Python
+# (isort)
+find . -type f \( -name '*.py' -o -exec sed -n '1,1{/^#!.*python/Q0};Q1' {} \; \) -print0 |
+  sort -z | xargs -r0 isort --settings "${SELF_DIR}/isort.toml"
+# (black)
+find . -type f \( -name '*.py' -o -exec sed -n '1,1{/^#!.*python/Q0};Q1' {} \; \) -print0 |
+  sort -z | xargs -r0 black -q --config "${SELF_DIR}/black.toml"

@@ -1,0 +1,47 @@
+{
+    // Files
+    "files.associations": {
+        "**/ansible/**/*.yaml": "ansible",
+        "**/ansible/**/*.j2": "ansible-jinja"
+    },
+    "files.exclude": {
+        "**/__pycache__": true,
+        "**/*.pyc": true
+    },
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true,
+    "files.trimTrailingWhitespace": true,
+    "files.watcherExclude": {
+        "**/.git/**": true
+    },
+
+    // Python
+    "python.analysis.autoSearchPaths": false,
+    "python.analysis.extraPaths": [
+
+        "${workspaceFolder}/ansible/roles"
+
+    ],
+    // (lint/format)
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+    "black-formatter.args": [
+        "--config",
+        "${workspaceFolder}/dev/black.toml"
+    ],
+    "flake8.args": [
+        "--config",
+        "${workspaceFolder}/dev/flake8.toml"
+    ],
+    "isort.args": [
+        "--settings",
+        "${workspaceFolder}/dev/isort.toml",
+    ],
+
+    // Ansible
+    "ansible.ansible.useFullyQualifiedCollectionNames": false,
+    // (lint)
+    "ansible.validation.lint.arguments": "-c ./dev/ansible-lint.yaml",
+    "ansible.python.interpreterPath": "./.venv/bin/python",
+}

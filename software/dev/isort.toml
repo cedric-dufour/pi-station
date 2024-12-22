@@ -1,0 +1,8 @@
+[tool.isort]
+profile = "black"
+line_length = 120
+lines_after_imports = 2
+star_first = true
+combine_as_imports = true
+treat_all_comments_as_code = true
+sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "APPLICATION", "LOCALFOLDER"]

@@ -7,4 +7,4 @@
     - reboot
     - always
   include_tasks:
-    file: "{{ REBOOT_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"
+    file: "{{ REBOOT_ENABLE | bool | ternary('enable.yaml', 'disable.yaml') }}"

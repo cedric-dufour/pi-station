@@ -72,7 +72,7 @@
   service:
     state: stopped
     name: "{{ item }}"
-  ignore_errors: true
+  ignore_errors: true  # noqa ignore-errors
   loop:
     - "syslog.socket"
     - "rsyslog"
@@ -277,5 +277,6 @@
   tags:
     - cleanup
     - apt
-  command: "apt-get clean" # noqa command-instead-of-module
+  command: "apt-get clean"  # noqa command-instead-of-module
   when: cleanup_apt_cached.matched
+  changed_when: true

@@ -7,4 +7,4 @@
     - audio
     - always
   include_tasks:
-    file: "{{ AUDIO_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"
+    file: "{{ AUDIO_ENABLE | bool | ternary('enable.yaml', 'disable.yaml') }}"

@@ -91,12 +91,23 @@ SLEEPYPI_I2C_COMMAND_RESET = 0xFE
 
 
 def sleepypi_i2c_write(iCommand, lData=None):
+    """Write (send) data to the SleepyPi via the I2C bus.
+
+    Args:
+        iCommand: command to send (among SLEEPYPI_I2C_COMMAND_*_W)
+        lData: list of command arguments
+    """
     oI2C.write_i2c_block_data(
         SLEEPYPI_I2C_ADDRESS, iCommand, lData if lData is not None else []
     )
 
 
 def sleepypi_i2c_read(iCommand):
+    """Read data from the SleepyPi via the I2C bus.
+
+    Args:
+        iCommand: command to send (among SLEEPYPI_I2C_COMMAND_*_R)
+    """
     mValue = None
     sleepypi_i2c_write(iCommand)
     for _i in range(0, SLEEPYPI_I2C_READ_ATTEMPTS):

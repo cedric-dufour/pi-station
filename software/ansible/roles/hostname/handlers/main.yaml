@@ -7,3 +7,4 @@
     - hostname
   command:
     cmd: "hostname --file /etc/hostname"
+  changed_when: false

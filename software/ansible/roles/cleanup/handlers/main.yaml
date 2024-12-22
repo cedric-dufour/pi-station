@@ -7,3 +7,4 @@
     - cleanup
   command:
     cmd: "swapoff --all"
+  changed_when: false

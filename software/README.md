@@ -150,8 +150,19 @@ need.
 Please see the ad-hoc [README](./sleepy-pi/README.md) to continue.
 
 
-QEMU-lated Raspberry Pi (DEVELOPERS ONLY)
------------------------------------------
+Development
+-----------
+
+### Microsoft VS Code
+
+This project includes all settings for thorough [Microsoft VS Code][microsoft-vscode] integration.
+
+[microsoft-vscode]: https://code.visualstudio.com/
+
+Please make sure to open **this** directory as the VS Code _Workspace Folder_ (such as to properly
+"hook" with the [.vscode](./vscode) configuration directory).
+
+### QEMU-lated Raspberry Pi
 
 The general-purpose [QEMU][qemu] emulator may come handy, should you want to test things out without
 having the hardware Raspberry Pi at hand.

@@ -1,0 +1,7 @@
+---
+skip_list:
+ - experimental
+ - fqcn-builtins
+ - role-name[path]  # needed for roles/*/playbook.yaml
+ - var-naming[pattern]  # I *insist* on making user variables STAND OUT of other Ansible lingo
+ - yaml  # we use yamllint

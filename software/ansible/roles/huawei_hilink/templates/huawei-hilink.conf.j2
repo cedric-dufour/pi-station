@@ -7,7 +7,7 @@
 endpoint = "{{ HUAWEI_HILINK_ENDPOINT }}"
 
 # Use HTTPS
-ssl = {{ HUAWEI_HILINK_SSL|bool | ternary('true', 'false') }}
+ssl = {{ HUAWEI_HILINK_SSL | bool | ternary('true', 'false') }}
 
 # Administration credentials
 # (unauthenticated connection is used if password is left empty)
@@ -16,4 +16,3 @@ password = "{{ HUAWEI_HILINK_PASSWORD }}"
 
 # SIM card PIN code
 pin = "{{ HUAWEI_HILINK_PIN }}"
-

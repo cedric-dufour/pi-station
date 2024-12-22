@@ -1,6 +1,7 @@
 ---
 #  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
 ## Playbook
-- hosts: all
+- name: "IPv6 setup"
+  hosts: all
   roles:
-  - ../ipv6
+   - ../ipv6

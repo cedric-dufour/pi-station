@@ -7,4 +7,4 @@
     - networkmanager
     - always
   include_tasks:
-    file: "{{ NETWORKMANAGER_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"
+    file: "{{ NETWORKMANAGER_ENABLE | bool | ternary('enable.yaml', 'disable.yaml') }}"

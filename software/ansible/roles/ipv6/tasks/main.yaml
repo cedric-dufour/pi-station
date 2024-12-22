@@ -7,4 +7,4 @@
     - ipv6
     - always
   include_tasks:
-    file: "{{ IPV6_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"
+    file: "{{ IPV6_ENABLE | bool | ternary('enable.yaml', 'disable.yaml') }}"

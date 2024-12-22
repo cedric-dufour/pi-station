@@ -7,4 +7,4 @@
     - ntp
     - always
   include_tasks:
-    file: "{{ NTP_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"
+    file: "{{ NTP_ENABLE | bool | ternary('enable.yaml', 'disable.yaml') }}"

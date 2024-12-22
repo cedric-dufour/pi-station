@@ -3,6 +3,7 @@
 ## Debug output
 
 - name: "Display Ansible facts"
-  debug: var=ansible_facts
+  debug:
+    var: ansible_facts
   tags:
     - facts

@@ -9,7 +9,7 @@
   service:
     name: "rng-tools-debian"
     state: stopped
-  ignore_errors: true
+  ignore_errors: true  # noqa ignore-errors
 
 - name: "Uninstall Random Number Generator (RNG) Daemon packages"
   tags:

@@ -1,0 +1,32 @@
+#!/bin/bash
+set -e
+SELF_DIR="$(realpath -e "$(dirname "${0}")")"
+SRC_DIR="$(dirname "${SELF_DIR}")"
+cd "${SRC_DIR}"
+
+## Lint
+
+# YAML
+find . -type f -not -name '*.j2' \( -name '*.yaml' -o -exec sed -n '1,1{/^---$/Q0};Q1' {} \; \) -print0 |
+  sort -z | xargs -r0 yamllint --config-file "${SELF_DIR}/yamllint.yaml"
+# (Jinja2)
+while read -r file; do
+  sed -E '
+    /^\s*\{%\s*else\s*%\}\s*$/,/^\s*\{%\s*endif\s*%\}\s*$/d;
+    /^\s*\{%.*%\}\s*$/d;
+    s/\{%\s*(if[^}]+|else|endif)\s*%\}//g;
+    s/(^|[^"])(\{\{.*\}\})([^"]|$)/\1"\2"\3/g
+  ' "${file}" |
+    yamllint --config-file "${SELF_DIR}/yamllint.yaml" -
+done < <(
+  find . -type f -name '*.j2' \( -name '*.yaml.j2' -o -exec sed -n '1,1{/^---$/Q0};Q1' {} \; \) -print |
+  sort
+)
+
+# Ansible
+find ./ansible -type f -not -path '*/files/*' -not -path '*/templates/*' \( -name '*.yaml' -o -exec sed -n '1,1{/^---$/Q0};Q1' {} \; \) -print0 |
+  sort -z | xargs -r0 ansible-lint -q --config-file "${SELF_DIR}/ansible-lint.yaml"
+
+# Python
+find . -type f \( -name '*.py' -o -exec sed -n '1,1{/^#!.*python/Q0};Q1' {} \; \) -print0 |
+  sort -z | xargs -r0 flake8 --config "${SELF_DIR}/flake8.toml"

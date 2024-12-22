@@ -33,7 +33,7 @@
     dest: "/etc/systemd/timesyncd.conf"
     owner: "root"
     group: "root"
-    mode: "0644"
+    mode: 0o644
   notify: "Restart Time Synchronization service (reload configuration)"
 
 - name: "Enable and start Time Synchronization service"

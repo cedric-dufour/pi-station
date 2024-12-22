@@ -8,3 +8,4 @@
     - module
   command:
     cmd: "modprobe i2c-dev"
+  changed_when: false

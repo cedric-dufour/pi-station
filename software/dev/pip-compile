@@ -1,0 +1,14 @@
+#!/bin/sh
+SELF_DIR="$(realpath -e "$(dirname "${0}")")"
+SRC_DIR="$(dirname "${SELF_DIR}")"
+cd "${SRC_DIR}" || exit $?
+
+## PIP compile requirements
+
+# Production
+[ -e "${SRC_DIR}/ansible/requirements.txt" ] && rm -i "${SRC_DIR}/ansible/requirements.txt"
+pip-compile --output-file="${SRC_DIR}/ansible/requirements.txt" "./ansible/requirements.in"
+
+# (development)
+[ -e "${SRC_DIR}/dev/requirements.txt" ] && rm -i "${SRC_DIR}/dev/requirements.txt"
+pip-compile --output-file="${SRC_DIR}/dev/requirements.txt" "./dev/requirements.in" "./ansible/requirements.in"

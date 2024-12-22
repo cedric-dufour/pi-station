@@ -7,4 +7,4 @@
     - freedns
     - always
   include_tasks:
-    file: "{{ FREEDNS_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"
+    file: "{{ FREEDNS_ENABLE | bool | ternary('enable.yaml', 'disable.yaml') }}"

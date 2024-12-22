@@ -1,0 +1,15 @@
+{
+    "recommendations": [
+        // Ansible
+        "redhat.ansible",
+        "redhat.vscode-yaml",
+        // Python
+        "ms-python.python",
+        "ms-python.black-formatter",
+        "ms-python.flake8",
+        "ms-python.isort",
+        // Shell
+        "timonwong.shellcheck",
+        "foxundermoon.shell-format",
+    ],
+}

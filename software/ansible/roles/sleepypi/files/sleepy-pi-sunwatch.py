@@ -4,8 +4,8 @@
 
 import argparse
 import os
-import time
 import sys
+import time
 
 import ephem
 import smbus
@@ -21,34 +21,38 @@ oArgumentParser = argparse.ArgumentParser(
 
 # Latitude
 oArgumentParser.add_argument(
-    "--latitude", "-a",
+    "--latitude",
+    "-a",
     help="Latitude (degrees)",
     type=float,
-    default=float(os.environ.get('SLEEPYPI_SUNWATCH_LATITUDE', 46.95240)),
+    default=float(os.environ.get("SLEEPYPI_SUNWATCH_LATITUDE", 46.95240)),
 )
 
 # Longitude
 oArgumentParser.add_argument(
-    "--longitude", "-o",
+    "--longitude",
+    "-o",
     help="Longitude (degrees)",
     type=float,
-    default=float(os.environ.get('SLEEPYPI_SUNWATCH_LONGITUDE', 7.439583)),
+    default=float(os.environ.get("SLEEPYPI_SUNWATCH_LONGITUDE", 7.439583)),
 )
 
 # Shutdown offset
 oArgumentParser.add_argument(
-    "--shutdown", "-s",
+    "--shutdown",
+    "-s",
     help="Shut-down time offset (seconds)",
     type=int,
-    default=int(os.environ.get('SLEEPYPI_SUNWATCH_SHUTDOWN', 0)),
+    default=int(os.environ.get("SLEEPYPI_SUNWATCH_SHUTDOWN", 0)),
 )
 
 # Wake offset
 oArgumentParser.add_argument(
-    "--wakeup", "-w",
+    "--wakeup",
+    "-w",
     help="Wake-up time offset (seconds)",
     type=int,
-    default=int(os.environ.get('SLEEPYPI_SUNWATCH_WAKEUP', 0)),
+    default=int(os.environ.get("SLEEPYPI_SUNWATCH_WAKEUP", 0)),
 )
 
 
@@ -87,7 +91,7 @@ while True:
     print(f"Shutting down at {dShutdown}")
     # ... wait until shutdown time
     fWait = 86400.0 * (dShutdown - dNow)
-    if(fWait > 0.0):
+    if fWait > 0.0:
         time.sleep(fWait)
 
     # Wake-up

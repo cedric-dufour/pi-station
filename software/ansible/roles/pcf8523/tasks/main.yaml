@@ -7,4 +7,4 @@
     - pcf8523
     - always
   include_tasks:
-    file: "{{ PCF8523_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"
+    file: "{{ PCF8523_ENABLE | bool | ternary('enable.yaml', 'disable.yaml') }}"

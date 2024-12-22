@@ -7,4 +7,4 @@
     - v4l
     - always
   include_tasks:
-    file: "{{ V4L_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"
+    file: "{{ V4L_ENABLE | bool | ternary('enable.yaml', 'disable.yaml') }}"

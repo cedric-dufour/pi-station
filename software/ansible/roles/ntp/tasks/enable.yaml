@@ -33,7 +33,7 @@
     dest: "/etc/systemd/system/ntp-wait.service"
     owner: "root"
     group: "root"
-    mode: "0644"
+    mode: 0o644
 
 - name: "Configure Network Time (NTP)"
   tags:
@@ -44,7 +44,7 @@
     dest: "/etc/ntpsec/ntp.conf"
     owner: "root"
     group: "root"
-    mode: "0644"
+    mode: 0o644
   notify: "Restart Network Time (NTP) service (reload configuration)"
 
 - name: "Enable Network Time (NTP) synchronization wait service"

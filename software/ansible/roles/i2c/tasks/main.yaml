@@ -7,4 +7,4 @@
     - i2c
     - always
   include_tasks:
-    file: "{{ I2C_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"
+    file: "{{ I2C_ENABLE | bool | ternary('enable.yaml', 'disable.yaml') }}"

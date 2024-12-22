@@ -7,4 +7,4 @@
     - rngd
     - always
   include_tasks:
-    file: "{{ RNGD_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"
+    file: "{{ RNGD_ENABLE | bool | ternary('enable.yaml', 'disable.yaml') }}"

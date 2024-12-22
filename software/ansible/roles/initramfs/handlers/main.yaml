@@ -7,3 +7,4 @@
     - initramfs
   command:
     cmd: "update-initramfs -u"
+  changed_when: false

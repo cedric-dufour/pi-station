@@ -9,7 +9,7 @@
   service:
     name: "systemd-timesyncd"
     state: stopped
-  ignore_errors: true
+  ignore_errors: true  # noqa ignore-errors
 
 - name: "Remove Time Synchronization configuration"
   tags:

@@ -9,7 +9,7 @@
   service:
     name: "ogn-decode"
     state: stopped
-  ignore_errors: true
+  ignore_errors: true  # noqa ignore-errors
 
 - name: "Stop OGN Receiver service"
   tags:
@@ -18,7 +18,7 @@
   service:
     name: "ogn-rf"
     state: stopped
-  ignore_errors: true
+  ignore_errors: true  # noqa ignore-errors
 
 - name: "Uninstall OGN Receiver FIFO service"
   tags:

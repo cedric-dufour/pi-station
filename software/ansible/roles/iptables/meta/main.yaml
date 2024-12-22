@@ -4,11 +4,11 @@
 
 # Galaxy
 galaxy_info:
-  description: IPtables (firewall) setup
-  author: Cédric Dufour <http://cedric.dufour.name>
-  license: GNU AGPLv3
-  min_ansible_version: 2.9
+  description: "IPtables (firewall) setup"
+  author: "Cédric Dufour <http://cedric.dufour.name>"
+  license: "GNU AGPLv3"
+  min_ansible_version: "2.9"
   platforms:
-    - name: Raspberry Pi OS
+    - name: "Debian"
       versions:
         - all

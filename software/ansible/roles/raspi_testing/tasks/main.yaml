@@ -7,4 +7,4 @@
     - raspi_testing
     - always
   include_tasks:
-    file: "{{ RASPI_TESTING_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"
+    file: "{{ RASPI_TESTING_ENABLE | bool | ternary('enable.yaml', 'disable.yaml') }}"

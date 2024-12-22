@@ -21,9 +21,9 @@ BASH_HOME: "/home/{{ LOGIN_USER }}"
 ## Ansible
 
 # Execution
-ansible_python_interpreter: "/usr/bin/env python3"
 ansible_user: "debian"
 ansible_become: true
+ansible_python_interpreter: "/usr/bin/python3"
 ansible_shell_executable: "/bin/bash"
 
 # Facts

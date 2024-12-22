@@ -4,7 +4,7 @@
 #  REF: https://github.com/cedric-dufour/scriptisms/blob/master/system/freedns-v2.conf
 
 # Use HTTPS
-ssl = {{ FREEDNS_SSL|bool | ternary('true', 'false') }}
+ssl = {{ FREEDNS_SSL | bool | ternary('true', 'false') }}
 
 # FreeDNS subdomain update token
 # (as in 'https://sync.afraid.org/u/<token>/')
@@ -17,7 +17,7 @@ token = "{{ FREEDNS_TOKEN }}"
 # IP address
 [address]
 # Perform IPv6 update
-ipv6 = {{ FREEDNS_ADDRESS_IPV6|bool | ternary('true', 'false') }}
+ipv6 = {{ FREEDNS_ADDRESS_IPV6 | bool | ternary('true', 'false') }}
 
 # External IP address checker script
 {% if FREEDNS_ADDRESS_CHECK|length %}

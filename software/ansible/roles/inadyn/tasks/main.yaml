@@ -7,4 +7,4 @@
     - inadyn
     - always
   include_tasks:
-    file: "{{ INADYN_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"
+    file: "{{ INADYN_ENABLE | bool | ternary('enable.yaml', 'disable.yaml') }}"

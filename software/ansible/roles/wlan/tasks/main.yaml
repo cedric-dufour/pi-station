@@ -7,4 +7,4 @@
     - wlan
     - always
   include_tasks:
-    file: "{{ WLAN_ENABLE|bool | ternary('enable.yaml', 'disable.yaml') }}"
+    file: "{{ WLAN_ENABLE | bool | ternary('enable.yaml', 'disable.yaml') }}"
