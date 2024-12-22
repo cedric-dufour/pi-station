@@ -1,0 +1,41 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## MQTT setup: enable
+
+- name: "MQTT[mosquitto] setup"
+  tags:
+    - mqtt
+    - always
+  include_tasks:
+    file: "{{ MQTT_MOSQUITTO_ENABLE | bool | ternary('mosquitto/enable.yaml', 'mosquitto/disable.yaml') }}"
+
+- name: "MQTT[zigbee2mqtt] setup"
+  tags:
+    - mqtt
+    - always
+  include_tasks:
+    file: "{{ MQTT_ZIGBEE_ENABLE | bool | ternary('zigbee2mqtt/enable.yaml', 'zigbee2mqtt/disable.yaml') }}"
+
+- name: "Create MQTT deployment directory"
+  tags:
+    - mqtt
+    - docker
+    - configure
+  file:
+    state: directory
+    path: "/opt/mqtt"
+    owner: "root"
+    group: "root"
+    mode: 0o755
+
+- name: "Configure MQTT applications deployment (docker-compose.yaml)"
+  tags:
+    - mqtt
+    - docker
+    - configure
+  copy:
+    src: "docker-compose.yaml"
+    dest: "/opt/mqtt/docker-compose.yaml"
+    owner: "root"
+    group: "root"
+    mode: 0o644

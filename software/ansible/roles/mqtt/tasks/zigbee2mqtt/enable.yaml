@@ -1,0 +1,109 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## MQTT setup[zigbee2mqtt]: enable
+
+- name: "Create Zigbee2MQTT directories"
+  tags:
+    - mqtt
+    - zigbee2mqtt
+    - configure
+  file:
+    state: directory
+    path: "{{ item }}"
+    owner: "root"
+    group: "root"
+    mode: 0o755
+  loop:
+    - "/var/lib/zigbee2mqtt"
+    - "/var/log/zigbee2mqtt"
+    - "/etc/zigbee2mqtt"
+
+- name: "Check whether Zigbee2MQTT is already configured "
+  tags:
+    - mqtt
+    - zigbee2mqtt
+    - configure
+  stat:
+    path: "/var/lib/zigbee2mqtt/configuration.yaml"
+  register: mqtt_zigbee_configuration
+
+- name: "Configure Zigbee2MQTT"
+  tags:
+    - mqtt
+    - zigbee2mqtt
+    - configure
+  template:
+    src: "zigbee2mqtt/configuration.yaml.j2"
+    dest: "/var/lib/zigbee2mqtt/configuration.yaml"
+    owner: "root"
+    group: "root"
+    mode: 0o640
+  when: MQTT_ZIGBEE_RESET|bool or not mqtt_zigbee_configuration.stat.exists
+
+- name: "Symlink Zigbee2MQTT configuration"
+  tags:
+    - mqtt
+    - zigbee2mqtt
+    - configure
+  file:
+    state: link
+    force: true
+    path: "/etc/zigbee2mqtt/configuration.yaml"
+    src: "/var/lib/zigbee2mqtt/configuration.yaml"
+    owner: "root"
+    group: "root"
+    mode: 0o640
+
+- name: "Configure Zigbee2MQTT devices"
+  tags:
+    - mqtt
+    - zigbee2mqtt
+    - configure
+  template:
+    src: "zigbee2mqtt/devices.yaml.j2"
+    dest: "/var/lib/zigbee2mqtt/devices.yaml"
+    owner: "root"
+    group: "root"
+    mode: 0o640
+  when: MQTT_ZIGBEE_RESET|bool or not mqtt_zigbee_configuration.stat.exists
+
+- name: "Symlink Zigbee2MQTT devices configuration"
+  tags:
+    - mqtt
+    - zigbee2mqtt
+    - configure
+  file:
+    state: link
+    force: true
+    path: "/etc/zigbee2mqtt/devices.yaml"
+    src: "/var/lib/zigbee2mqtt/devices.yaml"
+    owner: "root"
+    group: "root"
+    mode: 0o640
+
+- name: "Configure Zigbee2MQTT groups"
+  tags:
+    - mqtt
+    - zigbee2mqtt
+    - configure
+  template:
+    src: "zigbee2mqtt/groups.yaml.j2"
+    dest: "/var/lib/zigbee2mqtt/groups.yaml"
+    owner: "root"
+    group: "root"
+    mode: 0o640
+  when: MQTT_ZIGBEE_RESET|bool or not mqtt_zigbee_configuration.stat.exists
+
+- name: "Symlink Zigbee2MQTT groups configuration"
+  tags:
+    - mqtt
+    - zigbee2mqtt
+    - configure
+  file:
+    state: link
+    force: true
+    path: "/etc/zigbee2mqtt/groups.yaml"
+    src: "/var/lib/zigbee2mqtt/groups.yaml"
+    owner: "root"
+    group: "root"
+    mode: 0o640

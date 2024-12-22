@@ -138,14 +138,19 @@ I2C_CLOCK_FREQUENCY: 10000  # 10kHz
 
 * `docker`: manage [Docker][docker] Compose'd applications
 
+* `mqtt`: setup [MQTT][mqtt] (using Docker); including (and/or):
+  - [mosquitto][mosquitto] broker
+  - [zigbee2mqtt][zigbee2mqtt] bridge
+
 [wireguard]: https://www.wireguard.com/
 [freedns]: https://freedns.afraid.org/
 [inadyn]: https://github.com/troglobit/inadyn
 [sleepy-pi]: https://spellfoundry.com/product/sleepy-pi-2/
 [ogn]: https://www.glidernet.org/
 [docker]: https://www.docker.com/
-
-* `docker`: manage Docker Compose'd applications
+[mqtt]: https://mqtt.org/
+[mosquitto]: https://mosquitto.org/
+[zigbee2mqtt]: https://www.zigbee2mqtt.io/
 
 ### Playbooks
 
@@ -159,6 +164,8 @@ Those can easily be played "as logical units" thanks to corresponding Playbooks:
 * `playbook-sleepypi`: install and configure [Sleepy Pi][sleepy-pi] components (incl. dependencies)
 
 * `playbook-ogn`: install and configure [Open Glider Network (OGN)][ogn] components (incl. dependencies)
+
+* `playbook-mqtt`: install and configure [MQTT][mqtt] components (incl. dependencies)
 
 ``` bash
 # Execute all "base" roles

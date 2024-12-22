@@ -1,0 +1,26 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## MQTT setup: disable
+
+- name: "MQTT[mosquitto] setup"
+  tags:
+    - mqtt
+    - always
+  include_tasks:
+    file: "mosquitto/disable.yaml"
+
+- name: "MQTT[zigbee2mqtt] setup"
+  tags:
+    - mqtt
+    - always
+  include_tasks:
+    file: "zigbee2mqtt/disable.yaml"
+
+- name: "Remove MQTT deployment directory"
+  tags:
+    - mqtt
+    - docker
+    - configure
+  file:
+    state: absent
+    path: "/opt/mqtt"

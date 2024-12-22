@@ -1,0 +1,43 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## MQTT setup[mosquitto]: enable
+
+- name: "Create Mosquitto directories"
+  tags:
+    - mqtt
+    - mosquitto
+    - configure
+  file:
+    state: directory
+    path: "{{ item }}"
+    owner: 1883  # as per Docker image
+    group: 1883  # as per Docker image
+    mode: 0o755
+  loop:
+    - "/var/lib/mosquitto"
+    - "/var/log/mosquitto"
+    - "/etc/mosquitto"
+
+- name: "Configure Mosquitto"
+  tags:
+    - mqtt
+    - mosquitto
+    - configure
+  template:
+    src: "mosquitto/mosquitto.conf.j2"
+    dest: "/etc/mosquitto/mosquitto.conf"
+    owner: 1883  # as per Docker image
+    group: 1883  # as per Docker image
+    mode: 0o644
+
+- name: "Configure Mosquitto users"
+  tags:
+    - mqtt
+    - mosquitto
+    - configure
+  template:
+    src: "mosquitto/users.j2"
+    dest: "/etc/mosquitto/users"
+    owner: 1883  # as per Docker image
+    group: 1883  # as per Docker image
+    mode: 0o600

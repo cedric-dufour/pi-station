@@ -1,0 +1,96 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Defaults
+MQTT_ENABLE: true
+
+
+## Mosquitto (broker) configuration
+#  REF:
+MQTT_MOSQUITTO_ENABLE: true
+
+# Security
+MQTT_MOSQUITTO_SECURITY_PER_LISTENER: false
+MQTT_MOSQUITTO_SECURITY_DEFAULT:
+  allow_zero_length_clientid: false
+  allow_anonymous: false
+  password_file: "/mosquitto/config/users"
+MQTT_MOSQUITTO_SECURITY: {}
+
+# Users
+# (use 'mosquitto_passwd' to generated hashed password)
+MQTT_MOSQUITTO_SECURITY_USERS: {}  # {"user": "passwd", ...}
+
+# Listeners
+MQTT_MOSQUITTO_LISTENERS:
+  "1883 0.0.0.0": {}
+
+# Persistence
+# NB: It is NOT recommended to enable MQTT data persistence (given the SD-card wearing out)
+MQTT_MOSQUITTO_PERSISTENCE_ENABLE: false
+MQTT_MOSQUITTO_PERSISTENCE_DEFAULT:
+  persistence_location: "/mosquitto/data"
+  autosave_interval: 3600
+MQTT_MOSQUITTO_PERSISTENCE: {}
+
+# Logging
+MQTT_MOSQUITTO_LOGGING_DEFAULT:
+  log_dest:
+    - stdout
+    #-file /mosquitto/log/mosquitto.log  # NOT recommended (given the SD-card wearing out)
+  log_type:  # debug, error, warning, notice, information, subscribe, unsubscribe, websockets, none, all
+    - error
+    - warning
+  log_timestamp_format: "%Y-%m-%dT%H:%M:%S"
+MQTT_MOSQUITTO_LOGGING: {}
+
+
+## Zigbee2MQTT (bridge) configuration
+MQTT_ZIGBEE_ENABLE: false
+
+# WARNING: The application will update the configuration file (according to joined devices and UI changes).
+# Set the following to true if you want to reset this configuration (knowing what you're doing).
+MQTT_ZIGBEE_RESET: false
+
+# Adapter; REF: https://www.zigbee2mqtt.io/guide/configuration/adapter-settings.html
+MQTT_ZIGBEE_ADAPTER_DEFAULT:
+  port: "/dev/ttyUSB0"
+MQTT_ZIGBEE_ADAPTER: {}
+
+# MQTT broker; REF: https://www.zigbee2mqtt.io/guide/configuration/mqtt.html
+MQTT_ZIGBEE_BROKER_DEFAULT:
+  server: "mqtt://mosquitto:1883"
+  client_id: "zigbee2mqtt"
+  base_topic: "zigbee2mqtt"
+MQTT_ZIGBEE_BROKER: {}
+
+# Frontend; REF: https://www.zigbee2mqtt.io/guide/configuration/frontend.html
+MQTT_ZIGBEE_FRONTEND_ENABLE: true
+MQTT_ZIGBEE_FRONTEND: {}
+
+# Home Assistant; REF: https://www.zigbee2mqtt.io/guide/configuration/homeassistant.html
+MQTT_ZIGBEE_HA_ENABLE: false
+MQTT_ZIGBEE_HA: {}
+
+# Devices and Groups; https://www.zigbee2mqtt.io/guide/configuration/devices-groups.html
+MQTT_ZIGBEE_DEVICES_JOIN_ENABLE: false
+MQTT_ZIGBEE_DEVICES: {}
+MQTT_ZIGBEE_GROUPS: {}
+
+# Advanced
+MQTT_ZIGBEE_ADVANCED_DEFAULT:
+  # (network; https://www.zigbee2mqtt.io/guide/configuration/zigbee-network.html)
+  pan_id: GENERATE
+  ext_pan_id: GENERATE
+  network_key: GENERATE
+  channel: 25
+  # (persistence; NB: It is NOT recommended to enable cache persistence,given the SD-card wearing out)
+  cache_state_persistent: false
+  # (logging; REF: https://www.zigbee2mqtt.io/guide/configuration/logging.html)
+  log_outout:
+    - console
+    #- file  # NOT recommended (given the SD-card wearing out)
+  log_directory: "/app/log"
+  log_file: "zigbee2mqtt.log"
+  log_level: warning  # debug, info, warning, error
+  timestamp_format: YYYY-MM-DDTHH:mm:ss
+MQTT_ZIGBEE_ADVANCED: {}

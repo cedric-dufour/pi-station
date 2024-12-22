@@ -1,0 +1,16 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## MQTT setup[mosquitto]: disable
+
+- name: "Remove Mosquitto directories"
+  tags:
+    - mqtt
+    - mosquitto
+    - configure
+  file:
+    state: absent
+    path: "{{ item }}"
+  loop:
+    - "/var/lib/mosquitto"
+    - "/var/log/mosquitto"
+    - "/etc/mosquitto"

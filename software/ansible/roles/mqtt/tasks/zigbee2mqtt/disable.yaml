@@ -1,0 +1,16 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## MQTT setup[zigbee2mqtt]: disable
+
+- name: "Remove Zigbee2MQTT directories"
+  tags:
+    - mqtt
+    - zigbee2mqtt
+    - configure
+  file:
+    state: absent
+    path: "{{ item }}"
+  loop:
+    - "/var/lib/zigbee2mqtt"
+    - "/var/log/zigbee2mqtt"
+    - "/etc/zigbee2mqtt"
