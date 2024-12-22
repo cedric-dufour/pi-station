@@ -127,6 +127,8 @@ I2C_CLOCK_FREQUENCY: 10000  # 10kHz
 
 * `pcf8523`: setup the PCF8523 Real-Time Clock (RTC)
 
+* `fs_dir`/`fs_file`/`fs_link`: create/copy/remove directories/files/links
+
 * `sleepypi`: setup the Pi such as to work seamlessly with the [Sleepy Pi][sleepy-pi] power
   management hat
 

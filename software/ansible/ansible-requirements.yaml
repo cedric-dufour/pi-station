@@ -6,3 +6,6 @@ collections:
 
   # REF:https://docs.ansible.com/ansible/latest/collections/ansible/posix/
   - name: "ansible.posix"
+
+  # REF: https://galaxy.ansible.com/community/general
+  - name: "community.general"

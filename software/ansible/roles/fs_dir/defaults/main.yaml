@@ -1,0 +1,14 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Defaults
+FS_DIR_ENABLE: true
+
+# Directories to create; format:
+#   <path>:
+      #state: directory  # or "absent" to remove
+#     #owner: "root"
+#     #group: "root"
+#     #mode: 0o755
+# REFs:
+# - https://docs.ansible.com/ansible/latest/collections/ansible/builtin/file_module.html
+FS_DIR: {}

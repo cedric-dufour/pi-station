@@ -1,0 +1,18 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Defaults
+FS_FILE_ENABLE: true
+
+# Files to create; format:
+#   <path>:
+      #state: file  # or "absent" to remove
+#     #owner: "root"
+#     #group: "root"
+#     #mode: 0o644
+#     #content: "file-content"
+#     #src: "/path/to/template"
+#     #vars: {}  # <-> template
+# REFs:
+#  - https://docs.ansible.com/ansible/latest/collections/ansible/builtin/copy_module.html
+#  - https://docs.ansible.com/ansible/latest/collections/ansible/builtin/template_module.html
+FS_FILE: {}

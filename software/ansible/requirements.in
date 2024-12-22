@@ -1,2 +1,6 @@
 # Ansible
 ansible-core
+
+# (dependencies)
+# <-> community.general.json_query
+jmespath

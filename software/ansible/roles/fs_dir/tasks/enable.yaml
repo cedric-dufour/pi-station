@@ -1,0 +1,19 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Create/remove directories: enable
+
+- name: "Create/remove directories"
+  tags:
+    - fs_dir
+    - install
+  file:
+    state: "{{ (directories.meta['state'] | default('directory') == 'directory') | ternary('directory', 'absent') }}"
+    path: "{{ directories.path }}"
+    owner: "{{ directories.meta['owner'] | default('root') }}"
+    group: "{{ directories.meta['group'] | default('root') }}"
+    mode: "{{ directories.meta['mode'] | default('755') }}"
+  loop: "{{ FS_DIR | dict2items(key_name='path', value_name='meta') }}"
+  loop_control:
+    loop_var: "directories"
+    label: "{{ directories.path }}"
+  ignore_errors: "{{ ansible_check_mode }}"

@@ -61,6 +61,8 @@ isort==5.13.2
     # via -r ./dev/requirements.in
 jinja2==3.1.4
     # via ansible-core
+jmespath==1.0.1
+    # via -r ./ansible/requirements.in
 jsonschema==4.23.0
     # via
     #   ansible-compat

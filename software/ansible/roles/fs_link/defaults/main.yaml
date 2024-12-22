@@ -1,0 +1,15 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Defaults
+FS_LINK_ENABLE: true
+
+# Links to create; format:
+#   <path>:
+#     #state: link  # or 'hard', or 'absent' to remove
+#     #owner: "root"
+#     #group: "root"
+#     #mode: 0o777
+#     #src: "/path/to/target"
+# REFs:
+# - https://docs.ansible.com/ansible/latest/collections/ansible/builtin/file_module.html
+FS_LINK: {}

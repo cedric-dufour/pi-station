@@ -1,0 +1,21 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Create/remove links: enable
+
+- name: "Create/remove links"
+  tags:
+    - fs_link
+    - install
+  file:
+    state: "{{ (links.meta['state'] | default('link') in ['link', 'hard']) | ternary(links.meta['state'] | default('link'), 'absent') }}"
+    path: "{{ links.path }}"
+    src: "{{ links.meta['src'] }}"
+    owner: "{{ links.meta['owner'] | default('root') }}"
+    group: "{{ links.meta['group'] | default('root') }}"
+    mode: "{{ links.meta['mode'] | default('777') }}"
+    force: true
+  loop: "{{ FS_LINK | dict2items(key_name='path', value_name='meta') }}"
+  loop_control:
+    loop_var: "links"
+    label: "{{ links.path }} -> {{ links.meta['src'] }}"
+  ignore_errors: "{{ ansible_check_mode }}"

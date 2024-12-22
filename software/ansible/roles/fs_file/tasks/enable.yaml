@@ -1,0 +1,64 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Create/copy/remove files: enable
+
+- name: "Create/copy/remove files"
+  tags:
+    - fs_file
+    - install
+  copy:
+    dest: "{{ files.path }}"
+    owner: "{{ files.meta['owner'] | default('root') }}"
+    group: "{{ files.meta['group'] | default('root') }}"
+    mode: "{{ files.meta['mode'] | default('644') }}"
+    content: "{{ files.meta['content'] }}"
+  loop: >-
+    {{
+      FS_FILE
+      | dict2items(key_name='path', value_name='meta')
+      | json_query('[?meta.state!=`absent` && type(meta.content)==`string`].{path: path, meta: meta}')
+    }}
+  loop_control:
+    loop_var: "files"
+    label: "{{ files.path }}"
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: "Copy files"
+  tags:
+    - fs_file
+    - install
+  template:
+    dest: "{{ files.path }}"
+    owner: "{{ files.meta['owner'] | default('root') }}"
+    group: "{{ files.meta['group'] | default('root') }}"
+    mode: "{{ files.meta['mode'] | default('644') }}"
+    src: "{{ files.meta['src'] }}"
+  loop: >-
+    {{
+      FS_FILE
+      | dict2items(key_name='path', value_name='meta')
+      | json_query('[?meta.state!=`absent` && type(meta.src)==`string`].{path: path, meta: meta}')
+    }}
+  loop_control:
+    loop_var: "files"
+    label: "{{ files.path }}"
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: "Remove files"
+  tags:
+    - fs_file
+    - install
+  file:
+    state: absent
+    path: "{{ files.path }}"
+  loop: >-
+    {{
+      FS_FILE
+      | dict2items(key_name='path', value_name='meta')
+      | selectattr('meta.state', 'defined')
+      | selectattr('meta.state', '==', 'absent')
+    }}
+  loop_control:
+    loop_var: "files"
+    label: "{{ files.path }}"
+  ignore_errors: "{{ ansible_check_mode }}"

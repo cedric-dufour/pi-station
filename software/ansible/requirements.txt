@@ -12,6 +12,8 @@ cryptography==44.0.0
     # via ansible-core
 jinja2==3.1.4
     # via ansible-core
+jmespath==1.0.1
+    # via -r ./ansible/requirements.in
 markupsafe==3.0.2
     # via jinja2
 packaging==24.2
