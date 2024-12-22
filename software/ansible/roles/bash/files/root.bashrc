@@ -94,6 +94,7 @@ alias _dp='dpkg -P'
 # ... misc
 alias _dm='dmesg --time-format=iso | tail -n 25'
 alias _sy='(logread 2>/dev/null || cat /var/log/syslog) | tail -n 25'
+alias _tm='tmux new-session -A'
 
 # Completions
 [ -r /etc/bash_completion ] && . /etc/bash_completion

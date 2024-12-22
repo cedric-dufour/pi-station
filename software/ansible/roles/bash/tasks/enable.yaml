@@ -10,6 +10,7 @@
     state: present
     name:
       - bash
+      - tmux
 
 - name: "Create root ~/.bashrc"
   tags:
