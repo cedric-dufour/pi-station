@@ -33,6 +33,7 @@
 //     > Raspberry Pi current [mA] : command 0x02, request 2 bytes
 //     > Temperature [cK]          : command 0x03, request 2 bytes
 //     > Watchdog, elapsed [s]     : command 0x04, request 2 bytes
+//     > Expansion, off/on         : command 0x05, request 2 bytes
 //     > Version, internal         : command 0x71, request 2 bytes
 //     > Version, user             : command 0x72, request 2 bytes
 //     > Request                   : command 0x80
@@ -189,6 +190,7 @@
 #define I2C_OPCODE_CURRENT_R          0x02
 #define I2C_OPCODE_TEMPERATURE_R      0x03
 #define I2C_OPCODE_WATCHDOG_R         0x04
+#define I2C_OPCODE_EXPANSION_R        0x05
 #define I2C_OPCODE_VERSION_INTERNAL_R 0x71
 #define I2C_OPCODE_VERSION_USER_R     0x72
 #define I2C_OPCODE_REQUEST            0x80
@@ -425,6 +427,13 @@ void i2c() {
     yRequestSize = 2;
     break;
 #endif  // WATCHDOG
+
+#if POWER_EXPANSION
+  case I2C_OPCODE_EXPANSION_R:
+    uiRequestValue = (uint32_t)(0x1110 | uiPowerExpansion & POWER_STATUS_MASK);
+    yRequestSize = 2;
+    break;
+#endif  // POWER_EXPANSION
 
   case I2C_OPCODE_VERSION_INTERNAL_R:
     uiRequestValue = (uint32_t)VERSION_INTERNAL;
