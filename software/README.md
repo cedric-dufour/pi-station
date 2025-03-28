@@ -14,7 +14,7 @@ On a workstation/laptop:
 
 ``` bash
 # Download
-wget https://downloads.raspberrypi.com/raspios_lite_arm64/images/raspios_lite_arm64-2024-11-19/2024-03-19-raspios-bookworm-arm64-lite.img.xz
+wget https://downloads.raspberrypi.com/raspios_lite_arm64/images/raspios_lite_arm64-2024-11-19/2024-11-19-raspios-bookworm-arm64-lite.img.xz
 ln -s 2024-11-19-raspios-bookworm-arm64-lite.img.xz raspios.img.xz
 ```
 
