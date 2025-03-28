@@ -154,7 +154,7 @@
 // CONSTANTS (INTERNAL; DO NOT MODIFY)
 //
 
-#define VERSION_INTERNAL 102  // 100*version + revision
+#define VERSION_INTERNAL 103  // 100*version + revision
 
 //
 // Power (bitmask)
