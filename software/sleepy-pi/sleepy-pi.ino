@@ -490,7 +490,7 @@ void i2c() {
     }
     break;
 
-#if POWER_EXPANSION and not (TEMPERATURE_PIN and EXPANSION_TEMPERATURE)
+#if POWER_EXPANSION
   case I2C_OPCODE_EXPANSION_OFF:
     uiPowerExpansion |= POWER_ACTION_OFF;
     break;
@@ -498,7 +498,7 @@ void i2c() {
   case I2C_OPCODE_EXPANSION_ON:
     uiPowerExpansion |= POWER_ACTION_ON;
     break;
-#endif  // POWER_EXPANSION and not (TEMPERATURE_PIN and EXPANSION_TEMPERATURE)
+#endif  // POWER_EXPANSION
 
 #if WATCHDOG
   case I2C_OPCODE_WATCHDOG_PING:
