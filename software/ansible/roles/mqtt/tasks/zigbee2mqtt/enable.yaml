@@ -33,7 +33,7 @@
     - zigbee2mqtt
     - configure
   template:
-    src: "zigbee2mqtt/configuration.yaml.j2"
+    src: "etc/zigbee2mqtt/configuration.yaml.j2"
     dest: "/var/lib/zigbee2mqtt/configuration.yaml"
     owner: "root"
     group: "root"
@@ -60,7 +60,7 @@
     - zigbee2mqtt
     - configure
   template:
-    src: "zigbee2mqtt/devices.yaml.j2"
+    src: "etc/zigbee2mqtt/devices.yaml.j2"
     dest: "/var/lib/zigbee2mqtt/devices.yaml"
     owner: "root"
     group: "root"
@@ -87,7 +87,7 @@
     - zigbee2mqtt
     - configure
   template:
-    src: "zigbee2mqtt/groups.yaml.j2"
+    src: "etc/zigbee2mqtt/groups.yaml.j2"
     dest: "/var/lib/zigbee2mqtt/groups.yaml"
     owner: "root"
     group: "root"

@@ -25,6 +25,7 @@ services:
     pull_policy: ${MOSQUITTO_PULL:-missing}
     volumes:
       - /etc/localtime:/etc/localtime:ro
+      - /etc/ssl:/etc/ssl:ro
       - ${MOSQUITTO_CONFIG_DIR:-/etc/mosquitto}:/mosquitto/config:ro
       - ${MOSQUITTO_DATA_DIR:-/var/lib/mosquitto}:/mosquitto/data
       - ${MOSQUITTO_LOG_DIR:-/var/log/mosquitto}:/mosquitto/log
@@ -51,6 +52,7 @@ services:
       - ${ZIGBEE2MQTT_DEVICE:-/dev/ttyUSB0}:/dev/tty${ZIGBEE2MQTT_DEVICE_TYPE:-USB}0
     volumes:
       - /etc/localtime:/etc/localtime:ro
+      - /etc/ssl:/etc/ssl:ro
       - ${ZIGBEE2MQTT_DATA_DIR:-/var/lib/zigbee2mqtt}:/app/data
       - ${ZIGBEE2MQTT_LOG_DIR:-/var/log/zigbee2mqtt}:/app/data/log
       #- /run/udev:/run/udev:ro

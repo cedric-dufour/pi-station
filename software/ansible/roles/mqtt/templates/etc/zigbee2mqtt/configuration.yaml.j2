@@ -17,33 +17,27 @@ mqtt:
 
 # Frontend; REF: https://www.zigbee2mqtt.io/guide/configuration/frontend.html
 {% if MQTT_ZIGBEE_FRONTEND_ENABLE | bool %}
-{% if MQTT_ZIGBEE_FRONTEND | length %}
 frontend:
-  {{ MQTT_ZIGBEE_FRONTEND | to_yaml(indent=2) | indent(width=2) }}
+  {{ MQTT_ZIGBEE_FRONTEND | combine({"enabled": true}) | to_yaml(indent=2) | indent(width=2) }}
 {% else %}
-frontend: true
-{% endif %}
-{% else %}
-frontend: false
+frontend:
+  enabled: false
 {% endif %}
 
 # Home Assistant; REF: https://www.zigbee2mqtt.io/guide/configuration/homeassistant.html
 {% if MQTT_ZIGBEE_HA_ENABLE | bool %}
-{% if MQTT_ZIGBEE_HA | length %}
 homeassistant:
-  {{ MQTT_ZIGBEE_HA | to_yaml(indent=2) | indent(width=2) }}
+  {{ MQTT_ZIGBEE_HA | combine({"enabled": true}) | to_yaml(indent=2) | indent(width=2) }}
 {% else %}
-homeassistant: true
-{% endif %}
-{% else %}
-homeassistant: false
+homeassistant:
+  enabled: false
 {% endif %}
 
 # Devices and Groups; https://www.zigbee2mqtt.io/guide/configuration/devices-groups.html
 permit_join: {{ MQTT_ZIGBEE_DEVICES_JOIN_ENABLE | bool | ternary('true', 'false') }}
 # (keep the devices and groups in a separate file)
-devices: devices.yaml
-groups: groups.yaml
+devices: [devices.yaml]
+groups: [groups.yaml]
 
 # Advanced; REFs:
 # - https://www.zigbee2mqtt.io/guide/configuration/zigbee-network.html

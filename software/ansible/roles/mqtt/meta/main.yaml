@@ -14,5 +14,6 @@ galaxy_info:
         - all
 
 # Dependencies
-dependencies:
-  - role: docker
+# (for information only; please call these dependencies in your playbook)
+#dependencies:
+#  - role: docker

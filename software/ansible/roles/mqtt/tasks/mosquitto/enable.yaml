@@ -24,7 +24,7 @@
     - mosquitto
     - configure
   template:
-    src: "mosquitto/mosquitto.conf.j2"
+    src: "etc/mosquitto/mosquitto.conf.j2"
     dest: "/etc/mosquitto/mosquitto.conf"
     owner: 1883  # as per Docker image
     group: 1883  # as per Docker image
@@ -36,7 +36,7 @@
     - mosquitto
     - configure
   template:
-    src: "mosquitto/users.j2"
+    src: "etc/mosquitto/users.j2"
     dest: "/etc/mosquitto/users"
     owner: 1883  # as per Docker image
     group: 1883  # as per Docker image

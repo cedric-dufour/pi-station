@@ -5,4 +5,5 @@
     - all
   roles:
     - mqtt
+    - docker
     - done

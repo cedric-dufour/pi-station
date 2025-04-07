@@ -3,4 +3,6 @@
 # REF: https://www.zigbee2mqtt.io/guide/configuration/devices-groups.html
 {% if MQTT_ZIGBEE_DEVICES | length %}
 {{ MQTT_ZIGBEE_DEVICES | to_yaml(indent=2) }}
+{% else %}
+{}
 {% endif %}
