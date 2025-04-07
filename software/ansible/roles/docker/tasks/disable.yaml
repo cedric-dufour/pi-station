@@ -82,6 +82,14 @@
     state: absent
     path: "/etc/systemd/system/docker-compose@.service"
 
+- name: "Unconfigure Docker (service)"
+  tags:
+    - docker
+    - configure
+  file:
+    state: absent
+    path: "/etc/systemd/system/docker.service.d"
+
 - name: "Uninstall Docker packages"
   tags:
     - docker

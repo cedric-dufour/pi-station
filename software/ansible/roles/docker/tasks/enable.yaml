@@ -41,8 +41,30 @@
     - docker
     - configure
   template:
-    src: "docker-daemon.json.j2"
+    src: "etc/docker/daemon.json.j2"
     dest: "/etc/docker/daemon.json"
+    owner: "root"
+    group: "root"
+    mode: 0o644
+
+- name: "Configure Docker (service) [1/2]"
+  tags:
+    - docker
+    - configure
+  file:
+    state: directory
+    path: "/etc/systemd/system/docker.service.d"
+    owner: "root"
+    group: "root"
+    mode: 0o755
+
+- name: "Configure Docker (service) [2/2]"
+  tags:
+    - docker
+    - configure
+  copy:
+    src: "etc/systemd/system/docker.service.d/after-time-sync.conf"
+    dest: "/etc/systemd/system/docker.service.d/after-time-sync.conf"
     owner: "root"
     group: "root"
     mode: 0o644
@@ -52,7 +74,7 @@
     - docker
     - install
   copy:
-    src: "docker-compose@.service"
+    src: "etc/systemd/system/docker-compose@.service"
     dest: "/etc/systemd/system/docker-compose@.service"
     owner: "root"
     group: "root"
@@ -170,6 +192,7 @@
   loop: "{{ docker_application_unit_enable.results }}"
   loop_control:
     label: "{{ item.stdout }}"
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: "Disable applications (docker-compose@.service) [1/2]"
   tags:
