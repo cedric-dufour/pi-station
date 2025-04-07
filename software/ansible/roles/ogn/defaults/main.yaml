@@ -23,6 +23,9 @@ OGN_DOWNLOAD_URL: "http://download.glidernet.org/{{ OGN_ARCHITECTURE | lower }}/
 # [ppm] "big" R820T sticks have 40-80ppm correction factors, measure it with gsm_scan
 OGN_CONF_RF_FREQCORR: "+0"
 
+# [MHz] 1.0 or 2.0MHz, a bit more CPU is needed to run 2MHz but if you want to capture PilotAware you need it
+OGN_CONF_RF_SAMPLERATE: "1.0"
+
 # [int] 0=Auto, 1=Manual, 2=Linearity, 3=Sensitivity
 OGN_CONF_RF_OGN_GAIN_MODE: "1"
 

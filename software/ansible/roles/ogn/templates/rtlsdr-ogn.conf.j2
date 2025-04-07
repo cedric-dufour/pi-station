@@ -8,6 +8,9 @@ RF:
   # [ppm] "big" R820T sticks have 40-80ppm correction factors, measure it with gsm_scan
   FreqCorr = {{ OGN_CONF_RF_FREQCORR }};
 
+  # [MHz] 1.0 or 2.0MHz, a bit more CPU is needed to run 2MHz but if you want to capture PilotAware you need it
+  SampleRate = {{ OGN_CONF_RF_SAMPLERATE }};
+
   # for OGN (FLARM) reception
   OGN:
   {
