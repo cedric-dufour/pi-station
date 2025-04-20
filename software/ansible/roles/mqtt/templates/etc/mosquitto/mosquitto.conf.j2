@@ -27,6 +27,15 @@ listener {{ listener }}
 {% endfor %}
 {% endfor %}
 
+# Global settings
+{% for key, value in (MQTT_MOSQUITTO_GLOBAL_DEFAULT | combine(MQTT_MOSQUITTO_GLOBAL, recursive=True) | dictsort) %}
+{% if value is boolean %}
+{{ key }} {{ value | ternary('true', 'false') }}
+{% else %}
+{{ key }} {{ value }}
+{% endif %}
+{% endfor %}
+
 # Persistence
 {% if MQTT_MOSQUITTO_PERSISTENCE_ENABLE | bool %}
 persistence true

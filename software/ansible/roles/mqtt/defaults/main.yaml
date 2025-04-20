@@ -24,6 +24,12 @@ MQTT_MOSQUITTO_SECURITY_USERS: {}  # {"user": "passwd", ...}
 MQTT_MOSQUITTO_LISTENERS:
   "1883 0.0.0.0": {}
 
+# Global settings
+MQTT_MOSQUITTO_GLOBAL_DEFAULT:
+  retain_available: true
+  retain_expiry_interval: 1440  # minutes (mosquitto >= 2.0.21)
+MQTT_MOSQUITTO_GLOBAL: {}
+
 # Persistence
 # NB: It is NOT recommended to enable MQTT data persistence (given the SD-card wearing out)
 MQTT_MOSQUITTO_PERSISTENCE_ENABLE: false
