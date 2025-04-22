@@ -30,6 +30,21 @@ DOCKER_COMPOSE_APPS:
 ```
 
 
+WARNING - Use a proper power supply!
+-----
+
+The power drawn by Zigbee adapters will lead to unstable operations of both
+Raspberry Pi and Zigbee if using a weak power supply; tell-tale signs will be:
+- `Undervoltage detected` messages in `dmesg`
+- `Adapter disconnected` messages in `Zigbee2MQTT`
+- Raspberry Pi reboots
+
+Be aware that phone chargers, even the ones capable of Quick/Fast Charge (with
+max. current rated well above 2.5A at 5V), do NOT necessarily provide a stable,
+uninterrupted 5V output at all time. It is thus HIGHLY recommended to use a
+Raspberry Pi-specific power supply (or a Sleepy Pi equivalent).
+
+
 WARNING - Incompatible kernel (>= 6.6)
 -----
 
