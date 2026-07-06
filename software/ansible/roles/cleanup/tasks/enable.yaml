@@ -10,6 +10,7 @@
     name:
       - python3
       - python3-apt
+      - gpg  # minimal install
       - deborphan
 
 - name: "Configure APT"
@@ -173,6 +174,7 @@
       - apt-utils
       - avahi-daemon
       - cifs-utils
+      - dirmngr
       - dmidecode
       - dphys-swapfile
       - dpkg-dev
@@ -180,6 +182,11 @@
       - fakeroot
       - fuse3
       - gdb
+      - gnupg  # overkill meta-package
+      - gnupg-utils
+      - gpgsm
+      - gpg-wks-client
+      - gpg-wks-server
       - iso-codes
       - mkvtoolnix
       - modemmanager
