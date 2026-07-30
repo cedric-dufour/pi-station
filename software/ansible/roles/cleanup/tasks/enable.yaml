@@ -8,9 +8,11 @@
   apt:
     state: present
     name:
+      - gpg
+      - lsb-release
       - python3
       - python3-apt
-      - deborphan
+      - python3-debian
 
 - name: "Configure APT"
   # Do not install recommended or translation packages
@@ -23,27 +25,6 @@
     owner: "root"
     group: "root"
     mode: 0644
-
-- name: "Lookup for Microsoft VS Code repository"
-  tags:
-    - cleanup
-    - apt
-    - vscode
-  stat:
-    path: "/etc/apt/sources.list.d/vscode.list"
-  register: cleanup_apt_vscode
-
-- name: "Disable Microsoft VS Code repository"
-  tags:
-    - cleanup
-    - apt
-    - vscode
-  lineinfile:
-    path: "/etc/apt/sources.list.d/vscode.list"
-    regexp: "^deb(.*)$"
-    line: "#deb\\1"
-    backrefs: true
-  when: cleanup_apt_vscode.stat.exists
 
 # Before any 'apt' task (which will need its hands free on APT/Dpkg locks)
 - name: "Wait for APT Daily lock"
@@ -173,14 +154,24 @@
       - apt-utils
       - avahi-daemon
       - cifs-utils
+      - cloud-guest-utils
+      - cloud-init
       - dmidecode
+      - dirmngr
       - dphys-swapfile
-      - dpkg-dev
       - eject
+      - exfatprogs
       - fakeroot
       - fuse3
       - gdb
+      - gnupg
+      - gnupg-l10n
+      - gnupg-utils
+      - gpg-agent
+      - gpg-wks-client
+      - gpgsm
       - iso-codes
+      - manpages-dev
       - mkvtoolnix
       - modemmanager
       - ncdu
@@ -188,7 +179,12 @@
       - ntfs-3g
       - p7zip
       - p7zip-full
+      - pastebinit
+      - publicsuffix
+      - rpi-cloud-init-mods
+      - rpi-connect-lite
       - shared-mime-info
+      - sq
       - ssh-import-id
       - strace
       - tasksel
@@ -206,7 +202,6 @@
     name:
       - man-db
       - manpages
-      - manpages-dev
   when: CLEANUP_DOCUMENTATION | bool
 
 - name: "Remove build packages"
@@ -221,10 +216,17 @@
       - build-essential
       - cpp
       - cpp-12
+      - cpp-13
+      - cpp-14
+      - dpkg-dev
       - g++
       - g++-12
+      - g++-13
+      - g++-14
       - gcc
       - gcc-12
+      - gcc-13
+      - gcc-14
       - make
   when: CLEANUP_BUILDUTILS | bool
 
@@ -261,6 +263,7 @@
   tags:
     - cleanup
     - packages
+    - deborphan
   include_tasks: "deborphan.yaml"
   when: CLEANUP_ORPHANS | bool
 

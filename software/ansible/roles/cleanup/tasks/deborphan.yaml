@@ -7,20 +7,22 @@
     - cleanup
     - deborphan
   shell: |
-    set -e -o pipefail
-    join -v 1 \
-    <(deborphan \
-        --guess-common \
-        --guess-data \
-        --guess-debug \
-        --guess-dev \
-        --guess-doc \
-        --guess-dummy \
-      | sort) \
-    <(apt-mark \
-        showmanual \
-      | sort)
-  register: deborphan
+    set -o pipefail
+    readarray -tu3 depends 3< <(
+      apt-cache depends --installed '*' \
+      | sed -nE 's#^.*Depends:\s+##p' \
+      | sort -u
+    )
+    readarray -tu3 candidates 3< <(
+      cat \
+      <(apt-mark showauto '^lib.*' '^python3?-.*' '.*-common$' '.*-data$' '.*-dbg$' '.*-dev$')\
+      <(apt-mark showmanual '^lib.*') \
+      | sort -u
+    )
+    join -v1 \
+    <(printf '%s\n' "${candidates[@]}") \
+    <(printf '%s\n' "${depends[@]}")
+  register: cleanup_deborphan
   changed_when: false
 
 - name: "Remove orphaned packages"
@@ -31,7 +33,7 @@
     state: absent
     purge: true
     autoremove: true
-    name: "{{ deborphan.stdout_lines }}"
+    name: "{{ cleanup_deborphan.stdout_lines }}"
   check_mode: false
 
 - name: "Cleanup orphaned packages: LOOP"
@@ -39,4 +41,4 @@
     - cleanup
     - deborphan
   include_tasks: "deborphan.yaml"
-  when: deborphan.stdout_lines | length
+  when: not ansible_check_mode and cleanup_deborphan.stdout_lines | length
