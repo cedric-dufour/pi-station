@@ -42,6 +42,14 @@ In order to configure the Pi Station with Ansible, you will need to:
 * make sure you have password-less - key-based - [SSH access](../README.md#ssh-access) to the
   Raspberry Pi
 
+* make sure you enable (at least temporarily) password-less sudo for the `pi` user
+  (this was the default up until Raspberry Pi OS 12):
+
+  ```  bash
+  echo 'pi ALL=(ALL) NOPASSWD: ALL' | sudo tee /etc/sudoers.d/010_pi-nopasswd
+  sudo chmod 440 /etc/sudoers.d/010_pi-nopasswd
+  ```
+
 * create your personal `inventory.yaml` inventory/preferences file - copy the `inventory.yaml.sample`
   one to get started - and make sure you list the _hostname(s)_ - e.g. `raspberrypi.example.org` -
   matching your Pi

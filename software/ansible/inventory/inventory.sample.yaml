@@ -17,8 +17,8 @@ all:
         raspios:
           # -> see ./group_vars/raspios.yaml
           children:
-            bookworm:
-              # -> see ./group_vars/bookworm.yaml
+            trixie:
+              # -> see ./group_vars/trixie.yaml
               hosts:
                 raspberrypi.example.org:
 
