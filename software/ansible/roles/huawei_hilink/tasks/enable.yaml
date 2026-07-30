@@ -11,7 +11,7 @@
     dest: "/etc/apt/preferences.d/huawei-hilink.pref"
     owner: "root"
     group: "root"
-    mode: 0644
+    mode: 0o0644
 
 # Adam Schubert (https://www.salamek.cz) APT repository
 # REF: https://repository.salamek.cz/
@@ -19,24 +19,34 @@
   tags:
     - huawei_hilink
     - install
-  apt_key:
-    url: "https://repository.salamek.cz/deb/salamek.gpg.key"
-    id: "8177FADDC92D9497E8DA12377FEA00A604652192"
+  get_url:
+    url: "https://repository.salamek.cz/deb/salamek.gpg"
+    dest: "/etc/apt/keyrings/salamek.gpg"
+    checksum: "sha256:f8401ed3b134c66af5301c81f1419e0027dff15dc907b1ebfde1fda67009f542"
+    owner: "root"
+    group: "root"
+    mode: 0o644
 
 - name: "Install Huawei HiLink repository"
   tags:
     - huawei_hilink
     - install
-  apt_repository:
-    filename: "huawei-hilink"
-    repo: "deb https://repository.salamek.cz/deb/pub all main"
+  deb822_repository:
+    name: "huawei-hilink"
+    types: "deb"
+    uris: "https://repository.salamek.cz/deb/pub"
+    signed_by: "/etc/apt/keyrings/salamek.gpg"
+    suites: "all"
+    components: "main"
+    architectures: "arm64"
+  register: huawei_hilink_deb822_repository
 
 - name: "Install Huawei HiLink packages"
   tags:
     - huawei_hilink
     - install
   apt:
-    state: present
+    update_cache: "{{ huawei_hilink_deb822_repository.changed }}"
     name:
       - python3-huawei-lte-api
   ignore_errors: "{{ ansible_check_mode }}"
@@ -89,28 +99,27 @@
     - huawei_hilink
     - configure
   stat:
-    path: "/usr/sbin/dhcpcd"
+    path: "/usr/lib/dhcpcd/dhcpcd-hooks"
   register: huawei_hilink_dhcpcd
 
-- name: "Configure Huawei HiLink interface (dhcpcd)"
+- name: "Configure Huawei HiLink DHCP hook (dhcpcd)"
   tags:
     - huawei_hilink
     - configure
   template:
     src: "huawei-hilink.dhcpcd.j2"
-    dest: "/etc/dhcpcd.d/huawei-hilink"
+    dest: "/usr/lib/dhcpcd/dhcpcd-hooks/90-huawei-hilink"
     owner: "root"
     group: "root"
     mode: 0644
   when: huawei_hilink_dhcpcd.stat.exists
-  notify: "Update DHCP Client Daemon configuration"
 
 - name: "Check whether NetworkManager is installed"
   tags:
     - huawei_hilink
     - configure
   stat:
-    path: "/usr/sbin/NetworkManager"
+    path: "/etc/NetworkManager/system-connections"
   register: huawei_hilink_network_manager
 
 - name: "Configure Huawei HiLink interface (NetworkManager)"
@@ -125,7 +134,7 @@
     mode: 0600
   when: huawei_hilink_network_manager.stat.exists
 
-- name: "Configure Huawei HiLink DHCP hook (dhclient)"
+- name: "Configure Huawei HiLink DHCP hook (NetworkManager)"
   tags:
     - huawei_hilink
     - configure
@@ -135,14 +144,4 @@
     owner: "root"
     group: "root"
     mode: 0644
-
-- name: "Configure Huawei HiLink DHCP hook (dhcpcd)"
-  tags:
-    - huawei_hilink
-    - configure
-  file:
-    state: link
-    src: "/etc/dhcp/dhclient-exit-hooks.d/huawei-hilink"
-    dest: "/lib/dhcpcd/dhcpcd-hooks/90-huawei-hilink"
-  when: huawei_hilink_dhcpcd.stat.exists
-  ignore_errors: "{{ ansible_check_mode }}"
+  when: huawei_hilink_network_manager.stat.exists

@@ -14,18 +14,17 @@
   tags:
     - huawei_hilink
     - install
-  apt_key:
+  file:
     state: absent
-    id: "8177FADDC92D9497E8DA12377FEA00A604652192"
+    dest: "/etc/apt/keyrings/salamek.gpg"
 
 - name: "Uninstall Huawei HiLink repository"
   tags:
     - huawei_hilink
     - install
-  apt_repository:
+  deb822_repository:
     state: absent
-    filename: "huawei-hilink"
-    repo: "deb https://repository.salamek.cz/deb/pub all main"
+    name: "huawei-hilink"
 
 - name: "Uninstall Huawei HiLink control script"
   tags:
@@ -51,16 +50,15 @@
     state: absent
     name: "/etc/udev/rules.d/80-huawei-hilink.rules"
 
-- name: "Unconfigure Huawei HiLink interface (dhcpcd)"
+- name: "Unconfigure Huawei HiLink DHCP hook (dhcpcd)"
   tags:
     - huawei_hilink
     - configure
   file:
     state: absent
-    name: "/etc/dhcpcd.d/huawei-hilink"
-  notify: "Update DHCP Client Daemon configuration"
+    name: "/usr/lib/dhcpcd/dhcpcd-hooks/90-huawei-hilink"
 
-- name: "Unconfigure Huawei HiLink DHCP hook (dhclient)"
+- name: "Unconfigure Huawei HiLink DHCP hook (NetworkManager)"
   tags:
     - huawei_hilink
     - configure
@@ -68,13 +66,13 @@
     state: absent
     name: "/etc/dhcp/dhclient-exit-hooks.d/huawei-hilink"
 
-- name: "Unconfigure Huawei HiLink DHCP hook (dhcpcd)"
+- name: "Unconfigure Huawei HiLink interface (NetworkManager)"
   tags:
     - huawei_hilink
     - configure
   file:
     state: absent
-    name: "/lib/dhcpcd/dhcpcd-hooks/90-huawei-hilink"
+    name: "/etc/NetworkManager/system-connections/huawei-hilink.nmconnection"
 
 - name: "Uninstall Huawei HiLink packages"
   tags:
