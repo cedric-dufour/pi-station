@@ -1,0 +1,14 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Timezone setup
+
+- name: "Configure timezone"
+  tags:
+    - timezone
+  template:
+    src: "timezone.j2"
+    dest: "/etc/timezone"
+    owner: "root"
+    group: "root"
+    mode: 0644
+  notify: "Timezone update"

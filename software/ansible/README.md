@@ -75,6 +75,8 @@ The following Roles are available to configure the Pi Station:
 
 * `hostname`: set the host name
 
+* `timezone`: set the time zone
+
 * `bash`: configure the command-line wickedly for the nerdy sysadmin you are
 
 * `ramoverlay`: setup a memory-based overlay over _specific_ well-known temporary directories (again,

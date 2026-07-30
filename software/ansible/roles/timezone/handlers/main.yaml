@@ -1,0 +1,10 @@
+---
+#  -*- mode:yaml; tab-width:2; intent-tabs-mode:nil; -*- ex: set filetype=yaml tabstop=2 expandtab:
+## Handlers
+
+- name: "Timezone update"
+  tags:
+    - timezone
+  command:
+    cmd: "timedatectl set-timezone {{ TIMEZONE_NAME }}"
+  changed_when: false

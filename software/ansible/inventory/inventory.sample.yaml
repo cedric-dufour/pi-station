@@ -41,6 +41,9 @@ all:
     #HOSTNAME_NAME: "raspberrypi"
     #HOSTNAME_DOMAIN: ""
 
+    # ... timezone
+    #TIMEZONE_NAME: "Europe/Zurich"
+
     # ... bash
     #BASH_ENABLE: true
 

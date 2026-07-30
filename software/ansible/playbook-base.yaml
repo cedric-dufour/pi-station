@@ -5,6 +5,7 @@
     - all
   roles:
     - hostname
+    - timezone
     - bash
     - ramoverlay
     - ipv6
