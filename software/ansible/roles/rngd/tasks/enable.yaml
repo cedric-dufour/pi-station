@@ -20,3 +20,4 @@
     regexp: "--stats-interval="
     line: "RNGDOPTIONS=\"${RNGDOPTIONS=:+${RNGDOPTIONS} }--stats-interval={{ RNGD_STATS_INTERVAL }}\""
   notify: "Restart Random Number Generator (RNG) Daemon service (reload configuration)"
+  ignore_errors: "{{ ansible_check_mode }}"
