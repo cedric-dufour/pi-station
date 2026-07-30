@@ -1,8 +1,8 @@
 Raspberry Pi Station - Software
 ===============================
 
-**WARNING: The Raspberry Pi Station is installed with the [Raspberry PI OS _64-bit_](https://www.raspberrypi.com/news/raspberry-pi-os-64-bit/),
-which requires a Raspberry PI 3 (or above)**
+**WARNING: The Raspberry Pi Station is installed with the [Raspberry Pi OS _64-bit_](https://www.raspberrypi.com/news/raspberry-pi-os-64-bit/),
+which requires a Raspberry Pi 3 (or above)**
 
 Download and Install the OS
 ---------------------------

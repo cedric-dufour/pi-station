@@ -117,7 +117,7 @@ The following Roles are available to configure the Pi Station:
 * `reboot`: schedule regular reboot
 
 * `i2c`: setup the I2C bus (hardware and software dependencies).
-  **WARNING:** Raspberry PI OS 11 (Bullseye, 64-bit) introduced some change that requires
+  **WARNING:** Raspberry Pi OS 11 (Bullseye, 64-bit) introduced some change that requires
   to set an artifically low I2C clock frequency (especially along the Sleepy Pi);
   as **workaround**, in your `inventory.yaml`:
 
