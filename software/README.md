@@ -14,8 +14,15 @@ On a workstation/laptop:
 
 ``` bash
 # Download
-wget https://downloads.raspberrypi.com/raspios_lite_arm64/images/raspios_lite_arm64-2024-11-19/2024-11-19-raspios-bookworm-arm64-lite.img.xz
-ln -s 2024-11-19-raspios-bookworm-arm64-lite.img.xz raspios.img.xz
+wget https://downloads.raspberrypi.com/raspios_lite_arm64/images/raspios_lite_arm64-2026-06-19/2026-06-18-raspios-trixie-arm64-lite.img.xz
+ln -s 2026-06-18-raspios-trixie-arm64-lite.img.xz raspios.img.xz
+
+# Verify the image integrity
+sha256sum -c <<EOF
+acff736ca7945e3b305f07cda4abdb870910e12634991da69783611756e381b3  2026-06-18-raspios-trixie-arm64-lite.img.xz
+EOF
+# [output]
+# 2026-06-18-raspios-trixie-arm64-lite.img.xz: OK
 ```
 
 * Insert the SD card and mark its device identifier (`sdX`):
@@ -39,7 +46,7 @@ sudo dmesg | tail -n 25
 # Install the image to the SD card
 xzcat raspios.img.xz | sudo dd of=/dev/sdX bs=4M status=progress
 # [output]
-#2768240640 bytes (2.8 GB, 2.6 GiB) copied, 44.0475 s, 62.8 MB/s
+#2977955840 bytes (3.0 GB, 2.8 GiB) copied, 39.6348 s, 75.1 MB/s
 ```
 
 [rpi-os-download]: https://www.raspberrypi.com/software/operating-systems/
@@ -57,7 +64,7 @@ Bootstrap
   - choose your keyboard layout
   - specify the Raspberry Pi's username and password (e.g. `pi`/`raspberry`)
 
-* Configure the WLAN connection:
+* Configure the WLAN connection (if not using Ethernet):
 
 ``` bash
 # Start the Raspberry Pi configuration utility
@@ -70,14 +77,6 @@ sudo raspi-config
 ip addr show dev wlan0
 # [output]
 #inet 192.168.1.101/24 brd 192.168.1.255 scope global dynamic noprefixroute wlan0
-```
-
-* Configure the timezone:
-
-``` bash
-# Change the timezone
-# (recommended: UTC)
-sudo dpkg-reconfigure tzdata
 ```
 
 SSH Access
