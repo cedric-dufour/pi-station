@@ -3,14 +3,14 @@ set -e -o pipefail
 SCRIPT="${0##*/}"
 # shellcheck disable=SC2034
 SCRIPT_DIR="$(dirname "$(realpath -e "${0}")")"
-VERSION='1.0.20241207a'
+VERSION='1.0.20260725a'
 trap 'echo "ERROR[${SCRIPT}]: Internal error" >&2' ERR
 
 
 ## Defaults
-: "${PI_STATION_IMG_URL:=https://downloads.raspberrypi.com/raspios_lite_arm64/images/raspios_lite_arm64-2024-11-19/2024-11-19-raspios-bookworm-arm64-lite.img.xz}"
-: "${PI_STATION_IMG_HASH:=6ac3a10a1f144c7e9d1f8e568d75ca809288280a593eb6ca053e49b539f465a4}"
-: "${PI_STATION_QEMU_DIR:=${SCRIPT_DIR}/data}"
+: "${PI_STATION_IMG_URL:=https://downloads.raspberrypi.com/raspios_lite_arm64/images/raspios_lite_arm64-2026-06-19/2026-06-18-raspios-trixie-arm64-lite.img.xz}"
+: "${PI_STATION_IMG_HASH:=acff736ca7945e3b305f07cda4abdb870910e12634991da69783611756e381b3}"
+: "${PI_STATION_QEMU_DIR:=./qemu-raspi3b.data}"
 : "${PI_STATION_QEMU_VNC:=127.0.0.1:0}"
 : "${PI_STATION_QEMU_SSH:=2222}"
 
@@ -23,8 +23,11 @@ __USAGE() {
 USAGE: ${SCRIPT} [<options>]
 
 SYNOPSIS:
-  Launch the 64-bit Raspberry PI QEMU emulation (aarch64/raspi3b) after
-  downloading and preparing the Raspberry PI OS image accordingly.
+  Launch the 64-bit Raspberry Pi QEMU emulation (aarch64/raspi3b) after
+  downloading and preparing the Raspberry Pi OS image accordingly.
+
+  REQUIRES sudo privileges (to mount the Raspberry Pi image and extract
+  its kernel/DTB).
 
 OPTIONS:
   -h, --help
@@ -33,6 +36,8 @@ OPTIONS:
     Display this script version and exit
   --verbose, --silent
     Increase or decrease verbosity
+  --inspect
+    Allow to inspect the Rapsberry Pi image once mounted
 EOF
 }
 
@@ -91,6 +96,9 @@ while [ -n "${1}" ]; do
     '--silent')
       OPT_SILENT='yes'; OPT_VERBOSE=
       ;;
+    '--inspect')
+      OPT_INSPECT='yes'
+      ;;
     -*)
       __ERROR "Invalid option (${1})" 1
       ;;
@@ -100,6 +108,9 @@ while [ -n "${1}" ]; do
   esac
   shift
 done
+if [ -n "${OPT_INSPECT}" ]; then
+  set +e
+fi
 
 
 ## Main
@@ -109,25 +120,25 @@ mkdir -p "${PI_STATION_QEMU_DIR}"
 
 # Download image
 download="${PI_STATION_QEMU_DIR}/${PI_STATION_IMG_URL##*/}"
-if [ -e "${download}" ] && __PROMPT "The Raspberry PI OS image download already exists (${download##*/}); do you want to replace it"; then
+if [ -e "${download}" ] && __PROMPT "The Raspberry Pi OS image download already exists (${download##*/}); do you want to replace it"; then
   rm -f "${download}"
 fi
 if [ ! -e "${download}" ]; then
-  __NOTICE "Downloading Raspberry PI OS image (${PI_STATION_IMG_URL})"
+  __NOTICE "Downloading Raspberry Pi OS image (${PI_STATION_IMG_URL})"
   wget "${PI_STATION_IMG_URL}" -O "${download}"
   if ! echo "${PI_STATION_IMG_HASH}  ${download}" | sha256sum --quiet --check; then
     rm -f "${download}"
-    __ERROR "Failed to verify Raspberry PI OS image hash (${PI_STATION_IMG_HASH})" 1
+    __ERROR "Failed to verify Raspberry Pi OS image hash (${PI_STATION_IMG_HASH})" 1
   fi
 fi
 
 # Create image
 image="${PI_STATION_QEMU_DIR}/raspi3b.img"
-if [ -e "${image}" ] && __PROMPT "The Raspberry PI OS image already exists (${image##*/}); do you want to replace it"; then
+if [ -e "${image}" ] && __PROMPT "The Raspberry Pi OS image already exists (${image##*/}); do you want to (sudo-)replace it"; then
   rm -f "${image}"
 fi
 if [ ! -e "${image}" ]; then
-  __NOTICE "Creating the Raspberry PI OS image"
+  __NOTICE "Creating the Raspberry Pi OS image"
   extension="${PI_STATION_IMG_URL##*.}"
   case "${extension}" in
     'xz') xzcat "${download}" > "${image}";;
@@ -137,15 +148,57 @@ if [ ! -e "${image}" ]; then
     *) __ERROR "Unsupported image format (${extension})" 1;;
   esac
   qemu-img resize -f raw "${image}" 8G  # Or QEMU will complain about SD card size
+
+  __INFO "Mounting the Raspberry Pi OS root partition"
+  mountpoint="${PI_STATION_QEMU_DIR}/raspi3b.mnt"
+  mkdir -p "${mountpoint}"
+  devloop="$(sudo losetup --show -Pf "${image}")"
+  # shellcheck disable=SC2064
+  trap "sudo losetup -d '${devloop}'" EXIT
+  sudo mount "${devloop}p2" "${mountpoint}"
+  # shellcheck disable=SC2064
+  trap "sudo umount '${mountpoint}'; sudo losetup -d '${devloop}'" EXIT
+
+  # BUG: "mkinitramfs: failed to determine device for /"
+  # QUIRK: Enable most filesystems modules in initramfs
+  __NOTICE "Configuring initramfs to use most filesystems modules"
+  sudo sed -i -E 's|^MODULES=.*|MODULES=most|' /etc/initramfs-tools/initramfs.conf
+
+  # BUG: https://forums.raspberrypi.com/viewtopic.php?t=399519
+  # QUIRK: Explicitly mange the UBS network device using ifupdown
+  __NOTICE "Configuring NetworkManager to manage legacy (ifupdown) interfaces"
+  cat <<EOF | sudo tee "${mountpoint}/etc/NetworkManager/NetworkManager.conf"
+[main]
+plugins=ifupdown,keyfile
+
+[ifupdown]
+managed=true
+EOF
+  __NOTICE "Configuring USB0 (ifupdown) interface (DHCP <-> QEMU Slirp)"
+  cat <<EOF | sudo tee "${mountpoint}/etc/network/interfaces"
+auto usb0
+iface usb0 inet dhcp
+EOF
+
+  if [ -n "${OPT_INSPECT}" ]; then
+    __NOTICE "The Raspberry Pi OS root partition is mounted at: ${mountpoint}"
+    __NOTICE "PRESS <ENTER> ONCE DONE INSPECTING IT"
+    read -r
+  fi
+
+  __INFO "Unmounting the Raspberry Pi OS root partition"
+  sudo umount "${mountpoint}"
+  sudo losetup -d "${devloop}"
+  trap EXIT
 fi
 
 # Prepare QEMU boot
 qemudir="${PI_STATION_QEMU_DIR}/raspi3b.qemu"
-if [ -e "${qemudir}" ] && __PROMPT "The Raspberry PI OS QEMU boot directory already exists (${qemudir##*/}); do you want to (sudo-)replace it"; then
+if [ -e "${qemudir}" ] && __PROMPT "The Raspberry Pi OS QEMU boot directory already exists (${qemudir##*/}); do you want to (sudo-)replace it"; then
   rm -rf "${qemudir}"
 fi
 if [ ! -e "${qemudir}" ]; then
-  __INFO "Mounting the Raspberry PI OS boot partition"
+  __INFO "Mounting the Raspberry Pi OS boot partition"
   mountpoint="${PI_STATION_QEMU_DIR}/raspi3b.mnt"
   mkdir -p "${mountpoint}"
   devloop="$(sudo losetup --show -Pf "${image}")"
@@ -155,13 +208,13 @@ if [ ! -e "${qemudir}" ]; then
   # shellcheck disable=SC2064
   trap "sudo umount '${mountpoint}'; sudo losetup -d '${devloop}'" EXIT
 
-  if grep -qE '(serial0|quiet)' "${mountpoint}/cmdline.txt"; then
-    __NOTICE "Fine-tuning the Raspberry PI OS boot configuration: kernel parameters"
+  if sudo grep -qE '(serial0|quiet)' "${mountpoint}/cmdline.txt"; then
+    __NOTICE "Fine-tuning the Raspberry Pi OS boot configuration: kernel parameters"
     sudo sed -i -E 's|serial0\S*|ttyAMA0|;s|\s+quiet||' "${mountpoint}/cmdline.txt"
   fi
 
   if [ ! -e "${mountpoint}/userconf.txt" ]; then
-    __NOTICE "Fine-tuning the Raspberry PI OS boot configuration: user"
+    __NOTICE "Fine-tuning the Raspberry Pi OS boot configuration: user"
     password=
     password_confirm='yes'
     while [ "${password}" != "${password_confirm}" ]; do
@@ -175,24 +228,25 @@ if [ ! -e "${qemudir}" ]; then
     sudo touch "${mountpoint}/ssh"
   fi
 
-  __NOTICE "Extracting the Raspberry PI OS kernel and DTB"
+  __NOTICE "Extracting the Raspberry Pi OS kernel and DTB"
   mkdir -p "${qemudir}"
   for f in kernel8.img bcm2710-rpi-3-b-plus.dtb cmdline.txt; do
-    cp -v "${mountpoint}/${f}" "${qemudir}/${f}"
+    sudo cp -v "${mountpoint}/${f}" "${qemudir}/${f}"
+    sudo chmod o+r "${qemudir}/${f}"
   done
 
-  __INFO "Unmounting the Raspberry PI OS boot partition"
+  if [ -n "${OPT_INSPECT}" ]; then
+    __NOTICE "The Raspberry Pi OS boot partition is mounted at: ${mountpoint}"
+    __NOTICE "PRESS <ENTER> ONCE DONE INSPECTING IT"
+    read -r
+  fi
+
+  __INFO "Unmounting the Raspberry Pi OS boot partition"
   sudo umount "${mountpoint}"
   sudo losetup -d "${devloop}"
   trap EXIT
 fi
-firstboot=
 cmdline="$(cat "${qemudir}/cmdline.txt")"
-if [[ ${cmdline} =~ firstboot ]]; then
-  __WARNING "This is the first time this Raspiberry PI OS image boots:"
-  __WARNING "Once initialized, the QEMU boot directory will be updated (re-created)"
-  firstboot='yes'
-fi
 
 # Selecting the DTB
 dtbdir="${SCRIPT_DIR}/dtb"
@@ -205,14 +259,17 @@ if [ ! -e "${qemudir}/raspi3b.dtb" ]; then
 fi
 
 # Launching the QEMU-lation
-# NB: -no-reboot is required:
-#     1. to avoid kernel panic on first reboot
-#     2. have host (SSH) port forwarding (almost) always work (QEMU BUG ?)
-__PROMPT "Skip launching the Raspberry PI OS QEMU-lation now" && exit
-__NOTICE "Launching the Rapsberry PI OS QEMU-lation; you may now:"
+# NB:
+# * -no-reboot is required:
+#   - to avoid kernel panic on first reboot
+#   - have host (SSH) port forwarding (almost) always work (QEMU BUG ?)
+# * systemd.watchdog_device=/dev/null is required:
+#   - to disable systemd watchdog, which kills the (QEMU) boot process early on
+__NOTICE "About to launch the Rapsberry Pi OS QEMU-lation; you may:"
 __NOTICE "- use <CTRL+A>+<C> to enter the QEMU prompt"
 __NOTICE "- use VNC to access the console; e.g. gvncviewer 127.0.0.1:${PI_STATION_QEMU_VNC##*:}"
 __NOTICE "- use SSH to access the command prompt; e.g. ssh -p ${PI_STATION_QEMU_SSH} pi@127.0.0.1"
+__PROMPT "Skip launching the Raspberry Pi OS QEMU-lation now" && exit
 qemu-system-aarch64 \
   -M raspi3b \
   -no-reboot \
@@ -220,7 +277,7 @@ qemu-system-aarch64 \
   -m 1024 \
   -dtb "${qemudir}/raspi3b.dtb" \
   -kernel "${qemudir}/kernel8.img" \
-  -append "${cmdline} dwc_otg.lpm_enable=0" \
+  -append "${cmdline} dwc_otg.lpm_enable=0 systemd.watchdog_device=/dev/null" \
   -drive if=sd,file="${PI_STATION_QEMU_DIR}/raspi3b.img",format=raw \
   -device usb-kbd \
   -device usb-net,netdev=net0 \
@@ -228,6 +285,3 @@ qemu-system-aarch64 \
   -serial mon:stdio \
   -vnc "${PI_STATION_QEMU_VNC}" \
 || true
-if [ -n "${firstboot}" ]; then
-  rm -rf "${qemudir}"
-fi

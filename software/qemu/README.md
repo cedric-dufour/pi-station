@@ -15,7 +15,7 @@ sudo apt-get install qemu-system-arm
 How-to
 ------
 
-Emulating the Raspberry PI with QEMU requires to:
+Emulating the Raspberry Pi with QEMU requires to:
 
 * Download the latest Raspberry Pi OS version - **Lite** edition - from the
   [Raspberry Pi OS download][rpi-os-download]
@@ -33,24 +33,24 @@ Emulating the Raspberry PI with QEMU requires to:
 All of it being handily automated in the [qemu-raspi3b](./qemu-raspi3b) script:
 
 ``` bash
-# Emulate the Raspberry PI with QEMU
+# Emulate the Raspberry Pi with QEMU
 ./qemu-raspi3b
 # [output]
-#NOTICE[qemu-raspi3b]: Downloading Raspberry PI OS image
+#NOTICE[qemu-raspi3b]: Downloading Raspberry Pi OS image
 #Saving to: ‘./data/2024-03-15-raspios-bookworm-arm64-lite.img.xz’
 #2024-03-15-raspios-bookworm-arm64-lite.img.xz’ saved [434372360/434372360]
-#NOTICE[qemu-raspi3b]: Creating the Raspberry PI OS image
-#NOTICE[qemu-raspi3b]: Mounting the Raspberry PI OS boot partition
-#NOTICE[qemu-raspi3b]: Fine-tuning the Raspberry PI OS boot configuration: kernel parameters
-#NOTICE[qemu-raspi3b]: Fine-tuning the Raspberry PI OS boot configuration: hardware configuration
-#NOTICE[qemu-raspi3b]: Fine-tuning the Raspberry PI OS boot configuration: user
-#NOTICE[qemu-raspi3b]: Extracting the Raspberry PI OS kernel and DTB
-#NOTICE[qemu-raspi3b]: Unmounting the Raspberry PI OS boot partition
-#WARNING[qemu-raspi3b]: This is the first time this Raspiberry PI OS image boots:
+#NOTICE[qemu-raspi3b]: Creating the Raspberry Pi OS image
+#NOTICE[qemu-raspi3b]: Mounting the Raspberry Pi OS boot partition
+#NOTICE[qemu-raspi3b]: Fine-tuning the Raspberry Pi OS boot configuration: kernel parameters
+#NOTICE[qemu-raspi3b]: Fine-tuning the Raspberry Pi OS boot configuration: hardware configuration
+#NOTICE[qemu-raspi3b]: Fine-tuning the Raspberry Pi OS boot configuration: user
+#NOTICE[qemu-raspi3b]: Extracting the Raspberry Pi OS kernel and DTB
+#NOTICE[qemu-raspi3b]: Unmounting the Raspberry Pi OS boot partition
+#WARNING[qemu-raspi3b]: This is the first time this Raspiberry Pi OS image boots:
 #WARNING[qemu-raspi3b]: Once initialized, the QEMU boot directory will be updated (re-created)
 #PROMPT[qemu-raspi3b] Use the stock DTB (instead of the QEMU-specific one) [yes/No] ?
-#PROMPT[qemu-raspi3b] Skip launching the Raspberry PI OS QEMU-lation now [yes/No] ?
-#NOTICE[qemu-raspi3b]: Launching the Rapsberry PI OS QEMU-lation; you may now:
+#PROMPT[qemu-raspi3b] Skip launching the Raspberry Pi OS QEMU-lation now [yes/No] ?
+#NOTICE[qemu-raspi3b]: Launching the Rapsberry Pi OS QEMU-lation; you may now:
 #NOTICE[qemu-raspi3b]: - use <CTRL+A>+<C> to enter the QEMU prompt
 #NOTICE[qemu-raspi3b]: - use VNC to access the console; e.g. gvncviewer 127.0.0.1:0
 #NOTICE[qemu-raspi3b]: - use SSH to access the command prompt; e.g. ssh -p 2222 pi@127.0.0.1
@@ -68,8 +68,8 @@ In order to have the console output redirected to the serial line (QEMU's `-seri
 compile a customized DTB, which disables Bluetooth and enables the (QEMU-lated) Broadcom 2835 UART0
 serial hardware. Have a look in the `dtb` sub-directory.
 
-This customized DTB is most easily compiled _in the (QEMU-lated) Raspberry PI_ itself, using the
-`dtmerge` tool (included in the Raspberry PI OS image):
+This customized DTB is most easily compiled _in the (QEMU-lated) Raspberry Pi_ itself, using the
+`dtmerge` tool (included in the Raspberry Pi OS image):
 
 ``` bash
 # Compile a customized DTB
