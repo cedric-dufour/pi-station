@@ -19,15 +19,22 @@
   tags:
     - docker
     - configure
-  apt_repository:
-    filename: "docker"
-    repo: "deb [arch=arm64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian {{ ansible_facts['distribution_release'] }} stable"
+  deb822_repository:
+    name: "docker"
+    types: "deb"
+    uris: "https://download.docker.com/linux/debian"
+    signed_by: "/etc/apt/keyrings/docker.asc"
+    suites: "{{ ansible_facts['distribution_release'] }}"
+    components: "stable"
+    architectures: "arm64"
+  register: docker_deb822_repository
 
 - name: "Install Docker packages"
   tags:
     - docker
     - install
   apt:
+    update_cache: "{{ docker_deb822_repository.changed }}"
     name:
       - "containerd.io"
       - "docker-ce"
