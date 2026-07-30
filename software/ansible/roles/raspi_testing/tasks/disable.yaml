@@ -14,7 +14,6 @@
   tags:
     - raspi_testing
     - install
-  apt_repository:
+  deb822_repository:
     state: absent
-    filename: "raspi-testing"
-    repo: "deb http://raspbian.raspberrypi.org/raspbian/ testing main contrib non-free rpi"
+    name: "raspi-testing"

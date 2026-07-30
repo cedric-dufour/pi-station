@@ -17,6 +17,14 @@
   tags:
     - raspi_testing
     - install
-  apt_repository:
-    filename: "raspi-testing"
-    repo: "deb http://raspbian.raspberrypi.org/raspbian/ bookworm main contrib non-free rpi"
+  deb822_repository:
+    name: "raspi-testing"
+    types: "deb"
+    uris: "http://raspbian.raspberrypi.org/raspbian/"
+    suites: "testing"
+    components:
+      - "main"
+      - "contrib"
+      - "non-free"
+      - "rpi"
+    architectures: "arm64"
