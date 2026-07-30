@@ -1,15 +1,17 @@
 #!/bin/bash
-set -e
 SELF_DIR="$(realpath -e "$(dirname "${0}")")"
 SRC_DIR="$(dirname "${SELF_DIR}")"
-cd "${SRC_DIR}"
+cd "${SRC_DIR}" || exit
 
 ## Lint
+rc=0
 
 # YAML
+echo "Linting YAML files"
 find . -type f -not -name '*.j2' \( -name '*.yaml' -o -exec sed -n '1,1{/^---$/Q0};Q1' {} \; \) -print0 |
-  sort -z | xargs -r0 yamllint --config-file "${SELF_DIR}/yamllint.yaml"
+  sort -z | xargs -r0 yamllint --config-file "${SELF_DIR}/yamllint.yaml" || rc=1
 # (Jinja2)
+echo "Linting Jinja-templated YAML files"
 while read -r file; do
   sed -E '
     /^\s*\{%\s*else\s*%\}\s*$/,/^\s*\{%\s*endif\s*%\}\s*$/d;
@@ -17,16 +19,21 @@ while read -r file; do
     s/\{%\s*(if[^}]+|else|endif)\s*%\}//g;
     s/(^|[^"])(\{\{.*\}\})([^"]|$)/\1"\2"\3/g
   ' "${file}" |
-    yamllint --config-file "${SELF_DIR}/yamllint.yaml" -
+    yamllint --config-file "${SELF_DIR}/yamllint.yaml" - || { echo "stdin is ${file}"; rc=1; }
 done < <(
   find . -type f -name '*.j2' \( -name '*.yaml.j2' -o -exec sed -n '1,1{/^---$/Q0};Q1' {} \; \) -print |
   sort
 )
 
 # Ansible
+echo "Linting Ansible files"
 find ./ansible -type f -not -path '*/files/*' -not -path '*/templates/*' \( -name '*.yaml' -o -exec sed -n '1,1{/^---$/Q0};Q1' {} \; \) -print0 |
-  sort -z | xargs -r0 ansible-lint -q --config-file "${SELF_DIR}/ansible-lint.yaml"
+  sort -z | xargs -r0 ansible-lint -q --config-file "${SELF_DIR}/ansible-lint.yaml" || rc=1
 
 # Python
+echo "Linting Python files"
 find . -type f \( -name '*.py' -o -exec sed -n '1,1{/^#!.*python/Q0};Q1' {} \; \) -print0 |
-  sort -z | xargs -r0 flake8 --config "${SELF_DIR}/flake8.toml"
+  sort -z | xargs -r0 flake8 --config "${SELF_DIR}/flake8.toml" || rc=1
+
+## Done
+exit $rc
